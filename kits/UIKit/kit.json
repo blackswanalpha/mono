@@ -1,0 +1,8 @@
+{
+  "name": "UIKit",
+  "version": "1.0.0",
+  "description": "A collection of UI components for Mono",
+  "components": {},
+  "tools": {},
+  "dependencies": {}
+}

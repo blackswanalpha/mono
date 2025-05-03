@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background circle -->
+  <circle cx="100" cy="100" r="90" fill="#3498db" />
+  
+  <!-- Inner circle -->
+  <circle cx="100" cy="100" r="70" fill="#2980b9" />
+  
+  <!-- Letter M -->
+  <path d="M60,70 L75,70 L90,100 L105,70 L120,70 L120,130 L105,130 L105,90 L90,120 L75,90 L75,130 L60,130 Z" fill="white" />
+  
+  <!-- Brackets representing code -->
+  <path d="M140,70 L150,70 L150,130 L140,130 Z" fill="white" />
+  <path d="M50,70 L40,70 L40,130 L50,130 Z" fill="white" />
+</svg>

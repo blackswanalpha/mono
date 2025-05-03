@@ -1,0 +1,157 @@
+//  __  __                   
+// |  \/  | ___  _ __   ___  
+// | |\/| |/ _ \| '_ \ / _ \ 
+// | |  | | (_) | | | | (_) |
+// |_|  |_|\___/|_| |_|\___/ 
+//
+// Todo App - A simple task management application
+
+component TodoItem {
+    state {
+        id: number;
+        title: string;
+        completed: boolean = false;
+        createdAt: string;
+    }
+    
+    function constructor(id: number, title: string) {
+        this.id = id;
+        this.title = title;
+        this.createdAt = new Date().toISOString();
+    }
+    
+    function toggle() {
+        this.completed = !this.completed;
+    }
+    
+    function toString(): string {
+        var status = this.completed ? "[X]" : "[ ]";
+        return status + " " + this.id + ": " + this.title;
+    }
+}
+
+component TodoList {
+    state {
+        items: TodoItem[] = [];
+        nextId: number = 1;
+    }
+    
+    function addItem(title: string): TodoItem {
+        var item = new TodoItem(this.nextId, title);
+        this.items.push(item);
+        this.nextId++;
+        return item;
+    }
+    
+    function removeItem(id: number): boolean {
+        for (var i = 0; i < this.items.length; i++) {
+            if (this.items[i].id == id) {
+                this.items.splice(i, 1);
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    function toggleItem(id: number): boolean {
+        for (var i = 0; i < this.items.length; i++) {
+            if (this.items[i].id == id) {
+                this.items[i].toggle();
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    function getCompletedItems(): TodoItem[] {
+        var completed = [];
+        for (var i = 0; i < this.items.length; i++) {
+            if (this.items[i].completed) {
+                completed.push(this.items[i]);
+            }
+        }
+        return completed;
+    }
+    
+    function getPendingItems(): TodoItem[] {
+        var pending = [];
+        for (var i = 0; i < this.items.length; i++) {
+            if (!this.items[i].completed) {
+                pending.push(this.items[i]);
+            }
+        }
+        return pending;
+    }
+    
+    function displayList() {
+        if (this.items.length == 0) {
+            print "No items in the list.";
+            return;
+        }
+        
+        print "Todo List:";
+        print "----------";
+        for (var i = 0; i < this.items.length; i++) {
+            print this.items[i].toString();
+        }
+    }
+}
+
+component TodoApp {
+    state {
+        todoList: TodoList = new TodoList();
+    }
+    
+    function run() {
+        print "Todo App Demo";
+        print "-------------";
+        
+        // Add some items
+        this.todoList.addItem("Learn Mono basics");
+        this.todoList.addItem("Create a simple app");
+        this.todoList.addItem("Build a complex project");
+        this.todoList.addItem("Share with the community");
+        
+        // Display initial list
+        print "\nInitial Todo List:";
+        this.todoList.displayList();
+        
+        // Complete some items
+        print "\nCompleting 'Learn Mono basics' and 'Create a simple app'...";
+        this.todoList.toggleItem(1);
+        this.todoList.toggleItem(2);
+        
+        // Display updated list
+        print "\nUpdated Todo List:";
+        this.todoList.displayList();
+        
+        // Show completed items
+        print "\nCompleted Items:";
+        var completed = this.todoList.getCompletedItems();
+        for (var i = 0; i < completed.length; i++) {
+            print completed[i].toString();
+        }
+        
+        // Show pending items
+        print "\nPending Items:";
+        var pending = this.todoList.getPendingItems();
+        for (var i = 0; i < pending.length; i++) {
+            print pending[i].toString();
+        }
+        
+        // Remove an item
+        print "\nRemoving 'Share with the community'...";
+        this.todoList.removeItem(4);
+        
+        // Display final list
+        print "\nFinal Todo List:";
+        this.todoList.displayList();
+    }
+}
+
+component Main {
+    function start() {
+        var app = new TodoApp();
+        app.run();
+    }
+}

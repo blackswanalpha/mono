@@ -1,0 +1,358 @@
+#!/usr/bin/env python3
+
+"""
+Mono Package Manager - Command-line tool for the Mono package manager
+
+This script provides a command-line interface for the Mono package manager,
+allowing users to install, publish, and manage packages.
+"""
+
+import os
+import sys
+import argparse
+import json
+from typing import Dict, List, Any, Optional
+
+# Add the parent directory to the Python path
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from lib.mono_packages import (
+    Package, PackageComponent, PackageDependency, PackageRegistry,
+    PackageParser, DependencyResolver, SecurityScanner, LicenseChecker,
+    PackageManager
+)
+
+def create_package(args):
+    """Create a new package."""
+    manager = PackageManager(args.registry_dir)
+    package = manager.create_package(args.name, args.version, args.description)
+    
+    # Save to file
+    if args.output:
+        output_file = args.output
+    else:
+        output_file = f"{args.name}.pkg"
+    
+    with open(output_file, "w") as f:
+        f.write(f"""package {args.name} version {args.version} {{
+    description "{args.description}"
+    author "{args.author}"
+    license "{args.license}"
+    
+    components {{
+        // Add your components here
+        // Example: MyComponent from "components/my_component.mono" as "My component description"
+    }}
+    
+    dependencies {{
+        // Add your dependencies here
+        // Example: SomePackage version ^1.0.0
+    }}
+    
+    dev_dependencies {{
+        // Add your development dependencies here
+        // Example: TestFramework version ^2.0.0
+    }}
+}}
+""")
+    
+    print(f"Created package definition file: {output_file}")
+    return True
+
+def install_package(args):
+    """Install a package."""
+    manager = PackageManager(args.registry_dir)
+    
+    if args.file:
+        # Install from file
+        parser = PackageParser(manager.registry)
+        try:
+            package = parser.parse_file(args.file)
+            success = manager.publish_package(package)
+            if success:
+                print(f"Installed package {package.name}@{package.version} from file")
+                return True
+            else:
+                print(f"Failed to install package from file: {args.file}")
+                return False
+        except Exception as e:
+            print(f"Error parsing package file: {e}")
+            return False
+    else:
+        # Install from registry
+        package = manager.install_package(args.name, args.version, args.dev)
+        if package:
+            return True
+        else:
+            return False
+
+def list_packages(args):
+    """List all packages in the registry."""
+    manager = PackageManager(args.registry_dir)
+    packages = manager.list_packages()
+    
+    if not packages:
+        print("No packages found in registry")
+        return True
+    
+    print(f"Found {len(packages)} packages:")
+    for package in packages:
+        print(f"- {package.name}@{package.version}: {package.description}")
+    
+    return True
+
+def search_packages(args):
+    """Search for packages by name or description."""
+    manager = PackageManager(args.registry_dir)
+    packages = manager.search_packages(args.query)
+    
+    if not packages:
+        print(f"No packages found matching query: {args.query}")
+        return True
+    
+    print(f"Found {len(packages)} packages matching query '{args.query}':")
+    for package in packages:
+        print(f"- {package.name}@{package.version}: {package.description}")
+    
+    return True
+
+def show_package(args):
+    """Show details of a package."""
+    manager = PackageManager(args.registry_dir)
+    package = manager.show_package(args.name, args.version)
+    
+    if not package:
+        print(f"Package {args.name} not found")
+        return False
+    
+    print(f"Package: {package.name}@{package.version}")
+    print(f"Description: {package.description}")
+    if package.author:
+        print(f"Author: {package.author}")
+    if package.license:
+        print(f"License: {package.license}")
+    if package.homepage:
+        print(f"Homepage: {package.homepage}")
+    if package.repository:
+        print(f"Repository: {package.repository}")
+    
+    if package.components:
+        print("\nComponents:")
+        for name, component in package.components.items():
+            print(f"- {name}: {component.description}")
+            print(f"  Source: {component.source_path}")
+    
+    if package.dependencies:
+        print("\nDependencies:")
+        for name, dependency in package.dependencies.items():
+            print(f"- {name} {dependency.version_requirement}")
+    
+    if package.dev_dependencies:
+        print("\nDevelopment Dependencies:")
+        for name, dependency in package.dev_dependencies.items():
+            print(f"- {name} {dependency.version_requirement}")
+    
+    return True
+
+def deps_graph(args):
+    """Show dependency graph for a package."""
+    manager = PackageManager(args.registry_dir)
+    
+    if args.file:
+        # Parse package file
+        parser = PackageParser(manager.registry)
+        try:
+            package = parser.parse_file(args.file)
+        except Exception as e:
+            print(f"Error parsing package file: {e}")
+            return False
+    else:
+        # Get from registry
+        package = manager.show_package(args.name, args.version)
+        if not package:
+            print(f"Package {args.name} not found")
+            return False
+    
+    try:
+        graph = manager.build_dependency_graph(package, args.dev)
+        
+        print(f"Dependency graph for {package.name}@{package.version}:")
+        for pkg_name, dependencies in graph.items():
+            if dependencies:
+                print(f"- {pkg_name} depends on: {', '.join(dependencies)}")
+            else:
+                print(f"- {pkg_name} has no dependencies")
+        
+        return True
+    except Exception as e:
+        print(f"Error building dependency graph: {e}")
+        return False
+
+def audit_package(args):
+    """Audit a package for security vulnerabilities."""
+    manager = PackageManager(args.registry_dir)
+    
+    if args.file:
+        # Parse package file
+        parser = PackageParser(manager.registry)
+        try:
+            package = parser.parse_file(args.file)
+        except Exception as e:
+            print(f"Error parsing package file: {e}")
+            return False
+    else:
+        # Get from registry
+        package = manager.show_package(args.name, args.version)
+        if not package:
+            print(f"Package {args.name} not found")
+            return False
+    
+    vulnerabilities = manager.audit_package(package, args.level, args.dev)
+    
+    if not vulnerabilities:
+        print(f"No vulnerabilities found in {package.name}@{package.version}")
+        return True
+    
+    print(f"Found {len(vulnerabilities)} vulnerabilities in {package.name}@{package.version}:")
+    for vuln in vulnerabilities:
+        print(f"- {vuln['package']}@{vuln['version']}: {vuln['level']} - {vuln['description']}")
+        if 'fix_version' in vuln:
+            print(f"  Fix: Upgrade to version {vuln['fix_version']} or later")
+    
+    return True
+
+def check_licenses(args):
+    """Check license compliance for a package."""
+    manager = PackageManager(args.registry_dir)
+    
+    if args.file:
+        # Parse package file
+        parser = PackageParser(manager.registry)
+        try:
+            package = parser.parse_file(args.file)
+        except Exception as e:
+            print(f"Error parsing package file: {e}")
+            return False
+    else:
+        # Get from registry
+        package = manager.show_package(args.name, args.version)
+        if not package:
+            print(f"Package {args.name} not found")
+            return False
+    
+    issues = manager.check_licenses(package, args.dev)
+    
+    if not issues:
+        print(f"No license compliance issues found in {package.name}@{package.version}")
+        return True
+    
+    print(f"Found {len(issues)} license compliance issues in {package.name}@{package.version}:")
+    for issue in issues:
+        print(f"- {issue['package']}@{issue['version']}: {issue['issue']} - {issue['description']}")
+    
+    return True
+
+def parse_args():
+    """Parse command-line arguments."""
+    parser = argparse.ArgumentParser(description="Mono Package Manager")
+    parser.add_argument("--registry-dir", default=os.path.expanduser("~/.mono/packages"),
+                        help="Directory for the package registry")
+    
+    subparsers = parser.add_subparsers(dest="command", help="Command to run")
+    
+    # Create package command
+    create_parser = subparsers.add_parser("create", help="Create a new package")
+    create_parser.add_argument("name", help="Name of the package")
+    create_parser.add_argument("--version", default="0.1.0", help="Version of the package")
+    create_parser.add_argument("--description", default="", help="Description of the package")
+    create_parser.add_argument("--author", default="", help="Author of the package")
+    create_parser.add_argument("--license", default="MIT", help="License of the package")
+    create_parser.add_argument("--output", "-o", help="Output file path")
+    
+    # Install package command
+    install_parser = subparsers.add_parser("install", help="Install a package")
+    install_group = install_parser.add_mutually_exclusive_group(required=True)
+    install_group.add_argument("--name", help="Name of the package")
+    install_group.add_argument("--file", "-f", help="Path to package file")
+    install_parser.add_argument("--version", help="Version of the package")
+    install_parser.add_argument("--dev", "-d", action="store_true", help="Install as development dependency")
+    
+    # List packages command
+    list_parser = subparsers.add_parser("list", help="List all packages in the registry")
+    
+    # Search packages command
+    search_parser = subparsers.add_parser("search", help="Search for packages by name or description")
+    search_parser.add_argument("query", help="Search query")
+    
+    # Show package command
+    show_parser = subparsers.add_parser("show", help="Show details of a package")
+    show_parser.add_argument("name", help="Name of the package")
+    show_parser.add_argument("--version", help="Version of the package")
+    
+    # Dependency graph command
+    deps_parser = subparsers.add_parser("deps", help="Show dependency graph for a package")
+    deps_group = deps_parser.add_mutually_exclusive_group(required=True)
+    deps_group.add_argument("--name", help="Name of the package")
+    deps_group.add_argument("--file", "-f", help="Path to package file")
+    deps_parser.add_argument("--version", help="Version of the package")
+    deps_parser.add_argument("--dev", "-d", action="store_true", help="Include development dependencies")
+    deps_parser.add_argument("--graph", "-g", action="store_true", help="Output as graph format")
+    
+    # Audit package command
+    audit_parser = subparsers.add_parser("audit", help="Audit a package for security vulnerabilities")
+    audit_group = audit_parser.add_mutually_exclusive_group(required=True)
+    audit_group.add_argument("--name", help="Name of the package")
+    audit_group.add_argument("--file", "-f", help="Path to package file")
+    audit_parser.add_argument("--version", help="Version of the package")
+    audit_parser.add_argument("--level", choices=["low", "medium", "high", "critical", "all"], default="all",
+                             help="Minimum vulnerability level to report")
+    audit_parser.add_argument("--dev", "-d", action="store_true", help="Include development dependencies")
+    
+    # License check command
+    license_parser = subparsers.add_parser("license", help="Check license compliance for a package")
+    license_group = license_parser.add_mutually_exclusive_group(required=True)
+    license_group.add_argument("--name", help="Name of the package")
+    license_group.add_argument("--file", "-f", help="Path to package file")
+    license_parser.add_argument("--version", help="Version of the package")
+    license_parser.add_argument("--dev", "-d", action="store_true", help="Include development dependencies")
+    
+    # Parse arguments
+    args = parser.parse_args()
+    
+    # If no command is provided, show help
+    if not args.command:
+        parser.print_help()
+        sys.exit(1)
+    
+    return args
+
+def main():
+    """Main entry point."""
+    # Parse command-line arguments
+    args = parse_args()
+    
+    # Handle different commands
+    if args.command == "create":
+        success = create_package(args)
+    elif args.command == "install":
+        success = install_package(args)
+    elif args.command == "list":
+        success = list_packages(args)
+    elif args.command == "search":
+        success = search_packages(args)
+    elif args.command == "show":
+        success = show_package(args)
+    elif args.command == "deps":
+        success = deps_graph(args)
+    elif args.command == "audit":
+        success = audit_package(args)
+    elif args.command == "license":
+        success = check_licenses(args)
+    else:
+        print(f"Unknown command: {args.command}")
+        return 1
+    
+    return 0 if success else 1
+
+if __name__ == "__main__":
+    sys.exit(main())

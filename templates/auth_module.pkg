@@ -1,0 +1,28 @@
+package AuthModule version 1.0.0 {
+    description "Authentication and authorization module for Mono applications"
+    author "Mono Security Team"
+    license "Apache-2.0"
+    homepage "https://mono-lang.org/packages/auth-module"
+    repository "https://github.com/mono-lang/auth-module"
+    
+    components {
+        Auth from "components/auth.mono" as "Main authentication component"
+        Login from "components/login.mono" as "Login form component"
+        Register from "components/register.mono" as "Registration form component"
+        PasswordReset from "components/password_reset.mono" as "Password reset component"
+        UserProfile from "components/user_profile.mono" as "User profile component"
+    }
+    
+    dependencies {
+        CoreUtils version ^1.0.0
+        CryptoLib version ^3.2.1
+        UIComponents version ^1.0.0
+        DataStorage version ~2.0.0
+    }
+    
+    dev_dependencies {
+        TestFramework version ^2.0.0
+        SecurityScanner version ^1.0.0
+        MockServer version ^1.2.0
+    }
+}

@@ -1,0 +1,32 @@
+#!/usr/bin/env python3
+
+"""
+Reactive Mono Language Interpreter - Main executable
+
+This script is now a wrapper that calls the main mono interpreter with the -r flag.
+"""
+
+import os
+import sys
+import subprocess
+
+# Get the path to the mono script
+mono_script = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'mono')
+
+def main():
+    """
+    Main entry point for the Reactive Mono interpreter.
+    """
+    # Prepare the command to run the mono script with the -r flag
+    cmd = [mono_script, '-r'] + sys.argv[1:]
+
+    # Run the mono script
+    try:
+        result = subprocess.run(cmd)
+        return result.returncode
+    except Exception as e:
+        print(f"Error running mono script: {e}", file=sys.stderr)
+        return 1
+
+if __name__ == '__main__':
+    sys.exit(main())

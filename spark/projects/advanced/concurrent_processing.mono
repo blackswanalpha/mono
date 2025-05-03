@@ -1,0 +1,249 @@
+//  __  __                   
+// |  \/  | ___  _ __   ___  
+// | |\/| |/ _ \| '_ \ / _ \ 
+// | |  | | (_) | | | | (_) |
+// |_|  |_|\___/|_| |_|\___/ 
+//
+// Concurrent Processing - Demonstrating parallel execution in Mono
+
+// Thread-safe counter
+component AtomicCounter {
+    state {
+        value: number = 0;
+        mutex: Mutex = new Mutex();
+    }
+    
+    function increment(): number {
+        this.mutex.lock();
+        var result = ++this.value;
+        this.mutex.unlock();
+        return result;
+    }
+    
+    function decrement(): number {
+        this.mutex.lock();
+        var result = --this.value;
+        this.mutex.unlock();
+        return result;
+    }
+    
+    function getValue(): number {
+        this.mutex.lock();
+        var result = this.value;
+        this.mutex.unlock();
+        return result;
+    }
+    
+    function reset() {
+        this.mutex.lock();
+        this.value = 0;
+        this.mutex.unlock();
+    }
+}
+
+// Thread pool for managing worker threads
+component ThreadPool {
+    state {
+        workers: Thread[] = [];
+        taskQueue: Channel<function()> = new Channel<function()>();
+        isRunning: boolean = false;
+        activeWorkers: AtomicCounter = new AtomicCounter();
+    }
+    
+    function constructor(numWorkers: number) {
+        for (var i = 0; i < numWorkers; i++) {
+            var worker = new Thread(function() {
+                while (this.isRunning) {
+                    var task = this.taskQueue.receive(1000);  // 1 second timeout
+                    if (task) {
+                        this.activeWorkers.increment();
+                        try {
+                            task();
+                        } catch (e) {
+                            print "Error in worker thread: " + e;
+                        }
+                        this.activeWorkers.decrement();
+                    }
+                }
+            }.bind(this));
+            
+            this.workers.push(worker);
+        }
+    }
+    
+    function start() {
+        this.isRunning = true;
+        for (var i = 0; i < this.workers.length; i++) {
+            this.workers[i].start();
+        }
+    }
+    
+    function stop() {
+        this.isRunning = false;
+        
+        // Wait for all workers to finish
+        for (var i = 0; i < this.workers.length; i++) {
+            this.workers[i].join();
+        }
+    }
+    
+    function submit(task: function()) {
+        this.taskQueue.send(task);
+    }
+    
+    function getActiveWorkerCount(): number {
+        return this.activeWorkers.getValue();
+    }
+    
+    function getQueueSize(): number {
+        return this.taskQueue.size();
+    }
+}
+
+// Parallel data processor
+component DataProcessor {
+    state {
+        threadPool: ThreadPool;
+        results: Channel<any> = new Channel<any>();
+        processedCount: AtomicCounter = new AtomicCounter();
+    }
+    
+    function constructor(numThreads: number) {
+        this.threadPool = new ThreadPool(numThreads);
+    }
+    
+    function start() {
+        this.threadPool.start();
+    }
+    
+    function stop() {
+        this.threadPool.stop();
+    }
+    
+    function processData<T, R>(items: T[], processor: function(T): R): R[] {
+        var resultCollector = new Thread(function() {
+            var results = [];
+            for (var i = 0; i < items.length; i++) {
+                results.push(this.results.receive());
+            }
+            return results;
+        }.bind(this));
+        
+        resultCollector.start();
+        
+        // Submit tasks to the thread pool
+        for (var i = 0; i < items.length; i++) {
+            var item = items[i];
+            this.threadPool.submit(function() {
+                var result = processor(item);
+                this.results.send(result);
+                this.processedCount.increment();
+            }.bind(this));
+        }
+        
+        // Wait for all results
+        return resultCollector.join();
+    }
+    
+    function getProcessedCount(): number {
+        return this.processedCount.getValue();
+    }
+}
+
+// Example data processing tasks
+component ImageProcessor {
+    function simulateProcessing(image: any): any {
+        // Simulate CPU-intensive image processing
+        var startTime = Date.now();
+        
+        // Simulate processing time (100-500ms)
+        var processingTime = 100 + Math.random() * 400;
+        while (Date.now() - startTime < processingTime) {
+            // Busy wait to simulate CPU work
+        }
+        
+        // Return processed "image"
+        return {
+            id: image.id,
+            name: image.name,
+            width: image.width,
+            height: image.height,
+            processed: true,
+            processingTime: processingTime
+        };
+    }
+}
+
+component ConcurrentDemo {
+    function run() {
+        print "Concurrent Processing Demo";
+        print "--------------------------";
+        print "";
+        
+        // Create sample data
+        var images = [];
+        for (var i = 1; i <= 20; i++) {
+            images.push({
+                id: i,
+                name: "image_" + i + ".jpg",
+                width: 1920,
+                height: 1080,
+                processed: false
+            });
+        }
+        
+        print "Created " + images.length + " sample images for processing";
+        print "";
+        
+        // Sequential processing
+        print "Sequential Processing:";
+        var startTime = Date.now();
+        
+        var processor = new ImageProcessor();
+        var processedImages = [];
+        
+        for (var i = 0; i < images.length; i++) {
+            var result = processor.simulateProcessing(images[i]);
+            processedImages.push(result);
+            print "Processed image " + result.id + " in " + result.processingTime.toFixed(2) + "ms";
+        }
+        
+        var sequentialTime = Date.now() - startTime;
+        print "Sequential processing completed in " + sequentialTime + "ms";
+        print "";
+        
+        // Parallel processing
+        print "Parallel Processing:";
+        var numThreads = 4;
+        print "Using " + numThreads + " worker threads";
+        
+        var dataProcessor = new DataProcessor(numThreads);
+        dataProcessor.start();
+        
+        startTime = Date.now();
+        
+        // Process images in parallel
+        var parallelResults = dataProcessor.processData(images, function(image) {
+            var result = processor.simulateProcessing(image);
+            print "Processed image " + result.id + " in " + result.processingTime.toFixed(2) + "ms (Thread: " + Thread.currentId() + ")";
+            return result;
+        });
+        
+        var parallelTime = Date.now() - startTime;
+        print "Parallel processing completed in " + parallelTime + "ms";
+        
+        // Calculate speedup
+        var speedup = sequentialTime / parallelTime;
+        print "Speedup: " + speedup.toFixed(2) + "x";
+        
+        // Cleanup
+        dataProcessor.stop();
+    }
+}
+
+component Main {
+    function start() {
+        var demo = new ConcurrentDemo();
+        demo.run();
+    }
+}

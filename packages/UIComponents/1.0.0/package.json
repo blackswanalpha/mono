@@ -1,0 +1,60 @@
+{
+  "name": "UIComponents",
+  "version": "1.0.0",
+  "description": "A collection of UI components for Mono applications",
+  "author": "Mono Team",
+  "license": "MIT",
+  "homepage": "https://mono-lang.org/packages/ui-components",
+  "repository": "https://github.com/mono-lang/ui-components",
+  "components": {
+    "Button": {
+      "name": "Button",
+      "source_path": "components/button.mono",
+      "description": "A customizable button component"
+    },
+    "Card": {
+      "name": "Card",
+      "source_path": "components/card.mono",
+      "description": "A card component with header, body, and footer"
+    },
+    "Modal": {
+      "name": "Modal",
+      "source_path": "components/modal.mono",
+      "description": "A modal dialog component"
+    },
+    "Tabs": {
+      "name": "Tabs",
+      "source_path": "components/tabs.mono",
+      "description": "A tabbed interface component"
+    },
+    "Form": {
+      "name": "Form",
+      "source_path": "components/form.mono",
+      "description": "A form component with validation"
+    }
+  },
+  "dependencies": {
+    "CoreUtils": {
+      "name": "CoreUtils",
+      "version_requirement": "^1.0.0",
+      "is_dev": false
+    },
+    "EventSystem": {
+      "name": "EventSystem",
+      "version_requirement": "~2.3.0",
+      "is_dev": false
+    }
+  },
+  "dev_dependencies": {
+    "TestFramework": {
+      "name": "TestFramework",
+      "version_requirement": "^2.0.0",
+      "is_dev": true
+    },
+    "DocGenerator": {
+      "name": "DocGenerator",
+      "version_requirement": "^1.5.0",
+      "is_dev": true
+    }
+  }
+}

@@ -1,0 +1,105 @@
+#!/usr/bin/env python3
+
+import os
+import sys
+import argparse
+
+# Add the parent directory to the Python path
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from lib.mono_layouts import parse_layout_file, calculate_layout, render_layout_to_html, render_layout_to_css
+from lib.mono_combined_interpreter import run_mono_file
+
+def parse_layout(args):
+    """Parse a layout definition file."""
+    try:
+        layout = parse_layout_file(args.file)
+        print(f"Successfully parsed layout '{layout.name}' from {args.file}")
+
+        if args.verbose:
+            print("\nLayout structure:")
+            print_layout_structure(layout.root, 0)
+
+        return layout
+    except Exception as e:
+        print(f"Error parsing layout: {e}")
+        return None
+
+def print_layout_structure(box, indent):
+    """Print the structure of a layout box."""
+    indent_str = "  " * indent
+    print(f"{indent_str}{box.element_id or 'root'} ({box.width.value}{box.width.unit} x {box.height.value}{box.height.unit})")
+
+    for child in box.children:
+        print_layout_structure(child, indent + 1)
+
+def render_layout(args):
+    """Render a layout to HTML or CSS."""
+    layout = parse_layout_file(args.file)
+
+    # Calculate layout
+    layout = calculate_layout(layout, args.width, args.height)
+
+    # Render
+    if args.format == "html":
+        output = render_layout_to_html(layout)
+    else:
+        output = render_layout_to_css(layout)
+
+    # Write to file or print
+    if args.output:
+        with open(args.output, "w") as f:
+            f.write(output)
+        print(f"Layout rendered to {args.output}")
+    else:
+        print(output)
+
+def run_demo(args):
+    """Run the layouts demo."""
+    script_file = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "templates", "layouts_demo.mono")
+
+    if not os.path.isfile(script_file):
+        print(f"Error: Demo file not found at {script_file}")
+        return False
+
+    print("Running Mono Layouts Demo...")
+    run_mono_file(script_file)
+    return True
+
+def main():
+    # Set up the argument parser
+    parser = argparse.ArgumentParser(description="Mono Layout Manager")
+
+    subparsers = parser.add_subparsers(dest="command", help="Command to run")
+
+    # Parse layout command
+    parse_parser = subparsers.add_parser("parse", help="Parse a layout definition file")
+    parse_parser.add_argument("file", help="Path to the layout definition file")
+    parse_parser.add_argument("-v", "--verbose", action="store_true", help="Show detailed information")
+
+    # Render layout command
+    render_parser = subparsers.add_parser("render", help="Render a layout to HTML or CSS")
+    render_parser.add_argument("file", help="Path to the layout definition file")
+    render_parser.add_argument("-f", "--format", choices=["html", "css"], default="html", help="Output format")
+    render_parser.add_argument("-o", "--output", help="Output file path")
+    render_parser.add_argument("-w", "--width", type=int, default=800, help="Viewport width")
+    render_parser.add_argument("--height", type=int, default=600, help="Viewport height")
+
+    # Run demo command
+    demo_parser = subparsers.add_parser("demo", help="Run the layouts demo")
+
+    # Parse arguments
+    args = parser.parse_args()
+
+    # Run the appropriate command
+    if args.command == "parse":
+        parse_layout(args)
+    elif args.command == "render":
+        render_layout(args)
+    elif args.command == "demo":
+        run_demo(args)
+    else:
+        parser.print_help()
+
+if __name__ == "__main__":
+    main()

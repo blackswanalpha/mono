@@ -1,0 +1,540 @@
+#!/usr/bin/env python3
+
+"""
+Mono Documentation Server - A simple HTTP server for viewing Mono documentation
+
+This script starts a simple HTTP server for viewing Mono documentation.
+It also provides a command-line interface for generating and managing documentation.
+"""
+
+import os
+import sys
+import argparse
+import http.server
+import socketserver
+import webbrowser
+import markdown
+import re
+from pathlib import Path
+
+# Add the parent directory to the Python path
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+# Constants
+DOCS_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "docs")
+PORT = 8000
+
+class MonoDocsHandler(http.server.SimpleHTTPRequestHandler):
+    """Custom request handler for Mono documentation."""
+    
+    def __init__(self, *args, **kwargs):
+        self.directory = DOCS_DIR
+        super().__init__(*args, **kwargs)
+    
+    def do_GET(self):
+        """Handle GET requests."""
+        # If the path is a directory, look for index.md or README.md
+        path = self.translate_path(self.path)
+        
+        if os.path.isdir(path):
+            for index_file in ["index.md", "README.md"]:
+                index_path = os.path.join(path, index_file)
+                if os.path.exists(index_path):
+                    self.path = os.path.join(self.path, index_file)
+                    break
+        
+        # If the path ends with .md, convert it to HTML
+        if self.path.endswith(".md"):
+            self.send_response(200)
+            self.send_header("Content-type", "text/html")
+            self.end_headers()
+            
+            # Read the markdown file
+            with open(self.translate_path(self.path), "r") as f:
+                md_content = f.read()
+            
+            # Convert markdown to HTML
+            html_content = self.markdown_to_html(md_content)
+            
+            # Send the HTML content
+            self.wfile.write(html_content.encode())
+            return
+        
+        # Otherwise, use the default handler
+        return super().do_GET()
+    
+    def markdown_to_html(self, md_content):
+        """Convert markdown to HTML with Mono-specific formatting."""
+        # Convert markdown to HTML
+        html_content = markdown.markdown(md_content, extensions=["fenced_code", "tables"])
+        
+        # Add syntax highlighting for Mono code blocks
+        html_content = re.sub(
+            r'<pre><code class="language-mono">(.*?)</code></pre>',
+            r'<pre class="mono-code"><code>\1</code></pre>',
+            html_content,
+            flags=re.DOTALL
+        )
+        
+        # Wrap in HTML template
+        html_template = f"""
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Mono Documentation</title>
+            <style>
+                body {{
+                    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+                    line-height: 1.6;
+                    color: #333;
+                    max-width: 800px;
+                    margin: 0 auto;
+                    padding: 20px;
+                }}
+                
+                h1, h2, h3, h4, h5, h6 {{
+                    margin-top: 1.5em;
+                    margin-bottom: 0.5em;
+                    color: #000;
+                }}
+                
+                h1 {{
+                    font-size: 2.5em;
+                    border-bottom: 1px solid #eee;
+                    padding-bottom: 0.3em;
+                }}
+                
+                h2 {{
+                    font-size: 2em;
+                    border-bottom: 1px solid #eee;
+                    padding-bottom: 0.3em;
+                }}
+                
+                a {{
+                    color: #0366d6;
+                    text-decoration: none;
+                }}
+                
+                a:hover {{
+                    text-decoration: underline;
+                }}
+                
+                pre {{
+                    background-color: #f6f8fa;
+                    border-radius: 3px;
+                    padding: 16px;
+                    overflow: auto;
+                }}
+                
+                code {{
+                    font-family: SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace;
+                    background-color: rgba(27, 31, 35, 0.05);
+                    border-radius: 3px;
+                    padding: 0.2em 0.4em;
+                    font-size: 85%;
+                }}
+                
+                pre code {{
+                    background-color: transparent;
+                    padding: 0;
+                }}
+                
+                .mono-code {{
+                    background-color: #282c34;
+                    color: #abb2bf;
+                }}
+                
+                table {{
+                    border-collapse: collapse;
+                    width: 100%;
+                    margin-bottom: 1em;
+                }}
+                
+                th, td {{
+                    border: 1px solid #dfe2e5;
+                    padding: 6px 13px;
+                }}
+                
+                th {{
+                    background-color: #f6f8fa;
+                }}
+                
+                tr:nth-child(even) {{
+                    background-color: #f6f8fa;
+                }}
+                
+                blockquote {{
+                    margin: 0;
+                    padding: 0 1em;
+                    color: #6a737d;
+                    border-left: 0.25em solid #dfe2e5;
+                }}
+                
+                hr {{
+                    height: 0.25em;
+                    padding: 0;
+                    margin: 24px 0;
+                    background-color: #e1e4e8;
+                    border: 0;
+                }}
+                
+                .header {{
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    margin-bottom: 20px;
+                    padding-bottom: 20px;
+                    border-bottom: 1px solid #eee;
+                }}
+                
+                .header h1 {{
+                    margin: 0;
+                    border-bottom: none;
+                    padding-bottom: 0;
+                }}
+                
+                .header nav a {{
+                    margin-left: 20px;
+                }}
+                
+                .footer {{
+                    margin-top: 50px;
+                    padding-top: 20px;
+                    border-top: 1px solid #eee;
+                    text-align: center;
+                    color: #6a737d;
+                }}
+            </style>
+        </head>
+        <body>
+            <div class="header">
+                <h1>Mono Documentation</h1>
+                <nav>
+                    <a href="/">Home</a>
+                    <a href="/tutorials/">Tutorials</a>
+                    <a href="/api/">API</a>
+                    <a href="/examples/">Examples</a>
+                </nav>
+            </div>
+            
+            {html_content}
+            
+            <div class="footer">
+                <p>Mono Documentation - Generated with mono-docs</p>
+            </div>
+        </body>
+        </html>
+        """
+        
+        return html_template
+
+def start_server(port=PORT):
+    """Start the documentation server."""
+    # Create the docs directory if it doesn't exist
+    os.makedirs(DOCS_DIR, exist_ok=True)
+    
+    # Start the server
+    handler = MonoDocsHandler
+    httpd = socketserver.TCPServer(("", port), handler)
+    
+    print(f"Serving Mono documentation at http://localhost:{port}")
+    print("Press Ctrl+C to stop the server")
+    
+    # Open the browser
+    webbrowser.open(f"http://localhost:{port}")
+    
+    # Start the server
+    try:
+        httpd.serve_forever()
+    except KeyboardInterrupt:
+        print("\nStopping server...")
+        httpd.shutdown()
+
+def generate_docs():
+    """Generate documentation from source code."""
+    print("Generating documentation from source code...")
+    
+    # Create the docs directory if it doesn't exist
+    os.makedirs(DOCS_DIR, exist_ok=True)
+    
+    # Create the API directory if it doesn't exist
+    api_dir = os.path.join(DOCS_DIR, "api")
+    os.makedirs(api_dir, exist_ok=True)
+    
+    # Create the tutorials directory if it doesn't exist
+    tutorials_dir = os.path.join(DOCS_DIR, "tutorials")
+    os.makedirs(tutorials_dir, exist_ok=True)
+    
+    # Create the examples directory if it doesn't exist
+    examples_dir = os.path.join(DOCS_DIR, "examples")
+    os.makedirs(examples_dir, exist_ok=True)
+    
+    # Create the case studies directory if it doesn't exist
+    case_studies_dir = os.path.join(DOCS_DIR, "case-studies")
+    os.makedirs(case_studies_dir, exist_ok=True)
+    
+    # Generate API documentation
+    generate_api_docs(api_dir)
+    
+    # Generate example documentation
+    generate_example_docs(examples_dir)
+    
+    print("Documentation generated successfully")
+
+def generate_api_docs(api_dir):
+    """Generate API documentation from source code."""
+    print("Generating API documentation...")
+    
+    # Get the source directory
+    src_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "lib")
+    
+    # Get all Python files in the source directory
+    py_files = [f for f in os.listdir(src_dir) if f.endswith(".py") and not f.startswith("__")]
+    
+    # Generate documentation for each file
+    for py_file in py_files:
+        module_name = py_file[:-3]
+        output_file = os.path.join(api_dir, f"{module_name}.md")
+        
+        print(f"Generating documentation for {module_name}...")
+        
+        # Read the source file
+        with open(os.path.join(src_dir, py_file), "r") as f:
+            source = f.read()
+        
+        # Extract the module docstring
+        module_docstring = extract_docstring(source)
+        
+        # Extract classes and functions
+        classes = extract_classes(source)
+        functions = extract_functions(source)
+        
+        # Generate the documentation
+        with open(output_file, "w") as f:
+            # Write the header
+            f.write(f"# {module_name}\n\n")
+            
+            # Write the module docstring
+            if module_docstring:
+                f.write(f"{module_docstring}\n\n")
+            
+            # Write the table of contents
+            f.write("## Table of Contents\n\n")
+            
+            if classes:
+                f.write("### Classes\n\n")
+                for class_name in classes:
+                    f.write(f"- [{class_name}](#{class_name.lower()})\n")
+                f.write("\n")
+            
+            if functions:
+                f.write("### Functions\n\n")
+                for function_name in functions:
+                    f.write(f"- [{function_name}](#{function_name.lower()})\n")
+                f.write("\n")
+            
+            # Write the class documentation
+            if classes:
+                f.write("## Classes\n\n")
+                for class_name, class_info in classes.items():
+                    f.write(f"### {class_name}\n\n")
+                    
+                    if class_info["docstring"]:
+                        f.write(f"{class_info['docstring']}\n\n")
+                    
+                    if class_info["methods"]:
+                        f.write("#### Methods\n\n")
+                        for method_name, method_info in class_info["methods"].items():
+                            f.write(f"##### {method_name}\n\n")
+                            
+                            if method_info["docstring"]:
+                                f.write(f"{method_info['docstring']}\n\n")
+                            
+                            f.write(f"```python\n{method_info['signature']}\n```\n\n")
+                    
+                    f.write("\n")
+            
+            # Write the function documentation
+            if functions:
+                f.write("## Functions\n\n")
+                for function_name, function_info in functions.items():
+                    f.write(f"### {function_name}\n\n")
+                    
+                    if function_info["docstring"]:
+                        f.write(f"{function_info['docstring']}\n\n")
+                    
+                    f.write(f"```python\n{function_info['signature']}\n```\n\n")
+
+def extract_docstring(source):
+    """Extract the module docstring from source code."""
+    docstring_match = re.search(r'"""(.*?)"""', source, re.DOTALL)
+    if docstring_match:
+        return docstring_match.group(1).strip()
+    return ""
+
+def extract_classes(source):
+    """Extract classes from source code."""
+    classes = {}
+    
+    # Find all class definitions
+    class_matches = re.finditer(r'class\s+(\w+)(?:\(.*?\))?:\s*(?:"""(.*?)""")?', source, re.DOTALL)
+    
+    for match in class_matches:
+        class_name = match.group(1)
+        class_docstring = match.group(2).strip() if match.group(2) else ""
+        
+        # Find the class body
+        class_body_match = re.search(r'class\s+' + class_name + r'(?:\(.*?\))?:\s*(?:""".*?""")?(.*?)(?=\n\S|$)', source, re.DOTALL)
+        class_body = class_body_match.group(1) if class_body_match else ""
+        
+        # Extract methods
+        methods = extract_methods(class_body)
+        
+        classes[class_name] = {
+            "docstring": class_docstring,
+            "methods": methods
+        }
+    
+    return classes
+
+def extract_methods(class_body):
+    """Extract methods from a class body."""
+    methods = {}
+    
+    # Find all method definitions
+    method_matches = re.finditer(r'def\s+(\w+)\s*\((.*?)\)(?:\s*->\s*(\w+))?\s*:\s*(?:"""(.*?)""")?', class_body, re.DOTALL)
+    
+    for match in method_matches:
+        method_name = match.group(1)
+        method_params = match.group(2)
+        method_return_type = match.group(3) if match.group(3) else "None"
+        method_docstring = match.group(4).strip() if match.group(4) else ""
+        
+        methods[method_name] = {
+            "signature": f"def {method_name}({method_params}) -> {method_return_type}:",
+            "docstring": method_docstring
+        }
+    
+    return methods
+
+def extract_functions(source):
+    """Extract functions from source code."""
+    functions = {}
+    
+    # Find all function definitions
+    function_matches = re.finditer(r'def\s+(\w+)\s*\((.*?)\)(?:\s*->\s*(\w+))?\s*:\s*(?:"""(.*?)""")?', source, re.DOTALL)
+    
+    for match in function_matches:
+        function_name = match.group(1)
+        function_params = match.group(2)
+        function_return_type = match.group(3) if match.group(3) else "None"
+        function_docstring = match.group(4).strip() if match.group(4) else ""
+        
+        functions[function_name] = {
+            "signature": f"def {function_name}({function_params}) -> {function_return_type}:",
+            "docstring": function_docstring
+        }
+    
+    return functions
+
+def generate_example_docs(examples_dir):
+    """Generate example documentation from example files."""
+    print("Generating example documentation...")
+    
+    # Get the templates directory
+    templates_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "templates")
+    
+    # Get all Mono files in the templates directory
+    mono_files = [f for f in os.listdir(templates_dir) if f.endswith(".mono")]
+    
+    # Generate documentation for each file
+    for mono_file in mono_files:
+        example_name = mono_file[:-5]
+        output_file = os.path.join(examples_dir, f"{example_name}.md")
+        
+        print(f"Generating documentation for {example_name}...")
+        
+        # Read the example file
+        with open(os.path.join(templates_dir, mono_file), "r") as f:
+            source = f.read()
+        
+        # Extract the example description
+        description = extract_example_description(source)
+        
+        # Generate the documentation
+        with open(output_file, "w") as f:
+            # Write the header
+            f.write(f"# {example_name.replace('_', ' ').title()}\n\n")
+            
+            # Write the description
+            if description:
+                f.write(f"{description}\n\n")
+            
+            # Write the source code
+            f.write("## Source Code\n\n")
+            f.write(f"```mono\n{source}\n```\n\n")
+            
+            # Write the usage instructions
+            f.write("## Usage\n\n")
+            f.write(f"Run the example with:\n\n")
+            f.write(f"```bash\n./bin/mono templates/{mono_file}\n```\n")
+
+def extract_example_description(source):
+    """Extract the description from an example file."""
+    # Look for a comment block at the beginning of the file
+    comment_match = re.search(r'^//.*?$(.*?)^(?!//)', source, re.MULTILINE | re.DOTALL)
+    if comment_match:
+        # Extract the comment lines
+        comment_lines = comment_match.group(1).strip().split("\n")
+        
+        # Remove the comment markers and join the lines
+        description = "\n".join([line.lstrip("/ ") for line in comment_lines if line.strip()])
+        
+        return description
+    
+    return ""
+
+def parse_args():
+    """Parse command-line arguments."""
+    parser = argparse.ArgumentParser(description="Mono Documentation Server")
+    
+    # Create subparsers for different commands
+    subparsers = parser.add_subparsers(dest="command", help="Command to run")
+    
+    # Serve command
+    serve_parser = subparsers.add_parser("serve", help="Start the documentation server")
+    serve_parser.add_argument("-p", "--port", type=int, default=PORT, help="Port to serve on")
+    
+    # Generate command
+    generate_parser = subparsers.add_parser("generate", help="Generate documentation from source code")
+    
+    # Parse arguments
+    args = parser.parse_args()
+    
+    # If no command is provided, default to serve
+    if not args.command:
+        args.command = "serve"
+        args.port = PORT
+    
+    return args
+
+def main():
+    """Main entry point."""
+    # Parse command-line arguments
+    args = parse_args()
+    
+    # Handle different commands
+    if args.command == "serve":
+        start_server(args.port)
+    elif args.command == "generate":
+        generate_docs()
+    else:
+        print(f"Unknown command: {args.command}")
+        return 1
+    
+    return 0
+
+if __name__ == "__main__":
+    sys.exit(main())

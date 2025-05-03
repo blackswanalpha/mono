@@ -1,0 +1,25 @@
+package UIComponents version 1.0.0 {
+    description "A collection of UI components for Mono applications"
+    author "Mono Team"
+    license "MIT"
+    homepage "https://mono-lang.org/packages/ui-components"
+    repository "https://github.com/mono-lang/ui-components"
+    
+    components {
+        Button from "components/button.mono" as "A customizable button component"
+        Card from "components/card.mono" as "A card component with header, body, and footer"
+        Modal from "components/modal.mono" as "A modal dialog component"
+        Tabs from "components/tabs.mono" as "A tabbed interface component"
+        Form from "components/form.mono" as "A form component with validation"
+    }
+    
+    dependencies {
+        CoreUtils version ^1.0.0
+        EventSystem version ~2.3.0
+    }
+    
+    dev_dependencies {
+        TestFramework version ^2.0.0
+        DocGenerator version ^1.5.0
+    }
+}

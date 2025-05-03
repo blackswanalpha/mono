@@ -1,0 +1,199 @@
+//  __  __                   
+// |  \/  | ___  _ __   ___  
+// | |\/| |/ _ \| '_ \ / _ \ 
+// | |  | | (_) | | | | (_) |
+// |_|  |_|\___/|_| |_|\___/ 
+//
+// API Client - A simple HTTP client for REST APIs
+
+component HttpResponse {
+    state {
+        statusCode: number;
+        headers: Map<string, string>;
+        body: string;
+    }
+    
+    function constructor(statusCode: number, headers: Map<string, string>, body: string) {
+        this.statusCode = statusCode;
+        this.headers = headers;
+        this.body = body;
+    }
+    
+    function isSuccess(): boolean {
+        return this.statusCode >= 200 && this.statusCode < 300;
+    }
+    
+    function getJson(): any {
+        return JSON.parse(this.body);
+    }
+}
+
+component HttpClient {
+    state {
+        baseUrl: string;
+        defaultHeaders: Map<string, string> = {};
+    }
+    
+    function constructor(baseUrl: string) {
+        this.baseUrl = baseUrl;
+        // Set default headers
+        this.defaultHeaders["Content-Type"] = "application/json";
+        this.defaultHeaders["Accept"] = "application/json";
+    }
+    
+    function setHeader(name: string, value: string) {
+        this.defaultHeaders[name] = value;
+    }
+    
+    // Note: In a real implementation, these methods would make actual HTTP requests
+    // For this template, we'll simulate responses
+    
+    function get(path: string): HttpResponse {
+        print "GET " + this.baseUrl + path;
+        
+        // Simulate a GET request
+        if (path == "/users") {
+            return new HttpResponse(200, {}, '[{"id": 1, "name": "John Doe"}, {"id": 2, "name": "Jane Smith"}]');
+        } else if (path.startsWith("/users/")) {
+            var userId = path.substring(7);
+            if (userId == "1") {
+                return new HttpResponse(200, {}, '{"id": 1, "name": "John Doe", "email": "john@example.com"}');
+            } else if (userId == "2") {
+                return new HttpResponse(200, {}, '{"id": 2, "name": "Jane Smith", "email": "jane@example.com"}');
+            } else {
+                return new HttpResponse(404, {}, '{"error": "User not found"}');
+            }
+        } else {
+            return new HttpResponse(404, {}, '{"error": "Not found"}');
+        }
+    }
+    
+    function post(path: string, data: any): HttpResponse {
+        var jsonData = JSON.stringify(data);
+        print "POST " + this.baseUrl + path;
+        print "Body: " + jsonData;
+        
+        // Simulate a POST request
+        if (path == "/users") {
+            return new HttpResponse(201, {}, '{"id": 3, "name": "' + data.name + '", "email": "' + data.email + '"}');
+        } else {
+            return new HttpResponse(404, {}, '{"error": "Not found"}');
+        }
+    }
+    
+    function put(path: string, data: any): HttpResponse {
+        var jsonData = JSON.stringify(data);
+        print "PUT " + this.baseUrl + path;
+        print "Body: " + jsonData;
+        
+        // Simulate a PUT request
+        if (path.startsWith("/users/")) {
+            var userId = path.substring(7);
+            if (userId == "1" || userId == "2") {
+                return new HttpResponse(200, {}, '{"id": ' + userId + ', "name": "' + data.name + '", "email": "' + data.email + '"}');
+            } else {
+                return new HttpResponse(404, {}, '{"error": "User not found"}');
+            }
+        } else {
+            return new HttpResponse(404, {}, '{"error": "Not found"}');
+        }
+    }
+    
+    function delete(path: string): HttpResponse {
+        print "DELETE " + this.baseUrl + path;
+        
+        // Simulate a DELETE request
+        if (path.startsWith("/users/")) {
+            var userId = path.substring(7);
+            if (userId == "1" || userId == "2") {
+                return new HttpResponse(204, {}, '');
+            } else {
+                return new HttpResponse(404, {}, '{"error": "User not found"}');
+            }
+        } else {
+            return new HttpResponse(404, {}, '{"error": "Not found"}');
+        }
+    }
+}
+
+component ApiClient {
+    function run() {
+        print "API Client Demo";
+        print "---------------";
+        print "";
+        
+        var client = new HttpClient("https://api.example.com");
+        
+        // GET all users
+        print "Fetching all users...";
+        var response = client.get("/users");
+        if (response.isSuccess()) {
+            var users = response.getJson();
+            print "Users: " + JSON.stringify(users, null, 2);
+        } else {
+            print "Error: " + response.body;
+        }
+        
+        print "";
+        
+        // GET a specific user
+        print "Fetching user with ID 1...";
+        response = client.get("/users/1");
+        if (response.isSuccess()) {
+            var user = response.getJson();
+            print "User: " + JSON.stringify(user, null, 2);
+        } else {
+            print "Error: " + response.body;
+        }
+        
+        print "";
+        
+        // POST a new user
+        print "Creating a new user...";
+        var newUser = {
+            name: "Bob Johnson",
+            email: "bob@example.com"
+        };
+        response = client.post("/users", newUser);
+        if (response.isSuccess()) {
+            var createdUser = response.getJson();
+            print "Created user: " + JSON.stringify(createdUser, null, 2);
+        } else {
+            print "Error: " + response.body;
+        }
+        
+        print "";
+        
+        // PUT (update) a user
+        print "Updating user with ID 2...";
+        var updatedUser = {
+            name: "Jane Wilson",
+            email: "jane.wilson@example.com"
+        };
+        response = client.put("/users/2", updatedUser);
+        if (response.isSuccess()) {
+            var result = response.getJson();
+            print "Updated user: " + JSON.stringify(result, null, 2);
+        } else {
+            print "Error: " + response.body;
+        }
+        
+        print "";
+        
+        // DELETE a user
+        print "Deleting user with ID 1...";
+        response = client.delete("/users/1");
+        if (response.isSuccess()) {
+            print "User deleted successfully.";
+        } else {
+            print "Error: " + response.body;
+        }
+    }
+}
+
+component Main {
+    function start() {
+        var client = new ApiClient();
+        client.run();
+    }
+}

@@ -1,0 +1,37 @@
+//  __  __
+// |  \/  | ___  _ __   ___
+// | |\/| |/ _ \| '_ \ / _ // | |  | | (_) | | | | (_) |
+// |_|  |_|\___/|_| |_|\___/
+//
+// Mono Language - A simple demo created with Spark Editor
+
+component DemoApp {
+    state {
+        message: string = "Hello from Spark Editor!";
+        count: number = 0;
+    }
+
+    function increment() {
+        this.count = this.count + 1;
+        print "Count incremented to " + this.count;
+    }
+
+    function run() {
+        print this.message;
+        print "Starting counter...";
+
+        for var i = 0; i < 5; i++ {
+            this.increment();
+        }
+
+        print "Demo completed!";
+    }
+}
+
+component Main {
+    function start() {
+        print "Starting Spark Demo App...";
+        var app = new DemoApp();
+        app.run();
+    }
+}

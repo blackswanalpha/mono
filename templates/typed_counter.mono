@@ -1,0 +1,59 @@
+//  __  __                   
+// |  \/  | ___  _ __   ___  
+// | |\/| |/ _ \| '_ \ / _ \ 
+// | |  | | (_) | | | | (_) |
+// |_|  |_|\___/|_| |_|\___/ 
+//                           
+// Mono Language - A component-based language with reactive programming and static typing
+
+// Typed Counter Example
+// This example demonstrates static typing in Mono
+
+component Counter {
+    state {
+        count: int = 0,
+        name: string = "Counter"
+    }
+    
+    function increment(): void {
+        this.state.count = this.state.count + 1;
+    }
+    
+    function decrement(): void {
+        this.state.count = this.state.count - 1;
+    }
+    
+    function getValue(): int {
+        return this.state.count;
+    }
+    
+    function getName(): string {
+        return this.state.name;
+    }
+    
+    function render(): void {
+        print this.state.name + ": " + this.state.count;
+    }
+}
+
+component Main {
+    function start(): void {
+        var counter: Counter = new Counter();
+        
+        print "Initial state:";
+        counter.render();
+        
+        counter.increment();
+        counter.increment();
+        print "After incrementing twice:";
+        counter.render();
+        
+        counter.decrement();
+        print "After decrementing once:";
+        counter.render();
+        
+        var value: int = counter.getValue();
+        var name: string = counter.getName();
+        print "Counter " + name + " has value " + value;
+    }
+}

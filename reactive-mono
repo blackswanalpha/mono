@@ -1,0 +1,19 @@
+#!/bin/bash
+
+# Check if a file was provided
+if [ $# -eq 0 ]; then
+    echo "Usage: reactive-mono <script.mono>"
+    exit 1
+fi
+
+# Get the script file path
+script_file="$1"
+
+# Check if the file exists
+if [ ! -f "$script_file" ]; then
+    echo "Error: File '$script_file' not found."
+    exit 1
+fi
+
+# Run the Reactive Mono interpreter with the script file
+python3 "$(dirname "$0")/reactive_mono_simple.py" "$script_file"

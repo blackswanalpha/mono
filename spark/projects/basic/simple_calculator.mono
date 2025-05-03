@@ -1,0 +1,50 @@
+//  __  __                   
+// |  \/  | ___  _ __   ___  
+// | |\/| |/ _ \| '_ \ / _ \ 
+// | |  | | (_) | | | | (_) |
+// |_|  |_|\___/|_| |_|\___/ 
+//
+// Simple Calculator - Basic arithmetic operations in Mono
+
+component Calculator {
+    function add(a: number, b: number): number {
+        return a + b;
+    }
+    
+    function subtract(a: number, b: number): number {
+        return a - b;
+    }
+    
+    function multiply(a: number, b: number): number {
+        return a * b;
+    }
+    
+    function divide(a: number, b: number): number {
+        if (b == 0) {
+            print "Error: Division by zero";
+            return 0;
+        }
+        return a / b;
+    }
+}
+
+component Main {
+    function start() {
+        var calc = new Calculator();
+        
+        print "Simple Calculator Demo";
+        print "-----------------------";
+        
+        var a = 10;
+        var b = 5;
+        
+        print a + " + " + b + " = " + calc.add(a, b);
+        print a + " - " + b + " = " + calc.subtract(a, b);
+        print a + " * " + b + " = " + calc.multiply(a, b);
+        print a + " / " + b + " = " + calc.divide(a, b);
+        
+        // Try division by zero
+        print "10 / 0 = ";
+        calc.divide(10, 0);
+    }
+}

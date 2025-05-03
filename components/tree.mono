@@ -1,0 +1,112 @@
+//  __  __                   
+// |  \/  | ___  _ __   ___  
+// | |\/| |/ _ \| '_ \ / _ \ 
+// | |  | | (_) | | | | (_) |
+// |_|  |_|\___/|_| |_|\___/ 
+//                           
+// Mono Language - Tree Component
+
+component Tree {
+    state {
+        data: any = null,
+        expanded: any = {},
+        showIcons: boolean = true,
+        indentSize: int = 20,
+        theme: string = "default"
+    }
+    
+    function constructor(): void {
+        print "Tree component created";
+    }
+    
+    function setData(data: any): void {
+        this.state.data = data;
+    }
+    
+    function toggleNode(nodeId: string): void {
+        this.state.expanded[nodeId] = !this.state.expanded[nodeId];
+    }
+    
+    function isExpanded(nodeId: string): boolean {
+        return this.state.expanded[nodeId] === true;
+    }
+    
+    function expandAll(): void {
+        this.expandAllNodes(this.state.data);
+    }
+    
+    function expandAllNodes(node: any): void {
+        if (!node) {
+            return;
+        }
+        
+        if (node.id) {
+            this.state.expanded[node.id] = true;
+        }
+        
+        if (node.children) {
+            for (var i = 0; i < node.children.length; i++) {
+                this.expandAllNodes(node.children[i]);
+            }
+        }
+    }
+    
+    function collapseAll(): void {
+        this.state.expanded = {};
+    }
+    
+    function setShowIcons(show: boolean): void {
+        this.state.showIcons = show;
+    }
+    
+    function setIndentSize(size: int): void {
+        this.state.indentSize = size;
+    }
+    
+    function setTheme(theme: string): void {
+        this.state.theme = theme;
+    }
+    
+    function renderNode(node: any, level: int = 0): string {
+        if (!node) {
+            return "";
+        }
+        
+        var nodeId = node.id || "node-" + level;
+        var hasChildren = node.children && node.children.length > 0;
+        var isExpanded = this.isExpanded(nodeId);
+        var expandIcon = hasChildren ? (isExpanded ? "▼" : "►") : "•";
+        var indentation = this.state.indentSize * level;
+        var childrenHtml = "";
+        
+        if (hasChildren && isExpanded) {
+            for (var i = 0; i < node.children.length; i++) {
+                childrenHtml += this.renderNode(node.children[i], level + 1);
+            }
+        }
+        
+        var iconHtml = "";
+        if (this.state.showIcons) {
+            iconHtml = "<span class=\"node-icon\">" + (node.icon || "") + "</span>";
+        }
+        
+        return "<div class=\"tree-node " + this.state.theme + "\" data-level=\"" + level + "\">" +
+               "  <div class=\"node-content\" style=\"padding-left: " + indentation + "px;\">" +
+               "    <span class=\"expand-icon\" onclick=\"this.toggleNode('" + nodeId + "')\">" + expandIcon + "</span>" +
+               iconHtml +
+               "    <span class=\"node-label\">" + node.label + "</span>" +
+               "  </div>" +
+               "  <div class=\"node-children" + (isExpanded ? "" : " hidden") + "\">" + childrenHtml + "</div>" +
+               "</div>";
+    }
+    
+    function render(): string {
+        if (!this.state.data) {
+            return "<div class=\"tree-container " + this.state.theme + "\">No data</div>";
+        }
+        
+        return "<div class=\"tree-container " + this.state.theme + "\">" + 
+               this.renderNode(this.state.data) + 
+               "</div>";
+    }
+}

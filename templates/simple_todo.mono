@@ -1,0 +1,68 @@
+//  __  __                   
+// |  \/  | ___  _ __   ___  
+// | |\/| |/ _ \| '_ \ / _ \ 
+// | |  | | (_) | | | | (_) |
+// |_|  |_|\___/|_| |_|\___/ 
+//                           
+// Mono Language - A component-based language with reactive programming and static typing
+
+component TodoItem {
+    state {
+        text: "",
+        completed: 0
+    }
+    
+    function setText(newText) {
+        this.state.text = newText;
+    }
+    
+    function toggleCompleted() {
+        this.state.completed = this.state.completed + 1;
+    }
+    
+    function render() {
+        print "Todo: " + this.state.text;
+    }
+}
+
+component TodoList {
+    state {
+        itemCount: 0
+    }
+    
+    function addItem() {
+        this.state.itemCount = this.state.itemCount + 1;
+    }
+    
+    function render() {
+        print "Items: " + this.state.itemCount;
+    }
+}
+
+component Main {
+    function start() {
+        var todoList = new TodoList();
+        var item1 = new TodoItem();
+        var item2 = new TodoItem();
+        
+        print "--- Todo App ---";
+        
+        print "--- Initial Todo List ---";
+        todoList.render();
+        
+        print "--- Adding Items ---";
+        item1.setText("Buy groceries");
+        todoList.addItem();
+        item1.render();
+        todoList.render();
+        
+        item2.setText("Clean house");
+        todoList.addItem();
+        item2.render();
+        todoList.render();
+        
+        print "--- Completing an Item ---";
+        item1.toggleCompleted();
+        item1.render();
+    }
+}

@@ -1,0 +1,33 @@
+//  __  __                   
+// |  \/  | ___  _ __   ___  
+// | |\/| |/ _ \| '_ \ / _ \ 
+// | |  | | (_) | | | | (_) |
+// |_|  |_|\___/|_| |_|\___/ 
+//                           
+// Mono Language - A component-based language with reactive programming and static typing
+
+component Counter {
+    state {
+        count: 0
+    }
+    
+    function increment() {
+        this.state.count = this.state.count + 1;
+    }
+    
+    function render() {
+        print "Count: " + this.state.count;
+    }
+}
+
+component Main {
+    function start() {
+        var counter = new Counter();
+        
+        counter.render();
+        counter.increment();
+        counter.render();
+        counter.increment();
+        counter.render();
+    }
+}

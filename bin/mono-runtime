@@ -1,0 +1,221 @@
+#!/usr/bin/env python3
+
+"""
+Mono Runtime Environment - Command-line tool for the Mono runtime environment
+
+This script provides a command-line interface for the Mono runtime environment,
+allowing users to start, stop, and manage the runtime environment.
+"""
+
+import os
+import sys
+import argparse
+import time
+import signal
+import threading
+from datetime import timedelta
+
+# Add the parent directory to the Python path
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from lib.mono_runtime import (
+    get_runtime_environment, start_runtime, stop_runtime,
+    register_component, register_instance, mount_component, unmount_component,
+    watch_directory, TaskPriority
+)
+from lib.mono_combined_interpreter import run_mono_file
+
+def parse_args():
+    """Parse command-line arguments."""
+    parser = argparse.ArgumentParser(description="Mono Runtime Environment")
+
+    # Create subparsers for different commands
+    subparsers = parser.add_subparsers(dest="command", help="Command to run")
+
+    # Start command
+    start_parser = subparsers.add_parser("start", help="Start the runtime environment")
+    start_parser.add_argument("-w", "--workers", type=int, default=5, help="Number of worker threads")
+    start_parser.add_argument("-g", "--gc-ttl", type=int, default=30, help="Garbage collection TTL in seconds")
+    start_parser.add_argument("-d", "--directory", help="Directory to watch for changes")
+
+    # Stop command
+    stop_parser = subparsers.add_parser("stop", help="Stop the runtime environment")
+
+    # Run command
+    run_parser = subparsers.add_parser("run", help="Run a Mono script in the runtime environment")
+    run_parser.add_argument("script", help="Path to the Mono script file")
+    run_parser.add_argument("-w", "--watch", action="store_true", help="Watch the script file for changes")
+
+    # Watch command
+    watch_parser = subparsers.add_parser("watch", help="Watch a directory for changes")
+    watch_parser.add_argument("directory", help="Directory to watch for changes")
+
+    # Status command
+    status_parser = subparsers.add_parser("status", help="Show the status of the runtime environment")
+
+    # Demo command
+    demo_parser = subparsers.add_parser("demo", help="Run the runtime environment demo")
+
+    # Parse arguments
+    args = parser.parse_args()
+
+    # If no command is provided, show help
+    if not args.command:
+        parser.print_help()
+        sys.exit(1)
+
+    return args
+
+def start_runtime_env(args):
+    """Start the runtime environment."""
+    # Get the runtime environment
+    runtime_env = get_runtime_environment()
+
+    # Configure the runtime environment
+    runtime_env.max_workers = args.workers
+    runtime_env.garbage_collector.ttl = timedelta(seconds=args.gc_ttl)
+
+    # Start the runtime environment
+    start_runtime()
+
+    # Watch a directory if specified
+    if args.directory:
+        watch_directory(args.directory)
+
+    print(f"Runtime environment started with {args.workers} workers and {args.gc_ttl}s GC TTL")
+
+    # Keep the script running
+    try:
+        while True:
+            time.sleep(1)
+    except KeyboardInterrupt:
+        print("\nStopping runtime environment...")
+        stop_runtime()
+        print("Runtime environment stopped")
+
+def stop_runtime_env(args):
+    """Stop the runtime environment."""
+    stop_runtime()
+    print("Runtime environment stopped")
+
+def run_script(args):
+    """Run a Mono script in the runtime environment."""
+    # Start the runtime environment
+    start_runtime()
+
+    # Watch the script file if specified
+    if args.watch:
+        script_dir = os.path.dirname(os.path.abspath(args.script))
+        watch_directory(script_dir)
+        print(f"Watching directory: {script_dir}")
+
+    # Run the script
+    success = run_mono_file(args.script)
+
+    # If not watching, stop the runtime environment
+    if not args.watch:
+        stop_runtime()
+    else:
+        # Keep the script running
+        try:
+            while True:
+                time.sleep(1)
+        except KeyboardInterrupt:
+            print("\nStopping runtime environment...")
+            stop_runtime()
+            print("Runtime environment stopped")
+
+    return 0 if success else 1
+
+def watch_dir(args):
+    """Watch a directory for changes."""
+    # Start the runtime environment
+    start_runtime()
+
+    # Watch the directory
+    watch_directory(args.directory)
+    print(f"Watching directory: {args.directory}")
+
+    # Keep the script running
+    try:
+        while True:
+            time.sleep(1)
+    except KeyboardInterrupt:
+        print("\nStopping runtime environment...")
+        stop_runtime()
+        print("Runtime environment stopped")
+
+def show_status(args):
+    """Show the status of the runtime environment."""
+    runtime_env = get_runtime_environment()
+
+    if runtime_env.running:
+        print("Runtime environment is running")
+        print(f"  Workers: {runtime_env.scheduler.max_workers}")
+        print(f"  GC TTL: {runtime_env.garbage_collector.ttl.total_seconds()}s")
+        print(f"  Watched directories: {', '.join(runtime_env.hot_reloader.watched_paths) or 'None'}")
+    else:
+        print("Runtime environment is not running")
+
+def run_demo(args):
+    """Run the runtime environment demo."""
+    # Find the demo script
+    script_file = os.path.join(
+        os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+        "templates",
+        "runtime_demo.mono"
+    )
+
+    if not os.path.isfile(script_file):
+        print(f"Error: Demo file not found at {script_file}")
+        return 1
+
+    # Start the runtime environment
+    start_runtime()
+
+    # Watch the script directory
+    script_dir = os.path.dirname(os.path.abspath(script_file))
+    watch_directory(script_dir)
+
+    # Run the demo script
+    print(f"Running runtime environment demo: {script_file}")
+    success = run_mono_file(script_file)
+
+    # Keep the script running for a while to allow for hot reloading
+    try:
+        print("\nDemo complete. Press Ctrl+C to exit.")
+        while True:
+            time.sleep(1)
+    except KeyboardInterrupt:
+        print("\nStopping runtime environment...")
+        stop_runtime()
+        print("Runtime environment stopped")
+
+    return 0 if success else 1
+
+def main():
+    """Main entry point."""
+    # Parse command-line arguments
+    args = parse_args()
+
+    # Handle different commands
+    if args.command == "start":
+        start_runtime_env(args)
+    elif args.command == "stop":
+        stop_runtime_env(args)
+    elif args.command == "run":
+        return run_script(args)
+    elif args.command == "watch":
+        watch_dir(args)
+    elif args.command == "status":
+        show_status(args)
+    elif args.command == "demo":
+        return run_demo(args)
+    else:
+        print(f"Unknown command: {args.command}")
+        return 1
+
+    return 0
+
+if __name__ == "__main__":
+    sys.exit(main())

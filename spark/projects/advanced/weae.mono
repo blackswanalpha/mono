@@ -1,0 +1,6 @@
+component Main{
+function start(){
+print "sassa";
+}
+
+}

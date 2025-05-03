@@ -1,0 +1,178 @@
+#!/usr/bin/env python3
+
+import os
+import sys
+import argparse
+import json
+
+# Add the parent directory to the Python path
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from lib.mono_kits import KitRegistry, KitParser, Kit, KitComponent, KitTool
+from lib.mono_combined_interpreter import run_mono_file
+
+def create_kit(args):
+    """Create a new kit."""
+    registry = KitRegistry(args.registry_dir)
+    
+    # Check if kit already exists
+    existing_kit = registry.get_kit(args.name, args.version)
+    if existing_kit:
+        print(f"Error: Kit {args.name} version {args.version} already exists")
+        return False
+    
+    # Create the kit
+    kit = Kit(args.name, args.version, args.description)
+    
+    # Register the kit
+    registry.register_kit(kit)
+    
+    print(f"Created kit {args.name} version {args.version}")
+    return True
+
+def list_kits(args):
+    """List all kits in the registry."""
+    registry = KitRegistry(args.registry_dir)
+    kits = registry.list_kits()
+    
+    if not kits:
+        print("No kits found in the registry")
+        return
+    
+    print(f"Found {len(kits)} kits in the registry:")
+    for kit in kits:
+        print(f"- {kit['name']} v{kit['version']}: {kit['description']}")
+        print(f"  Components: {kit['components']}")
+        print(f"  Tools: {kit['tools']}")
+        if kit['dependencies']:
+            print(f"  Dependencies: {', '.join([f'{name} {version}' for name, version in kit['dependencies'].items()])}")
+        print()
+
+def search_kits(args):
+    """Search for kits by name or description."""
+    registry = KitRegistry(args.registry_dir)
+    kits = registry.search_kits(args.query)
+    
+    if not kits:
+        print(f"No kits found matching '{args.query}'")
+        return
+    
+    print(f"Found {len(kits)} kits matching '{args.query}':")
+    for kit in kits:
+        print(f"- {kit['name']} v{kit['version']}: {kit['description']}")
+        print(f"  Components: {kit['components']}")
+        print(f"  Tools: {kit['tools']}")
+        if kit['dependencies']:
+            print(f"  Dependencies: {', '.join([f'{name} {version}' for name, version in kit['dependencies'].items()])}")
+        print()
+
+def show_kit(args):
+    """Show details of a kit."""
+    registry = KitRegistry(args.registry_dir)
+    kit = registry.get_kit(args.name, args.version)
+    
+    if not kit:
+        print(f"Kit {args.name} not found")
+        return
+    
+    print(f"Kit: {kit.name} v{kit.version}")
+    print(f"Description: {kit.description}")
+    
+    if kit.components:
+        print("\nComponents:")
+        for name, component in kit.components.items():
+            print(f"- {name}: {component.description}")
+            print(f"  Source: {component.source_path}")
+    
+    if kit.tools:
+        print("\nTools:")
+        for name, tool in kit.tools.items():
+            print(f"- {name}: {tool.description}")
+            print(f"  Command: {tool.command}")
+    
+    if kit.dependencies:
+        print("\nDependencies:")
+        for name, version in kit.dependencies.items():
+            print(f"- {name} {version}")
+
+def import_kit(args):
+    """Import a kit from a definition file."""
+    registry = KitRegistry(args.registry_dir)
+    parser = KitParser(registry)
+    
+    try:
+        kit = parser.parse_file(args.file)
+        registry.register_kit(kit)
+        print(f"Imported kit {kit.name} version {kit.version}")
+    except Exception as e:
+        print(f"Error importing kit: {e}")
+        return False
+    
+    return True
+
+def run_demo(args):
+    """Run the kits demo."""
+    script_file = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "templates", "kits_demo.mono")
+    
+    if not os.path.isfile(script_file):
+        print(f"Error: Demo file not found at {script_file}")
+        return False
+    
+    print("Running Mono Kits Demo...")
+    run_mono_file(script_file)
+    return True
+
+def main():
+    # Set up the argument parser
+    parser = argparse.ArgumentParser(description="Mono Kit Manager")
+    parser.add_argument("--registry-dir", default=os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "kits"),
+                        help="Directory for the kit registry")
+    
+    subparsers = parser.add_subparsers(dest="command", help="Command to run")
+    
+    # Create kit command
+    create_parser = subparsers.add_parser("create", help="Create a new kit")
+    create_parser.add_argument("name", help="Name of the kit")
+    create_parser.add_argument("--version", default="0.1.0", help="Version of the kit")
+    create_parser.add_argument("--description", default="", help="Description of the kit")
+    
+    # List kits command
+    list_parser = subparsers.add_parser("list", help="List all kits in the registry")
+    
+    # Search kits command
+    search_parser = subparsers.add_parser("search", help="Search for kits by name or description")
+    search_parser.add_argument("query", help="Search query")
+    
+    # Show kit command
+    show_parser = subparsers.add_parser("show", help="Show details of a kit")
+    show_parser.add_argument("name", help="Name of the kit")
+    show_parser.add_argument("--version", help="Version of the kit")
+    
+    # Import kit command
+    import_parser = subparsers.add_parser("import", help="Import a kit from a definition file")
+    import_parser.add_argument("file", help="Path to the kit definition file")
+    
+    # Run demo command
+    demo_parser = subparsers.add_parser("demo", help="Run the kits demo")
+    
+    # Parse arguments
+    args = parser.parse_args()
+    
+    # Run the appropriate command
+    if args.command == "create":
+        create_kit(args)
+    elif args.command == "list":
+        list_kits(args)
+    elif args.command == "search":
+        search_kits(args)
+    elif args.command == "show":
+        show_kit(args)
+    elif args.command == "import":
+        import_kit(args)
+    elif args.command == "demo":
+        run_demo(args)
+    else:
+        parser.print_help()
+
+if __name__ == "__main__":
+    main()

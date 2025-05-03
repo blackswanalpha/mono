@@ -1,0 +1,428 @@
+//  __  __                   
+// |  \/  | ___  _ __   ___  
+// | |\/| |/ _ \| '_ \ / _ \ 
+// | |  | | (_) | | | | (_) |
+// |_|  |_|\___/|_| |_|\___/ 
+//
+// Multi-Component App - A complex application with multiple interacting components
+
+// Event system for component communication
+component EventBus {
+    state {
+        listeners: Map<string, function(any)[]> = {};
+    }
+    
+    function subscribe(eventType: string, callback: function(any)) {
+        if (!this.listeners[eventType]) {
+            this.listeners[eventType] = [];
+        }
+        this.listeners[eventType].push(callback);
+    }
+    
+    function publish(eventType: string, data: any) {
+        if (!this.listeners[eventType]) {
+            return;
+        }
+        
+        var callbacks = this.listeners[eventType];
+        for (var i = 0; i < callbacks.length; i++) {
+            callbacks[i](data);
+        }
+    }
+}
+
+// Global event bus instance
+var eventBus = new EventBus();
+
+// User authentication component
+component AuthService {
+    state {
+        currentUser: any = null;
+        isLoggedIn: boolean = false;
+    }
+    
+    function login(username: string, password: string): boolean {
+        // In a real app, this would validate credentials against a database
+        if (username == "admin" && password == "password") {
+            this.currentUser = {
+                id: 1,
+                username: username,
+                role: "admin"
+            };
+            this.isLoggedIn = true;
+            
+            // Publish login event
+            eventBus.publish("auth:login", this.currentUser);
+            return true;
+        }
+        
+        return false;
+    }
+    
+    function logout() {
+        var oldUser = this.currentUser;
+        this.currentUser = null;
+        this.isLoggedIn = false;
+        
+        // Publish logout event
+        eventBus.publish("auth:logout", oldUser);
+    }
+    
+    function getCurrentUser(): any {
+        return this.currentUser;
+    }
+    
+    function isAuthenticated(): boolean {
+        return this.isLoggedIn;
+    }
+}
+
+// Data storage component
+component DataStore {
+    state {
+        data: Map<string, any[]> = {};
+    }
+    
+    function constructor() {
+        // Initialize with some sample data
+        this.data["products"] = [
+            { id: 1, name: "Laptop", price: 999.99, category: "Electronics" },
+            { id: 2, name: "Smartphone", price: 699.99, category: "Electronics" },
+            { id: 3, name: "Headphones", price: 149.99, category: "Audio" }
+        ];
+        
+        this.data["categories"] = [
+            { id: 1, name: "Electronics" },
+            { id: 2, name: "Audio" },
+            { id: 3, name: "Accessories" }
+        ];
+    }
+    
+    function getCollection(name: string): any[] {
+        return this.data[name] || [];
+    }
+    
+    function addItem(collection: string, item: any) {
+        if (!this.data[collection]) {
+            this.data[collection] = [];
+        }
+        
+        this.data[collection].push(item);
+        eventBus.publish("datastore:added", { collection: collection, item: item });
+    }
+    
+    function removeItem(collection: string, id: number): boolean {
+        if (!this.data[collection]) {
+            return false;
+        }
+        
+        var items = this.data[collection];
+        for (var i = 0; i < items.length; i++) {
+            if (items[i].id == id) {
+                var removed = items.splice(i, 1)[0];
+                eventBus.publish("datastore:removed", { collection: collection, item: removed });
+                return true;
+            }
+        }
+        
+        return false;
+    }
+    
+    function updateItem(collection: string, id: number, updates: any): boolean {
+        if (!this.data[collection]) {
+            return false;
+        }
+        
+        var items = this.data[collection];
+        for (var i = 0; i < items.length; i++) {
+            if (items[i].id == id) {
+                // Apply updates
+                for (var key in updates) {
+                    items[i][key] = updates[key];
+                }
+                
+                eventBus.publish("datastore:updated", { collection: collection, item: items[i] });
+                return true;
+            }
+        }
+        
+        return false;
+    }
+}
+
+// UI component for product listing
+component ProductList {
+    state {
+        products: any[] = [];
+        filter: string = "";
+    }
+    
+    function constructor(dataStore: DataStore) {
+        this.products = dataStore.getCollection("products");
+        
+        // Subscribe to data changes
+        eventBus.subscribe("datastore:added", function(event) {
+            if (event.collection == "products") {
+                this.products.push(event.item);
+                this.render();
+            }
+        }.bind(this));
+        
+        eventBus.subscribe("datastore:removed", function(event) {
+            if (event.collection == "products") {
+                this.products = dataStore.getCollection("products");
+                this.render();
+            }
+        }.bind(this));
+        
+        eventBus.subscribe("datastore:updated", function(event) {
+            if (event.collection == "products") {
+                this.products = dataStore.getCollection("products");
+                this.render();
+            }
+        }.bind(this));
+    }
+    
+    function setFilter(filter: string) {
+        this.filter = filter.toLowerCase();
+        this.render();
+    }
+    
+    function getFilteredProducts(): any[] {
+        if (!this.filter) {
+            return this.products;
+        }
+        
+        var filtered = [];
+        for (var i = 0; i < this.products.length; i++) {
+            var product = this.products[i];
+            if (product.name.toLowerCase().includes(this.filter) || 
+                product.category.toLowerCase().includes(this.filter)) {
+                filtered.push(product);
+            }
+        }
+        
+        return filtered;
+    }
+    
+    function render() {
+        var products = this.getFilteredProducts();
+        
+        print "Product List";
+        print "------------";
+        
+        if (products.length == 0) {
+            print "No products found.";
+            return;
+        }
+        
+        for (var i = 0; i < products.length; i++) {
+            var product = products[i];
+            print product.id + ": " + product.name + " - $" + product.price + " (" + product.category + ")";
+        }
+    }
+}
+
+// UI component for shopping cart
+component ShoppingCart {
+    state {
+        items: Map<number, { product: any, quantity: number }> = {};
+        totalItems: number = 0;
+        totalPrice: number = 0;
+    }
+    
+    function addItem(product: any, quantity: number = 1) {
+        if (this.items[product.id]) {
+            this.items[product.id].quantity += quantity;
+        } else {
+            this.items[product.id] = { product: product, quantity: quantity };
+        }
+        
+        this.updateTotals();
+        eventBus.publish("cart:updated", this);
+    }
+    
+    function removeItem(productId: number) {
+        if (this.items[productId]) {
+            delete this.items[productId];
+            this.updateTotals();
+            eventBus.publish("cart:updated", this);
+        }
+    }
+    
+    function updateQuantity(productId: number, quantity: number) {
+        if (this.items[productId]) {
+            if (quantity <= 0) {
+                this.removeItem(productId);
+            } else {
+                this.items[productId].quantity = quantity;
+                this.updateTotals();
+                eventBus.publish("cart:updated", this);
+            }
+        }
+    }
+    
+    function updateTotals() {
+        this.totalItems = 0;
+        this.totalPrice = 0;
+        
+        for (var id in this.items) {
+            var item = this.items[id];
+            this.totalItems += item.quantity;
+            this.totalPrice += item.product.price * item.quantity;
+        }
+    }
+    
+    function clear() {
+        this.items = {};
+        this.totalItems = 0;
+        this.totalPrice = 0;
+        eventBus.publish("cart:updated", this);
+    }
+    
+    function render() {
+        print "Shopping Cart";
+        print "-------------";
+        
+        if (this.totalItems == 0) {
+            print "Your cart is empty.";
+            return;
+        }
+        
+        for (var id in this.items) {
+            var item = this.items[id];
+            var subtotal = item.product.price * item.quantity;
+            print item.product.name + " x " + item.quantity + " = $" + subtotal.toFixed(2);
+        }
+        
+        print "-------------";
+        print "Total: $" + this.totalPrice.toFixed(2) + " (" + this.totalItems + " items)";
+    }
+}
+
+// Application controller
+component AppController {
+    state {
+        authService: AuthService = new AuthService();
+        dataStore: DataStore = new DataStore();
+        productList: ProductList;
+        cart: ShoppingCart = new ShoppingCart();
+        isRunning: boolean = false;
+    }
+    
+    function constructor() {
+        this.productList = new ProductList(this.dataStore);
+        
+        // Subscribe to events
+        eventBus.subscribe("auth:login", function(user) {
+            print "User logged in: " + user.username;
+        });
+        
+        eventBus.subscribe("auth:logout", function(user) {
+            print "User logged out: " + user.username;
+            this.cart.clear();
+        }.bind(this));
+        
+        eventBus.subscribe("cart:updated", function(cart) {
+            print "Cart updated: " + cart.totalItems + " items, $" + cart.totalPrice.toFixed(2);
+        });
+    }
+    
+    function start() {
+        this.isRunning = true;
+        
+        print "Multi-Component App Demo";
+        print "------------------------";
+        print "";
+        
+        // Login
+        print "Logging in...";
+        var loginSuccess = this.authService.login("admin", "password");
+        if (loginSuccess) {
+            print "Login successful!";
+            var user = this.authService.getCurrentUser();
+            print "Welcome, " + user.username + " (" + user.role + ")";
+        } else {
+            print "Login failed!";
+            return;
+        }
+        
+        print "";
+        
+        // Show products
+        this.productList.render();
+        
+        print "";
+        
+        // Filter products
+        print "Filtering products by 'Electronics'...";
+        this.productList.setFilter("Electronics");
+        
+        print "";
+        
+        // Add products to cart
+        print "Adding products to cart...";
+        var products = this.dataStore.getCollection("products");
+        this.cart.addItem(products[0], 1);  // Laptop
+        this.cart.addItem(products[1], 2);  // Smartphone
+        
+        print "";
+        
+        // Show cart
+        this.cart.render();
+        
+        print "";
+        
+        // Update product quantity
+        print "Updating Smartphone quantity to 1...";
+        this.cart.updateQuantity(2, 1);
+        
+        print "";
+        
+        // Show updated cart
+        this.cart.render();
+        
+        print "";
+        
+        // Add a new product
+        print "Adding a new product...";
+        var newProduct = {
+            id: 4,
+            name: "Tablet",
+            price: 349.99,
+            category: "Electronics"
+        };
+        this.dataStore.addItem("products", newProduct);
+        
+        print "";
+        
+        // Show updated product list
+        this.productList.render();
+        
+        print "";
+        
+        // Add new product to cart
+        print "Adding Tablet to cart...";
+        this.cart.addItem(newProduct, 1);
+        
+        print "";
+        
+        // Show final cart
+        this.cart.render();
+        
+        print "";
+        
+        // Logout
+        print "Logging out...";
+        this.authService.logout();
+        
+        this.isRunning = false;
+    }
+}
+
+component Main {
+    function start() {
+        var app = new AppController();
+        app.start();
+    }
+}

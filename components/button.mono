@@ -1,0 +1,52 @@
+//  __  __                   
+// |  \/  | ___  _ __   ___  
+// | |\/| |/ _ \| '_ \ / _ \ 
+// | |  | | (_) | | | | (_) |
+// |_|  |_|\___/|_| |_|\___/ 
+//                           
+// Mono Language - Button Component
+
+component Button {
+    state {
+        text: string = "Button",
+        type: string = "primary",
+        size: string = "medium",
+        disabled: boolean = false,
+        onClick: function = null
+    }
+    
+    function setText(text: string): void {
+        this.state.text = text;
+    }
+    
+    function setType(type: string): void {
+        this.state.type = type;
+    }
+    
+    function setSize(size: string): void {
+        this.state.size = size;
+    }
+    
+    function setDisabled(disabled: boolean): void {
+        this.state.disabled = disabled;
+    }
+    
+    function setOnClick(onClick: function): void {
+        this.state.onClick = onClick;
+    }
+    
+    function handleClick(): void {
+        if (!this.state.disabled && this.state.onClick) {
+            this.state.onClick();
+        }
+    }
+    
+    function render(): string {
+        var disabledAttr = this.state.disabled ? "disabled" : "";
+        var classes = "btn btn-" + this.state.type + " btn-" + this.state.size;
+        
+        return "<button class=\"" + classes + "\" " + disabledAttr + " onclick=\"this.handleClick()\">" +
+               this.state.text +
+               "</button>";
+    }
+}

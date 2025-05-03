@@ -1,0 +1,186 @@
+
+//  __  __                   
+// |  \/  | ___  _ __   ___  
+// | |\/| |/ _ \| '_ \ / _ \ 
+// | |  | | (_) | | | | (_) |
+// |_|  |_|\___/|_| |_|\___/ 
+//                           
+// Mono Language - A component-based language with reactive programming and static typing
+
+// Simple Todo Manager Application
+// A simplified version that works with the current Mono interpreter
+
+component TodoList {
+    state {
+        item1Text: string = "",
+        item1Completed: bool = false,
+        item1Priority: int = 1,
+        
+        item2Text: string = "",
+        item2Completed: bool = false,
+        item2Priority: int = 1,
+        
+        item3Text: string = "",
+        item3Completed: bool = false,
+        item3Priority: int = 1,
+        
+        item4Text: string = "",
+        item4Completed: bool = false,
+        item4Priority: int = 1,
+        
+        item5Text: string = "",
+        item5Completed: bool = false,
+        item5Priority: int = 1,
+        
+        count: int = 0
+    }
+    
+    function addItem(text: string, priority: int): void {
+        if (this.state.count == 0) {
+            this.state.item1Text = text;
+            this.state.item1Priority = priority;
+            this.state.count = 1;
+        } else if (this.state.count == 1) {
+            this.state.item2Text = text;
+            this.state.item2Priority = priority;
+            this.state.count = 2;
+        } else if (this.state.count == 2) {
+            this.state.item3Text = text;
+            this.state.item3Priority = priority;
+            this.state.count = 3;
+        } else if (this.state.count == 3) {
+            this.state.item4Text = text;
+            this.state.item4Priority = priority;
+            this.state.count = 4;
+        } else if (this.state.count == 4) {
+            this.state.item5Text = text;
+            this.state.item5Priority = priority;
+            this.state.count = 5;
+        }
+    }
+    
+    function toggleItem(id: int): void {
+        if (id == 1) {
+            this.state.item1Completed = !this.state.item1Completed;
+        } else if (id == 2) {
+            this.state.item2Completed = !this.state.item2Completed;
+        } else if (id == 3) {
+            this.state.item3Completed = !this.state.item3Completed;
+        } else if (id == 4) {
+            this.state.item4Completed = !this.state.item4Completed;
+        } else if (id == 5) {
+            this.state.item5Completed = !this.state.item5Completed;
+        }
+    }
+    
+    function getPriorityText(priority: int): string {
+        if (priority == 1) {
+            return "Low";
+        } else if (priority == 2) {
+            return "Medium";
+        } else {
+            return "High";
+        }
+    }
+    
+    function getCompletedCount(): int {
+        var completed: int = 0;
+        
+        if (this.state.item1Completed) completed = completed + 1;
+        if (this.state.item2Completed) completed = completed + 1;
+        if (this.state.item3Completed) completed = completed + 1;
+        if (this.state.item4Completed) completed = completed + 1;
+        if (this.state.item5Completed) completed = completed + 1;
+        
+        return completed;
+    }
+    
+    function renderItem(id: int, text: string, completed: bool, priority: int): void {
+        var status: string = completed ? "[X]" : "[ ]";
+        var priorityText: string = this.getPriorityText(priority);
+        print status + " " + id + ". " + text + " (Priority: " + priorityText + ")";
+    }
+    
+    function renderStats(): void {
+        var completed: int = this.getCompletedCount();
+        var remaining: int = this.state.count - completed;
+        var completionRate: int = 0;
+        
+        if (this.state.count > 0) {
+            completionRate = completed * 100 / this.state.count;
+        }
+        
+        print "--- Todo List Stats ---";
+        print "Total items: " + this.state.count;
+        print "Completed: " + completed;
+        print "Remaining: " + remaining;
+        print "Completion rate: " + completionRate + "%";
+    }
+    
+    function render(): void {
+        print "--- Todo List ---";
+        
+        if (this.state.count == 0) {
+            print "No items in the list.";
+            return;
+        }
+        
+        if (this.state.count >= 1) {
+            this.renderItem(1, this.state.item1Text, this.state.item1Completed, this.state.item1Priority);
+        }
+        
+        if (this.state.count >= 2) {
+            this.renderItem(2, this.state.item2Text, this.state.item2Completed, this.state.item2Priority);
+        }
+        
+        if (this.state.count >= 3) {
+            this.renderItem(3, this.state.item3Text, this.state.item3Completed, this.state.item3Priority);
+        }
+        
+        if (this.state.count >= 4) {
+            this.renderItem(4, this.state.item4Text, this.state.item4Completed, this.state.item4Priority);
+        }
+        
+        if (this.state.count >= 5) {
+            this.renderItem(5, this.state.item5Text, this.state.item5Completed, this.state.item5Priority);
+        }
+    }
+}
+
+component Main {
+    function start(): void {
+        print "=== Simple Todo Manager ===";
+        
+        var todoList: TodoList = new TodoList();
+        
+        // Add some initial items
+        todoList.addItem("Buy groceries", 2);
+        todoList.addItem("Finish Mono project", 3);
+        todoList.addItem("Go for a walk", 1);
+        
+        // Display initial state
+        print "\nInitial Todo List:";
+        todoList.render();
+        todoList.renderStats();
+        
+        // Mark some items as completed
+        print "\nMarking items as completed...";
+        todoList.toggleItem(1);  // Buy groceries
+        todoList.toggleItem(3);  // Go for a walk
+        
+        // Display updated state
+        print "\nUpdated Todo List:";
+        todoList.render();
+        todoList.renderStats();
+        
+        // Add more items
+        print "\nAdding more items...";
+        todoList.addItem("Learn a new language", 2);
+        todoList.addItem("Watch a movie", 1);
+        
+        // Display final state
+        print "\nFinal Todo List:";
+        todoList.render();
+        todoList.renderStats();
+    }
+}

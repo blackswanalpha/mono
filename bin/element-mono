@@ -1,0 +1,20 @@
+#!/usr/bin/env python3
+
+import os
+import sys
+
+# Add the parent directory to the Python path
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from lib.mono_element_interpreter import run_mono_file
+
+def main():
+    if len(sys.argv) < 2:
+        print("Usage: element-mono <file>")
+        return
+    
+    file_path = sys.argv[1]
+    run_mono_file(file_path)
+
+if __name__ == "__main__":
+    main()

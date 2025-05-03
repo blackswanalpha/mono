@@ -1,0 +1,166 @@
+//  __  __                   
+// |  \/  | ___  _ __   ___  
+// | |\/| |/ _ \| '_ \ / _ \ 
+// | |  | | (_) | | | | (_) |
+// |_|  |_|\___/|_| |_|\___/ 
+//                           
+// Mono Language - Table Component
+
+component Table {
+    state {
+        data: any[] = [],
+        columns: any[] = [],
+        sortColumn: string = "",
+        sortDirection: string = "asc",
+        pageSize: int = 10,
+        currentPage: int = 1,
+        showHeaders: boolean = true,
+        striped: boolean = true,
+        bordered: boolean = true,
+        responsive: boolean = true
+    }
+    
+    function constructor(): void {
+        print "Table component created";
+    }
+    
+    function setData(data: any[]): void {
+        this.state.data = data;
+    }
+    
+    function setColumns(columns: any[]): void {
+        this.state.columns = columns;
+    }
+    
+    function sort(column: string): void {
+        if (this.state.sortColumn == column) {
+            // Toggle sort direction
+            this.state.sortDirection = this.state.sortDirection == "asc" ? "desc" : "asc";
+        } else {
+            // Set new sort column
+            this.state.sortColumn = column;
+            this.state.sortDirection = "asc";
+        }
+        
+        // Sort the data
+        this.sortData();
+    }
+    
+    function sortData(): void {
+        if (!this.state.sortColumn) {
+            return;
+        }
+        
+        this.state.data.sort((a, b) => {
+            var aValue = a[this.state.sortColumn];
+            var bValue = b[this.state.sortColumn];
+            
+            if (aValue < bValue) {
+                return this.state.sortDirection == "asc" ? -1 : 1;
+            } else if (aValue > bValue) {
+                return this.state.sortDirection == "asc" ? 1 : -1;
+            } else {
+                return 0;
+            }
+        });
+    }
+    
+    function setPage(page: int): void {
+        this.state.currentPage = page;
+    }
+    
+    function getPageCount(): int {
+        return Math.ceil(this.state.data.length / this.state.pageSize);
+    }
+    
+    function getCurrentPageData(): any[] {
+        var startIndex = (this.state.currentPage - 1) * this.state.pageSize;
+        var endIndex = startIndex + this.state.pageSize;
+        return this.state.data.slice(startIndex, endIndex);
+    }
+    
+    function setPageSize(size: int): void {
+        this.state.pageSize = size;
+        // Reset to first page when changing page size
+        this.state.currentPage = 1;
+    }
+    
+    function setShowHeaders(show: boolean): void {
+        this.state.showHeaders = show;
+    }
+    
+    function setStriped(striped: boolean): void {
+        this.state.striped = striped;
+    }
+    
+    function setBordered(bordered: boolean): void {
+        this.state.bordered = bordered;
+    }
+    
+    function setResponsive(responsive: boolean): void {
+        this.state.responsive = responsive;
+    }
+    
+    function render(): string {
+        var headerHtml = "";
+        var bodyHtml = "";
+        var paginationHtml = "";
+        
+        // Generate header
+        if (this.state.showHeaders) {
+            for (var i = 0; i < this.state.columns.length; i++) {
+                var column = this.state.columns[i];
+                var sortIndicator = "";
+                
+                if (this.state.sortColumn == column.key) {
+                    sortIndicator = this.state.sortDirection == "asc" ? " ▲" : " ▼";
+                }
+                
+                headerHtml += "<th onclick=\"this.sort('" + column.key + "')\">" + column.label + sortIndicator + "</th>";
+            }
+            
+            headerHtml = "<thead><tr>" + headerHtml + "</tr></thead>";
+        }
+        
+        // Generate body
+        var pageData = this.getCurrentPageData();
+        for (var i = 0; i < pageData.length; i++) {
+            var row = pageData[i];
+            var rowHtml = "";
+            
+            for (var j = 0; j < this.state.columns.length; j++) {
+                var column = this.state.columns[j];
+                rowHtml += "<td>" + row[column.key] + "</td>";
+            }
+            
+            var rowClass = this.state.striped && i % 2 == 1 ? "class=\"striped\"" : "";
+            bodyHtml += "<tr " + rowClass + ">" + rowHtml + "</tr>";
+        }
+        
+        bodyHtml = "<tbody>" + bodyHtml + "</tbody>";
+        
+        // Generate pagination
+        var pageCount = this.getPageCount();
+        for (var i = 1; i <= pageCount; i++) {
+            var activeClass = i == this.state.currentPage ? "active" : "";
+            paginationHtml += "<button class=\"page-button " + activeClass + "\" onclick=\"this.setPage(" + i + ")\">" + i + "</button>";
+        }
+        
+        paginationHtml = "<div class=\"pagination\">" + paginationHtml + "</div>";
+        
+        // Generate table classes
+        var tableClasses = ["data-table"];
+        if (this.state.bordered) tableClasses.push("bordered");
+        if (this.state.responsive) tableClasses.push("responsive");
+        
+        var tableClass = tableClasses.join(" ");
+        
+        return "<div class=\"table-container\">" +
+               "  <table class=\"" + tableClass + "\">" +
+               headerHtml +
+               bodyHtml +
+               "  </table>" +
+               paginationHtml +
+               "</div>";
+    }
+}

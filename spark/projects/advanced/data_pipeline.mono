@@ -1,0 +1,463 @@
+//  __  __                   
+// |  \/  | ___  _ __   ___  
+// | |\/| |/ _ \| '_ \ / _ \ 
+// | |  | | (_) | | | | (_) |
+// |_|  |_|\___/|_| |_|\___/ 
+//
+// Data Pipeline - A modular data processing system
+
+// Base interface for pipeline stages
+component PipelineStage {
+    function process(data: any): any {(.venv) hp@hp-HP-EliteBook-840-G2:~/Documents/augment-projects/mono$ cd /home/hp/Documents/augment-projects/mono && python -m spark.main
+2025-05-03 14:39:34,739 - spark_editor.wayland - INFO - Detected Wayland display: wayland-0
+2025-05-03 14:39:34,750 - spark_editor.wayland - INFO - Found libxcb-cursor
+2025-05-03 14:39:34,751 - spark_editor.wayland - INFO - Previous Wayland errors detected, using XCB directly
+2025-05-03 14:39:34,752 - spark_editor.wayland - INFO - Qt plugins path: /home/hp/Documents/augment-projects/mono/.venv/lib/python3.10/site-packages/PyQt6/Qt6/plugins
+2025-05-03 14:39:34,752 - spark_editor.wayland - INFO - Wayland error handler configured
+2025-05-03 14:39:34,752 - spark_editor.main - INFO - Platform information: {'wayland': True, 'wayland_display': 'wayland-0', 'qt_platform': 'xcb', 'desktop': 'Unity', 'session_type': 'wayland'}
+2025-05-03 14:39:34,815 - spark_editor.enum_wrapper - INFO - Successfully patched Qt enums for safe interrupt handling
+        // Abstract method to be implemented by subclasses
+        throw new Error("PipelineStage.process must be implemented by subclasses");
+    }
+    
+    function getName(): string {
+        return "AbstractStage";
+    }
+}
+
+// Data source stage
+component DataSource extends PipelineStage {
+    state {
+        data: any[];
+        index: number = 0;
+        name: string;
+    }
+    
+    function constructor(data: any[], name: string = "DataSource") {
+        super();
+        this.data = data;
+        this.name = name;
+    }
+    
+    function process(_: any): any {
+        if (this.index >= this.data.length) {
+            return null;  // End of data
+        }
+        
+        return this.data[this.index++];
+    }
+    
+    function reset() {
+        this.index = 0;
+    }
+    
+    function getName(): string {
+        return this.name;
+    }
+}
+
+// Filter stage
+component FilterStage extends PipelineStage {
+    state {
+        predicate: function(any): boolean;
+        name: string;
+    }
+    
+    function constructor(predicate: function(any): boolean, name: string = "Filter") {
+        super();
+        this.predicate = predicate;
+        this.name = name;
+    }
+    
+    function process(data: any): any {
+        if (data == null) {
+            return null;
+        }
+        
+        if (this.predicate(data)) {
+            return data;
+        }
+        
+        return "SKIP";  // Special value to indicate item should be skipped
+    }
+    
+    function getName(): string {
+        return this.name;
+    }
+}
+
+// Transformation stage
+component TransformStage extends PipelineStage {
+    state {
+        transformer: function(any): any;
+        name: string;
+    }
+    
+    function constructor(transformer: function(any): any, name: string = "Transform") {
+        super();
+        this.transformer = transformer;
+        this.name = name;
+    }
+    
+    function process(data: any): any {
+        if (data == null) {
+            return null;
+        }
+        
+        return this.transformer(data);
+    }
+    
+    function getName(): string {
+        return this.name;
+    }
+}
+
+// Aggregation stage
+component AggregateStage extends PipelineStage {
+    state {
+        aggregator: function(any, any): any;
+        initialValue: any;
+        result: any;
+        name: string;
+    }
+    
+    function constructor(aggregator: function(any, any): any, initialValue: any, name: string = "Aggregate") {
+        super();
+        this.aggregator = aggregator;
+        this.initialValue = initialValue;
+        this.result = initialValue;
+        this.name = name;
+    }
+    
+    function process(data: any): any {
+        if (data == null) {
+            var finalResult = this.result;
+            this.result = this.initialValue;  // Reset for next run
+            return finalResult;
+        }
+        
+        this.result = this.aggregator(this.result, data);
+        return "CONTINUE";  // Special value to indicate pipeline should continue
+    }
+    
+    function getName(): string {
+        return this.name;
+    }
+}
+
+// Sink stage (terminal stage)
+component SinkStage extends PipelineStage {
+    state {
+        consumer: function(any): void;
+        results: any[] = [];
+        name: string;
+    }
+    
+    function constructor(consumer: function(any): void, name: string = "Sink") {
+        super();
+        this.consumer = consumer;
+        this.name = name;
+    }
+    
+    function process(data: any): any {
+        if (data == null) {
+            var collectedResults = this.results;
+            this.results = [];  // Reset for next run
+            return collectedResults;
+        }
+        
+        this.consumer(data);
+        this.results.push(data);
+        return "CONTINUE";  // Special value to indicate pipeline should continue
+    }
+    
+    function getName(): string {
+        return this.name;
+    }
+}
+
+// Pipeline orchestrator
+component Pipeline {
+    state {
+        stages: PipelineStage[] = [];
+        name: string;
+        debug: boolean = false;
+    }
+    
+    function constructor(name: string = "Pipeline") {
+        this.name = name;
+    }
+    
+    function addStage(stage: PipelineStage): Pipeline {
+        this.stages.push(stage);
+        return this;  // For method chaining
+    }
+    
+    function setDebug(debug: boolean): Pipeline {
+        this.debug = debug;
+        return this;
+    }
+    
+    function execute(initialInput: any = null): any {
+        if (this.stages.length == 0) {
+            return null;
+        }
+        
+        var input = initialInput;
+        var stageIndex = 0;
+        
+        while (stageIndex < this.stages.length) {
+            var stage = this.stages[stageIndex];
+            
+            if (this.debug) {
+                print "Pipeline '" + this.name + "': Executing stage '" + stage.getName() + "' with input: " + JSON.stringify(input);
+            }
+            
+            var output = stage.process(input);
+            
+            if (this.debug) {
+                print "Pipeline '" + this.name + "': Stage '" + stage.getName() + "' produced output: " + JSON.stringify(output);
+            }
+            
+            if (output === "SKIP") {
+                // Start over with the next item from the source
+                stageIndex = 0;
+                input = null;
+                continue;
+            } else if (output === "CONTINUE") {
+                // Continue with the next stage, but don't pass any data
+                stageIndex++;
+                input = null;
+                continue;
+            }
+            
+            input = output;
+            stageIndex++;
+            
+            // If we've reached the end of the pipeline and the source has more data,
+            // start over from the beginning
+            if (stageIndex == this.stages.length && this.stages[0] instanceof DataSource) {
+                var nextInput = this.stages[0].process(null);
+                if (nextInput !== null) {
+                    stageIndex = 1;  // Skip the source stage
+                    input = nextInput;
+                }
+            }
+        }
+        
+        return input;
+    }
+}
+
+// Example data models
+component SalesRecord {
+    state {
+        id: number;
+        product: string;
+        category: string;
+        price: number;
+        quantity: number;
+        date: string;
+        region: string;
+    }
+    
+    function constructor(id: number, product: string, category: string, price: number, quantity: number, date: string, region: string) {
+        this.id = id;
+        this.product = product;
+        this.category = category;
+        this.price = price;
+        this.quantity = quantity;
+        this.date = date;
+        this.region = region;
+    }
+    
+    function getTotalValue(): number {
+        return this.price * this.quantity;
+    }
+}
+
+component SalesSummary {
+    state {
+        category: string;
+        totalSales: number;
+        itemCount: number;
+        averagePrice: number;
+    }
+    
+    function constructor(category: string) {
+        this.category = category;
+        this.totalSales = 0;
+        this.itemCount = 0;
+        this.averagePrice = 0;
+    }
+    
+    function addSale(record: SalesRecord) {
+        this.totalSales += record.getTotalValue();
+        this.itemCount += record.quantity;
+        this.averagePrice = this.totalSales / this.itemCount;
+    }
+}
+
+component DataPipelineDemo {
+    function generateSampleData(): SalesRecord[] {
+        var records = [];
+        var categories = ["Electronics", "Clothing", "Books", "Home", "Food"];
+        var products = [
+            ["Laptop", "Smartphone", "Headphones", "Tablet", "Camera"],
+            ["T-Shirt", "Jeans", "Jacket", "Shoes", "Hat"],
+            ["Fiction", "Non-Fiction", "Textbook", "Comic", "Magazine"],
+            ["Chair", "Table", "Lamp", "Sofa", "Bed"],
+            ["Fruit", "Vegetables", "Meat", "Dairy", "Snacks"]
+        ];
+        var regions = ["North", "South", "East", "West", "Central"];
+        
+        for (var i = 1; i <= 100; i++) {
+            var categoryIndex = Math.floor(Math.random() * categories.length);
+            var category = categories[categoryIndex];
+            var product = products[categoryIndex][Math.floor(Math.random() * 5)];
+            var price = 10 + Math.random() * 990;
+            var quantity = 1 + Math.floor(Math.random() * 10);
+            var date = "2023-" + (1 + Math.floor(Math.random() * 12)).toString().padStart(2, "0") + "-" + 
+                      (1 + Math.floor(Math.random() * 28)).toString().padStart(2, "0");
+            var region = regions[Math.floor(Math.random() * regions.length)];
+            
+            records.push(new SalesRecord(i, product, category, price, quantity, date, region));
+        }
+        
+        return records;
+    }
+    
+    function run() {
+        print "Data Pipeline Demo";
+        print "------------------";
+        print "";
+        
+        // Generate sample data
+        var salesData = this.generateSampleData();
+        print "Generated " + salesData.length + " sample sales records";
+        print "";
+        
+        // Example 1: Basic filtering and transformation
+        print "Example 1: Filter and Transform";
+        print "-------------------------------";
+        
+        var pipeline1 = new Pipeline("FilterTransform")
+            .setDebug(true)
+            .addStage(new DataSource(salesData, "SalesSource"))
+            .addStage(new FilterStage(function(record) {
+                return record.category == "Electronics";
+            }, "ElectronicsFilter"))
+            .addStage(new TransformStage(function(record) {
+                return {
+                    product: record.product,
+                    revenue: record.getTotalValue(),
+                    date: record.date
+                };
+            }, "RevenueTransform"))
+            .addStage(new SinkStage(function(data) {
+                print "Processed: " + data.product + " - $" + data.revenue.toFixed(2) + " (" + data.date + ")";
+            }, "ConsoleSink"));
+        
+        var result1 = pipeline1.execute();
+        print "Pipeline 1 processed " + result1.length + " records";
+        print "";
+        
+        // Example 2: Aggregation pipeline
+        print "Example 2: Aggregation by Category";
+        print "---------------------------------";
+        
+        var categorySummaries = {};
+        
+        var pipeline2 = new Pipeline("CategoryAggregation")
+            .addStage(new DataSource(salesData, "SalesSource"))
+            .addStage(new TransformStage(function(record) {
+                var category = record.category;
+                if (!categorySummaries[category]) {
+                    categorySummaries[category] = new SalesSummary(category);
+                }
+                categorySummaries[category].addSale(record);
+                return record;
+            }, "CategoryAggregator"))
+            .addStage(new AggregateStage(function(total, record) {
+                return total + record.getTotalValue();
+            }, 0, "TotalRevenue"));
+        
+        var totalRevenue = pipeline2.execute();
+        print "Total Revenue: $" + totalRevenue.toFixed(2);
+        print "";
+        print "Category Summaries:";
+        
+        for (var category in categorySummaries) {
+            var summary = categorySummaries[category];
+            print category + ": $" + summary.totalSales.toFixed(2) + " (" + summary.itemCount + " items, avg: $" + summary.averagePrice.toFixed(2) + ")";
+        }
+        print "";
+        
+        // Example 3: Complex multi-stage pipeline
+        print "Example 3: Regional Sales Analysis";
+        print "--------------------------------";
+        
+        var highValueSales = [];
+        var regionalTotals = {};
+        
+        var pipeline3 = new Pipeline("RegionalAnalysis")
+            .addStage(new DataSource(salesData, "SalesSource"))
+            .addStage(new FilterStage(function(record) {
+                // Filter for Q1 2023 sales
+                return record.date.startsWith("2023-01") || 
+                       record.date.startsWith("2023-02") || 
+                       record.date.startsWith("2023-03");
+            }, "Q1Filter"))
+            .addStage(new TransformStage(function(record) {
+                // Track high-value sales
+                if (record.getTotalValue() > 1000) {
+                    highValueSales.push({
+                        product: record.product,
+                        value: record.getTotalValue(),
+                        region: record.region
+                    });
+                }
+                
+                // Track regional totals
+                if (!regionalTotals[record.region]) {
+                    regionalTotals[record.region] = 0;
+                }
+                regionalTotals[record.region] += record.getTotalValue();
+                
+                return record;
+            }, "SalesAnalyzer"))
+            .addStage(new AggregateStage(function(totals, record) {
+                var category = record.category;
+                if (!totals[category]) {
+                    totals[category] = 0;
+                }
+                totals[category] += record.getTotalValue();
+                return totals;
+            }, {}, "CategoryTotals"));
+        
+        var categoryTotals = pipeline3.execute();
+        
+        print "Q1 2023 Sales by Category:";
+        for (var category in categoryTotals) {
+            print category + ": $" + categoryTotals[category].toFixed(2);
+        }
+        
+        print "\nQ1 2023 Sales by Region:";
+        for (var region in regionalTotals) {
+            print region + ": $" + regionalTotals[region].toFixed(2);
+        }
+        
+        print "\nHigh-Value Sales (>$1000):";
+        for (var i = 0; i < highValueSales.length; i++) {
+            var sale = highValueSales[i];
+            print sale.product + ": $" + sale.value.toFixed(2) + " (" + sale.region + ")";
+        }
+    }
+}
+
+component Main {
+    function start() {
+        var demo = new DataPipelineDemo();
+        demo.run();
+    }
+}

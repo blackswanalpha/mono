@@ -1,0 +1,491 @@
+#!/usr/bin/env python3
+
+"""
+Mono Language Interpreter - Main executable
+
+This is the main entry point for the Mono language interpreter.
+It supports running Mono scripts with various features enabled,
+as well as managing kits and layouts.
+"""
+
+import os
+import sys
+import re
+import argparse
+
+# Add the parent directory to the Python path
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from lib import mono_utils
+from lib.mono_core import run_mono_file as run_basic_mono_file
+from lib.mono_reactive import run_mono_file as run_reactive_mono_file
+from lib.mono_typed import run_mono_file as run_typed_mono_file
+from lib.mono_lifecycle import run_mono_file as run_lifecycle_mono_file
+from lib.mono_arithmetic import run_mono_file as run_arithmetic_mono_file
+from lib.mono_collections import run_mono_file as run_collections_mono_file
+from lib.mono_concurrent import run_mono_file as run_concurrent_mono_file
+from lib.mono_element_interpreter import run_mono_file as run_element_mono_file
+from lib.mono_frame_interpreter import run_mono_file as run_frame_mono_file
+from lib.mono_combined_interpreter import run_mono_file as run_combined_mono_file
+from lib.mono_integrated import (
+    # Kit management functions
+    create_kit, list_kits, search_kits, show_kit, import_kit, run_kit_demo,
+    # Layout management functions
+    parse_layout, render_layout, run_layout_demo,
+    # Data structure management functions
+    create_data_structure, list_data_structures, save_data_structure, load_data_structure,
+    render_data_structure, run_data_structures_demo,
+    # Package management functions
+    create_package, list_packages, search_packages, show_package, import_package,
+    install_package, audit_package, check_licenses, run_package_demo
+)
+
+def detect_script_features(file_path):
+    """
+    Detect features used in a Mono script (reactive, typed, lifecycle, arithmetic, collections, elements, frames).
+    """
+    try:
+        with open(file_path, 'r') as f:
+            content = f.read()
+
+        features = {
+            'reactive': False,
+            'typed': False,
+            'lifecycle': False,
+            'arithmetic': False,
+            'collections': False,
+            'concurrent': False,
+            'elements': False,
+            'frames': False
+        }
+
+        # Check for reactive features like 'state' declarations
+        if re.search(r'\bstate\s*{', content):
+            features['reactive'] = True
+
+        # Check for type annotations
+        if re.search(r':\s*\w+', content) or re.search(r'function\s+\w+\s*\([^)]*\)\s*:\s*\w+', content):
+            features['typed'] = True
+
+        # Check for lifecycle hooks
+        lifecycle_hooks = ['constructor', 'onMount', 'onUpdate', 'onUnmount', 'onError']
+        for hook in lifecycle_hooks:
+            if re.search(rf'\b{hook}\s*\(', content):
+                features['lifecycle'] = True
+                break
+
+        # Check for complex arithmetic operations
+        arithmetic_ops = ['\*', '/', '%', '\*\*']
+        for op in arithmetic_ops:
+            if re.search(rf'[\w\s]+{op}[\w\s]+', content):
+                features['arithmetic'] = True
+                break
+
+        # Check for collections (arrays, dictionaries) and boolean operations
+        if re.search(r'\[.*?\]', content) or re.search(r'{.*?}', content):
+            features['collections'] = True
+
+        # Check for boolean operations
+        boolean_ops = ['==', '!=', '>', '<', '>=', '<=', '&&', '\|\|']
+        for op in boolean_ops:
+            if re.search(rf'[\w\s]+{op}[\w\s]+', content):
+                features['collections'] = True
+                break
+
+        # Check for concurrency features
+        concurrency_features = ['parallel', 'Channel', 'Mutex', 'sleep']
+        for feature in concurrency_features:
+            if re.search(rf'\b{feature}\b', content):
+                features['concurrent'] = True
+                break
+
+        # Check for element features
+        element_features = ['<div', '<span', '<button', '<input', '<slot', 'render\(\)']
+        for feature in element_features:
+            if re.search(rf'{feature}', content):
+                features['elements'] = True
+                break
+
+        # Check for frame features
+        frame_features = ['createFrame', 'loadFrame', 'unloadFrame', 'addComponentToFrame', 'getFrameState', 'setFrameState', 'frameWillLoad', 'frameDidLoad']
+        for feature in frame_features:
+            if re.search(rf'\b{feature}\b', content):
+                features['frames'] = True
+                break
+
+        return features
+    except Exception as e:
+        mono_utils.print_error(f"Error reading file: {e}")
+        return {'reactive': False, 'typed': False, 'lifecycle': False, 'arithmetic': False, 'collections': False, 'concurrent': False, 'elements': False, 'frames': False}
+
+def parse_args():
+    """
+    Parse command-line arguments for the Mono interpreter.
+    """
+    parser = argparse.ArgumentParser(description="Mono Language Interpreter")
+
+    # Create subparsers for different commands
+    subparsers = parser.add_subparsers(dest="command", help="Command to run")
+
+    # Run command (default)
+    run_parser = subparsers.add_parser("run", help="Run a Mono script")
+    run_parser.add_argument("script", help="Path to the Mono script file")
+    run_parser.add_argument("-r", "--reactive", action="store_true", help="Enable reactive features")
+    run_parser.add_argument("-t", "--type-check", action="store_true", help="Enable type checking")
+    run_parser.add_argument("-l", "--lifecycle", action="store_true", help="Enable lifecycle hooks")
+    run_parser.add_argument("-a", "--arithmetic", action="store_true", help="Enable complex arithmetic operations")
+    run_parser.add_argument("-c", "--collections", action="store_true", help="Enable collections and boolean operations")
+    run_parser.add_argument("-p", "--concurrent", action="store_true", help="Enable concurrency and parallelism features")
+    run_parser.add_argument("-e", "--elements", action="store_true", help="Enable element support")
+    run_parser.add_argument("-f", "--frames", action="store_true", help="Enable frame support")
+    run_parser.add_argument("-v", "--verbose", action="store_true", help="Enable verbose output")
+
+    # Kit commands
+    kit_parser = subparsers.add_parser("kit", help="Manage Mono kits")
+    kit_subparsers = kit_parser.add_subparsers(dest="kit_command", help="Kit command to run")
+
+    # Kit create command
+    kit_create_parser = kit_subparsers.add_parser("create", help="Create a new kit")
+    kit_create_parser.add_argument("name", help="Name of the kit")
+    kit_create_parser.add_argument("--version", default="0.1.0", help="Version of the kit")
+    kit_create_parser.add_argument("--description", default="", help="Description of the kit")
+
+    # Kit list command
+    kit_list_parser = kit_subparsers.add_parser("list", help="List all kits in the registry")
+
+    # Kit search command
+    kit_search_parser = kit_subparsers.add_parser("search", help="Search for kits by name or description")
+    kit_search_parser.add_argument("query", help="Search query")
+
+    # Kit show command
+    kit_show_parser = kit_subparsers.add_parser("show", help="Show details of a kit")
+    kit_show_parser.add_argument("name", help="Name of the kit")
+    kit_show_parser.add_argument("--version", help="Version of the kit")
+
+    # Kit import command
+    kit_import_parser = kit_subparsers.add_parser("import", help="Import a kit from a definition file")
+    kit_import_parser.add_argument("file", help="Path to the kit definition file")
+
+    # Kit demo command
+    kit_demo_parser = kit_subparsers.add_parser("demo", help="Run the kits demo")
+
+    # Layout commands
+    layout_parser = subparsers.add_parser("layout", help="Manage Mono layouts")
+    layout_subparsers = layout_parser.add_subparsers(dest="layout_command", help="Layout command to run")
+
+    # Layout parse command
+    layout_parse_parser = layout_subparsers.add_parser("parse", help="Parse a layout definition file")
+    layout_parse_parser.add_argument("file", help="Path to the layout definition file")
+    layout_parse_parser.add_argument("-v", "--verbose", action="store_true", help="Show detailed information")
+
+    # Layout render command
+    layout_render_parser = layout_subparsers.add_parser("render", help="Render a layout to HTML or CSS")
+    layout_render_parser.add_argument("file", help="Path to the layout definition file")
+    layout_render_parser.add_argument("-f", "--format", choices=["html", "css"], default="html", help="Output format")
+    layout_render_parser.add_argument("-o", "--output", help="Output file path")
+    layout_render_parser.add_argument("-w", "--width", type=int, default=800, help="Viewport width")
+    layout_render_parser.add_argument("--height", type=int, default=600, help="Viewport height")
+
+    # Layout demo command
+    layout_demo_parser = layout_subparsers.add_parser("demo", help="Run the layouts demo")
+
+    # Data structure commands
+    data_parser = subparsers.add_parser("data", help="Manage Mono data structures")
+    data_subparsers = data_parser.add_subparsers(dest="data_command", help="Data structure command to run")
+
+    # Data create command
+    data_create_parser = data_subparsers.add_parser("create", help="Create a new data structure")
+    data_create_parser.add_argument("type", choices=["table", "tree", "graph", "list", "grid"], help="Type of data structure")
+    data_create_parser.add_argument("name", help="Name of the data structure")
+    data_create_parser.add_argument("--description", default="", help="Description of the data structure")
+
+    # Data list command
+    data_list_parser = data_subparsers.add_parser("list", help="List all data structures")
+
+    # Data save command
+    data_save_parser = data_subparsers.add_parser("save", help="Save a data structure to a file")
+    data_save_parser.add_argument("name", help="Name of the data structure")
+    data_save_parser.add_argument("file", help="Path to the output file")
+
+    # Data load command
+    data_load_parser = data_subparsers.add_parser("load", help="Load a data structure from a file")
+    data_load_parser.add_argument("file", help="Path to the data structure file")
+
+    # Data render command
+    data_render_parser = data_subparsers.add_parser("render", help="Render a data structure")
+    data_render_parser.add_argument("name", help="Name of the data structure")
+    data_render_parser.add_argument("-f", "--format", choices=["html", "json"], default="html", help="Output format")
+    data_render_parser.add_argument("-o", "--output", help="Output file path")
+
+    # Data demo command
+    data_demo_parser = data_subparsers.add_parser("demo", help="Run the data structures demo")
+
+    # Version command
+    version_parser = subparsers.add_parser("version", help="Show version information")
+
+    # Package commands
+    pkg_parser = subparsers.add_parser("pkg", help="Manage Mono packages")
+    pkg_subparsers = pkg_parser.add_subparsers(dest="pkg_command", help="Package command to run")
+
+    # Package create command
+    pkg_create_parser = pkg_subparsers.add_parser("create", help="Create a new package")
+    pkg_create_parser.add_argument("name", help="Name of the package")
+    pkg_create_parser.add_argument("--version", default="0.1.0", help="Version of the package")
+    pkg_create_parser.add_argument("--description", default="", help="Description of the package")
+
+    # Package list command
+    pkg_list_parser = pkg_subparsers.add_parser("list", help="List all packages in the registry")
+
+    # Package search command
+    pkg_search_parser = pkg_subparsers.add_parser("search", help="Search for packages by name or description")
+    pkg_search_parser.add_argument("query", help="Search query")
+
+    # Package show command
+    pkg_show_parser = pkg_subparsers.add_parser("show", help="Show details of a package")
+    pkg_show_parser.add_argument("name", help="Name of the package")
+    pkg_show_parser.add_argument("--version", help="Version of the package")
+
+    # Package import command
+    pkg_import_parser = pkg_subparsers.add_parser("import", help="Import a package from a definition file")
+    pkg_import_parser.add_argument("file", help="Path to the package definition file")
+
+    # Package install command
+    pkg_install_parser = pkg_subparsers.add_parser("install", help="Install a package")
+    pkg_install_parser.add_argument("name", help="Name of the package")
+    pkg_install_parser.add_argument("--version", help="Version of the package")
+    pkg_install_parser.add_argument("--dev", action="store_true", help="Install as a development dependency")
+
+    # Package audit command
+    pkg_audit_parser = pkg_subparsers.add_parser("audit", help="Audit a package for security vulnerabilities")
+    pkg_audit_parser.add_argument("name", help="Name of the package")
+    pkg_audit_parser.add_argument("--version", help="Version of the package")
+    pkg_audit_parser.add_argument("--level", choices=["low", "medium", "high", "critical", "all"], default="all", help="Minimum vulnerability level to report")
+    pkg_audit_parser.add_argument("--dev", action="store_true", help="Include development dependencies")
+
+    # Package license command
+    pkg_license_parser = pkg_subparsers.add_parser("license", help="Check license compliance for a package")
+    pkg_license_parser.add_argument("name", help="Name of the package")
+    pkg_license_parser.add_argument("--version", help="Version of the package")
+    pkg_license_parser.add_argument("--dev", action="store_true", help="Include development dependencies")
+
+    # Package demo command
+    pkg_demo_parser = pkg_subparsers.add_parser("demo", help="Run the package manager demo")
+
+    # Check if we need to insert the 'run' command
+    # Look for the first non-option argument
+    script_index = -1
+    for i in range(1, len(sys.argv)):
+        if not sys.argv[i].startswith('-'):
+            if sys.argv[i] not in ['run', 'kit', 'layout', 'data', 'pkg', 'version']:
+                script_index = i
+                break
+            else:
+                # Found a command, no need to insert 'run'
+                break
+
+    # Insert 'run' command if we found a script file
+    if script_index > 0:
+        sys.argv.insert(1, 'run')
+
+    # Parse arguments
+    args = parser.parse_args()
+
+    # If no command is provided, show help
+    if not args.command:
+        parser.print_help()
+        sys.exit(1)
+
+    return args
+
+def main():
+    """
+    Main entry point for the Mono interpreter.
+    """
+    # Parse command-line arguments
+    args = parse_args()
+
+    # Handle different commands
+    if args.command == "version" or not args.command:
+        mono_utils.print_version()
+        return 0
+
+    elif args.command == "run":
+        # Find the script file
+        script_file = mono_utils.find_mono_file(args.script)
+        if not script_file:
+            mono_utils.print_error(f"Script file not found: {args.script}")
+            return 1
+
+        # Detect features used in the script
+        features = detect_script_features(script_file)
+
+        # Determine which interpreter to use
+        use_reactive = args.reactive or features['reactive']
+        use_type_check = args.type_check or features['typed']
+        use_lifecycle = args.lifecycle or features['lifecycle']
+        use_arithmetic = args.arithmetic or features['arithmetic']
+        use_collections = args.collections or features['collections']
+        use_concurrent = args.concurrent or features['concurrent']
+        use_elements = args.elements or features['elements']
+        use_frames = args.frames or features['frames']
+
+        # Print info if verbose
+        if args.verbose:
+            if use_reactive:
+                mono_utils.print_info("Running with reactive features enabled")
+            if use_type_check:
+                mono_utils.print_info("Running with type checking enabled")
+            if use_lifecycle:
+                mono_utils.print_info("Running with lifecycle hooks enabled")
+            if use_arithmetic:
+                mono_utils.print_info("Running with complex arithmetic operations enabled")
+            if use_collections:
+                mono_utils.print_info("Running with collections and boolean operations enabled")
+            if use_concurrent:
+                mono_utils.print_info("Running with concurrency and parallelism features enabled")
+            if use_elements:
+                mono_utils.print_info("Running with element support enabled")
+            if use_frames:
+                mono_utils.print_info("Running with frame support enabled")
+
+        # Run the script with the appropriate interpreter
+        if use_elements or use_frames:
+            # Use the combined interpreter for element and frame support
+            success = run_combined_mono_file(script_file)
+        elif use_concurrent:
+            # Use the concurrent interpreter
+            success = run_concurrent_mono_file(script_file)
+        elif use_lifecycle:
+            # Use the lifecycle interpreter
+            success = run_lifecycle_mono_file(script_file)
+        elif use_collections:
+            # Use the collections interpreter
+            success = run_collections_mono_file(script_file)
+        elif use_arithmetic:
+            # Use the arithmetic interpreter
+            success = run_arithmetic_mono_file(script_file)
+        elif use_type_check:
+            # Use the typed interpreter
+            success = run_typed_mono_file(script_file, use_type_check, args.verbose)
+        elif use_reactive:
+            # Use the reactive interpreter
+            success = run_reactive_mono_file(script_file)
+        else:
+            # Use the basic interpreter
+            success = run_basic_mono_file(script_file)
+
+        return 0 if success else 1
+
+    elif args.command == "kit":
+        # Handle kit commands
+        if args.kit_command == "create":
+            success = create_kit(args.name, args.version, args.description)
+        elif args.kit_command == "list":
+            list_kits()
+            success = True
+        elif args.kit_command == "search":
+            search_kits(args.query)
+            success = True
+        elif args.kit_command == "show":
+            show_kit(args.name, args.version)
+            success = True
+        elif args.kit_command == "import":
+            success = import_kit(args.file)
+        elif args.kit_command == "demo":
+            success = run_kit_demo()
+        else:
+            mono_utils.print_error("Unknown kit command")
+            return 1
+
+        return 0 if success else 1
+
+    elif args.command == "layout":
+        # Handle layout commands
+        if args.layout_command == "parse":
+            layout = parse_layout(args.file, args.verbose)
+            success = layout is not None
+        elif args.layout_command == "render":
+            output = render_layout(args.file, args.format, args.output, args.width, args.height)
+            success = output is not None
+        elif args.layout_command == "demo":
+            success = run_layout_demo()
+        else:
+            mono_utils.print_error("Unknown layout command")
+            return 1
+
+        return 0 if success else 1
+
+    elif args.command == "data":
+        # Handle data structure commands
+        if args.data_command == "create":
+            structure = create_data_structure(args.type, args.name, args.description)
+            print(f"Created {args.type} data structure '{args.name}'")
+            success = structure is not None
+        elif args.data_command == "list":
+            list_data_structures()
+            success = True
+        elif args.data_command == "save":
+            success = save_data_structure(args.name, args.file)
+            if success:
+                print(f"Saved data structure '{args.name}' to {args.file}")
+        elif args.data_command == "load":
+            structure = load_data_structure(args.file)
+            success = structure is not None
+            if success:
+                print(f"Loaded data structure '{structure.name}' from {args.file}")
+        elif args.data_command == "render":
+            output = render_data_structure(args.name, args.format)
+            success = output is not None
+            if success and args.output:
+                with open(args.output, "w") as f:
+                    f.write(output)
+                print(f"Rendered data structure '{args.name}' to {args.output}")
+            elif success:
+                print(output)
+        elif args.data_command == "demo":
+            success = run_data_structures_demo()
+        else:
+            mono_utils.print_error("Unknown data structure command")
+            return 1
+
+        return 0 if success else 1
+
+    elif args.command == "pkg":
+        # Handle package commands
+        if args.pkg_command == "create":
+            package = create_package(args.name, args.version, args.description)
+            success = package is not None
+        elif args.pkg_command == "list":
+            list_packages()
+            success = True
+        elif args.pkg_command == "search":
+            search_packages(args.query)
+            success = True
+        elif args.pkg_command == "show":
+            show_package(args.name, args.version)
+            success = True
+        elif args.pkg_command == "import":
+            success = import_package(args.file)
+        elif args.pkg_command == "install":
+            package = install_package(args.name, args.version, args.dev)
+            success = package is not None
+        elif args.pkg_command == "audit":
+            vulnerabilities = audit_package(args.name, args.version, args.level, args.dev)
+            success = True
+        elif args.pkg_command == "license":
+            issues = check_licenses(args.name, args.version, args.dev)
+            success = True
+        elif args.pkg_command == "demo":
+            success = run_package_demo()
+        else:
+            mono_utils.print_error("Unknown package command")
+            return 1
+
+        return 0 if success else 1
+
+    else:
+        mono_utils.print_error(f"Unknown command: {args.command}")
+        return 1
+
+if __name__ == '__main__':
+    sys.exit(main())

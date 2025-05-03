@@ -1,0 +1,166 @@
+//  __  __                   
+// |  \/  | ___  _ __   ___  
+// | |\/| |/ _ \| '_ \ / _ \ 
+// | |  | | (_) | | | | (_) |
+// |_|  |_|\___/|_| |_|\___/ 
+//
+// Data Visualizer - A simple ASCII chart generator
+
+component DataPoint {
+    state {
+        label: string;
+        value: number;
+    }
+    
+    function constructor(label: string, value: number) {
+        this.label = label;
+        this.value = value;
+    }
+}
+
+component BarChart {
+    state {
+        title: string;
+        data: DataPoint[] = [];
+        maxLabelLength: number = 0;
+    }
+    
+    function constructor(title: string) {
+        this.title = title;
+    }
+    
+    function addDataPoint(label: string, value: number) {
+        this.data.push(new DataPoint(label, value));
+        if (label.length > this.maxLabelLength) {
+            this.maxLabelLength = label.length;
+        }
+    }
+    
+    function getMaxValue(): number {
+        var max = 0;
+        for (var i = 0; i < this.data.length; i++) {
+            if (this.data[i].value > max) {
+                max = this.data[i].value;
+            }
+        }
+        return max;
+    }
+    
+    function render(maxWidth: number = 40) {
+        print this.title;
+        print "=".repeat(this.title.length);
+        print "";
+        
+        var maxValue = this.getMaxValue();
+        var labelWidth = this.maxLabelLength + 2;
+        
+        for (var i = 0; i < this.data.length; i++) {
+            var dataPoint = this.data[i];
+            var barLength = Math.round((dataPoint.value / maxValue) * maxWidth);
+            var bar = "█".repeat(barLength);
+            
+            // Pad the label to align bars
+            var paddedLabel = dataPoint.label;
+            while (paddedLabel.length < labelWidth) {
+                paddedLabel += " ";
+            }
+            
+            print paddedLabel + "│ " + bar + " " + dataPoint.value;
+        }
+    }
+}
+
+component PieChart {
+    state {
+        title: string;
+        data: DataPoint[] = [];
+        total: number = 0;
+    }
+    
+    function constructor(title: string) {
+        this.title = title;
+    }
+    
+    function addDataPoint(label: string, value: number) {
+        this.data.push(new DataPoint(label, value));
+        this.total += value;
+    }
+    
+    function render() {
+        print this.title;
+        print "=".repeat(this.title.length);
+        print "";
+        
+        // Calculate percentages and display
+        for (var i = 0; i < this.data.length; i++) {
+            var dataPoint = this.data[i];
+            var percentage = (dataPoint.value / this.total) * 100;
+            var formattedPercentage = percentage.toFixed(1) + "%";
+            
+            // Create a visual representation
+            var pieSlice = this.getAsciiPieSlice(percentage);
+            
+            print dataPoint.label + ": " + formattedPercentage + " " + pieSlice + " (" + dataPoint.value + ")";
+        }
+    }
+    
+    function getAsciiPieSlice(percentage: number): string {
+        var fullBlocks = Math.floor(percentage / 10);
+        var remainder = percentage % 10;
+        
+        var result = "█".repeat(fullBlocks);
+        
+        // Add partial block if needed
+        if (remainder > 0) {
+            if (remainder < 3) {
+                result += "▏";
+            } else if (remainder < 5) {
+                result += "▎";
+            } else if (remainder < 7) {
+                result += "▌";
+            } else if (remainder < 9) {
+                result += "▊";
+            } else {
+                result += "█";
+            }
+        }
+        
+        return result;
+    }
+}
+
+component DataVisualizer {
+    function run() {
+        print "Data Visualizer Demo";
+        print "--------------------";
+        print "";
+        
+        // Create and render a bar chart
+        var barChart = new BarChart("Monthly Sales (2023)");
+        barChart.addDataPoint("January", 45);
+        barChart.addDataPoint("February", 58);
+        barChart.addDataPoint("March", 75);
+        barChart.addDataPoint("April", 62);
+        barChart.addDataPoint("May", 91);
+        barChart.addDataPoint("June", 74);
+        barChart.render();
+        
+        print "\n\n";
+        
+        // Create and render a pie chart
+        var pieChart = new PieChart("Product Category Distribution");
+        pieChart.addDataPoint("Electronics", 35);
+        pieChart.addDataPoint("Clothing", 25);
+        pieChart.addDataPoint("Books", 15);
+        pieChart.addDataPoint("Home & Kitchen", 20);
+        pieChart.addDataPoint("Other", 5);
+        pieChart.render();
+    }
+}
+
+component Main {
+    function start() {
+        var visualizer = new DataVisualizer();
+        visualizer.run();
+    }
+}

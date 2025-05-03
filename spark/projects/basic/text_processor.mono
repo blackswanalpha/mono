@@ -1,0 +1,63 @@
+//  __  __                   
+// |  \/  | ___  _ __   ___  
+// | |\/| |/ _ \| '_ \ / _ \ 
+// | |  | | (_) | | | | (_) |
+// |_|  |_|\___/|_| |_|\___/ 
+//
+// Text Processor - Basic string operations in Mono
+
+component TextProcessor {
+    function countWords(text: string): number {
+        if (text.length == 0) {
+            return 0;
+        }
+        
+        // Split by whitespace and count non-empty parts
+        var words = text.split(" ");
+        var count = 0;
+        
+        for (var i = 0; i < words.length; i++) {
+            if (words[i].length > 0) {
+                count++;
+            }
+        }
+        
+        return count;
+    }
+    
+    function reverse(text: string): string {
+        var result = "";
+        for (var i = text.length - 1; i >= 0; i--) {
+            result += text[i];
+        }
+        return result;
+    }
+    
+    function isPalindrome(text: string): boolean {
+        var cleaned = text.toLowerCase().replace(/[^a-z0-9]/g, "");
+        var reversed = this.reverse(cleaned);
+        return cleaned == reversed;
+    }
+}
+
+component Main {
+    function start() {
+        var processor = new TextProcessor();
+        
+        print "Text Processor Demo";
+        print "-------------------";
+        
+        var text1 = "Hello, Mono World!";
+        var text2 = "A man, a plan, a canal: Panama";
+        
+        print "Original text: " + text1;
+        print "Word count: " + processor.countWords(text1);
+        print "Reversed: " + processor.reverse(text1);
+        print "Is palindrome: " + processor.isPalindrome(text1);
+        
+        print "\nOriginal text: " + text2;
+        print "Word count: " + processor.countWords(text2);
+        print "Reversed: " + processor.reverse(text2);
+        print "Is palindrome: " + processor.isPalindrome(text2);
+    }
+}

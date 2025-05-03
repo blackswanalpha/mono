@@ -1,0 +1,24 @@
+//  __  __                   
+// |  \/  | ___  _ __   ___  
+// | |\/| |/ _ \| '_ \ / _ \ 
+// | |  | | (_) | | | | (_) |
+// |_|  |_|\___/|_| |_|\___/ 
+//                           
+// Mono Language - UI Kit Definition
+
+kit UIKit version 1.0.0 {
+    description "A collection of UI components for Mono"
+    
+    collect {
+        Button from "components/button.mono" as "A customizable button component"
+        Card from "components/card.mono" as "A card component with header, body, and footer"
+        Modal from "components/modal.mono" as "A modal dialog component"
+        Tabs from "components/tabs.mono" as "A tabbed interface component"
+        Form from "components/form.mono" as "A form component with validation"
+    }
+    
+    tools {
+        generate "mono-tools generate-component $1 --template=ui" as "Generate a new UI component"
+        lint "mono-tools lint $1 --config=ui" as "Lint a UI component"
+    }
+}

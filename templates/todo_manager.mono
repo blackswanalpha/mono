@@ -1,0 +1,157 @@
+
+//  __  __                   
+// |  \/  | ___  _ __   ___  
+// | |\/| |/ _ \| '_ \ / _ \ 
+// | |  | | (_) | | | | (_) |
+// |_|  |_|\___/|_| |_|\___/ 
+//                           
+// Mono Language - A component-based language with reactive programming and static typing
+
+// Todo Manager Application
+// Demonstrates reactive components, state management, and type annotations
+
+component TodoItem {
+    state {
+        id: int = 0,
+        text: string = "",
+        completed: bool = false,
+        priority: int = 1  // 1 = low, 2 = medium, 3 = high
+    }
+    
+    function setId(newId: int): void {
+        this.state.id = newId;
+    }
+    
+    function setText(newText: string): void {
+        this.state.text = newText;
+    }
+    
+    function setPriority(newPriority: int): void {
+        this.state.priority = newPriority;
+    }
+    
+    function toggleCompleted(): void {
+        this.state.completed = !this.state.completed;
+    }
+    
+    function isCompleted(): bool {
+        return this.state.completed;
+    }
+    
+    function getPriorityText(): string {
+        if (this.state.priority == 1) {
+            return "Low";
+        } else if (this.state.priority == 2) {
+            return "Medium";
+        } else {
+            return "High";
+        }
+    }
+    
+    function render(): void {
+        var status: string = this.state.completed ? "[X]" : "[ ]";
+        print status + " " + this.state.id + ". " + this.state.text + " (Priority: " + this.getPriorityText() + ")";
+    }
+}
+
+component TodoList {
+    state {
+        items: any[] = [],
+        nextId: int = 1,
+        count: int = 0
+    }
+    
+    function addItem(text: string, priority: int): void {
+        var item: TodoItem = new TodoItem();
+        item.setId(this.state.nextId);
+        item.setText(text);
+        item.setPriority(priority);
+        
+        this.state.items[this.state.count] = item;
+        this.state.count = this.state.count + 1;
+        this.state.nextId = this.state.nextId + 1;
+    }
+    
+    function toggleItem(id: int): void {
+        for var i = 0; i < this.state.count; i++ {
+            var item: TodoItem = this.state.items[i];
+            if (item.state.id == id) {
+                item.toggleCompleted();
+                break;
+            }
+        }
+    }
+    
+    function getCompletedCount(): int {
+        var completed: int = 0;
+        for var i = 0; i < this.state.count; i++ {
+            var item: TodoItem = this.state.items[i];
+            if (item.isCompleted()) {
+                completed = completed + 1;
+            }
+        }
+        return completed;
+    }
+    
+    function renderStats(): void {
+        var completed: int = this.getCompletedCount();
+        var remaining: int = this.state.count - completed;
+        
+        print "--- Todo List Stats ---";
+        print "Total items: " + this.state.count;
+        print "Completed: " + completed;
+        print "Remaining: " + remaining;
+        print "Completion rate: " + (this.state.count > 0 ? (completed * 100 / this.state.count) : 0) + "%";
+    }
+    
+    function render(): void {
+        print "--- Todo List ---";
+        if (this.state.count == 0) {
+            print "No items in the list.";
+        } else {
+            for var i = 0; i < this.state.count; i++ {
+                var item: TodoItem = this.state.items[i];
+                item.render();
+            }
+        }
+    }
+}
+
+component Main {
+    function start(): void {
+        print "=== Todo Manager Application ===";
+        
+        var todoList: TodoList = new TodoList();
+        
+        // Add some initial items
+        todoList.addItem("Buy groceries", 2);
+        todoList.addItem("Finish Mono project", 3);
+        todoList.addItem("Go for a walk", 1);
+        todoList.addItem("Read a book", 1);
+        
+        // Display initial state
+        print "\nInitial Todo List:";
+        todoList.render();
+        todoList.renderStats();
+        
+        // Mark some items as completed
+        print "\nMarking items as completed...";
+        todoList.toggleItem(1);  // Buy groceries
+        todoList.toggleItem(3);  // Go for a walk
+        
+        // Display updated state
+        print "\nUpdated Todo List:";
+        todoList.render();
+        todoList.renderStats();
+        
+        // Add more items
+        print "\nAdding more items...";
+        todoList.addItem("Learn a new language", 2);
+        todoList.addItem("Watch a movie", 1);
+        
+        // Display final state
+        print "\nFinal Todo List:";
+        todoList.render();
+        todoList.renderStats();
+    }
+}

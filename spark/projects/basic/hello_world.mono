@@ -1,0 +1,15 @@
+//  __  __                   
+// |  \/  | ___  _ __   ___  
+// | |\/| |/ _ \| '_ \ / _ \ 
+// | |  | | (_) | | | | (_) |
+// |_|  |_|\___/|_| |_|\___/ 
+//
+// Hello World Template - A simple introduction to Mono
+
+component Main {
+    function start() {
+        print "Hello, Mono World!";
+        print "Welcome to your first Mono program.";
+        print "This is a simple template to get you started.";
+    }
+}

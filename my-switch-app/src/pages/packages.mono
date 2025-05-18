@@ -1,0 +1,480 @@
+//  __  __                   
+// |  \/  | ___  _ __   ___  
+// | |\/| |/ _ \| '_ \ / _ \ 
+// | |  | | (_) | | | | (_) |
+// |_|  |_|\___/|_| |_|\___/ 
+//                           
+// Packages Page Component
+
+component PackagesPage {
+    state {
+        title: string = "Package Management",
+        packages: array = [],
+        installedPackages: array = [],
+        searchQuery: string = "",
+        searchResults: array = [],
+        selectedPackage: object = null,
+        loading: boolean = false,
+        error: string = "",
+        success: string = ""
+    }
+    
+    function constructor() {
+        // Initialize the component
+        this.loadPackages();
+    }
+    
+    function loadPackages() {
+        // Set loading state
+        this.state.loading = true;
+        
+        // Fetch packages from API
+        if (switch.isClient()) {
+            fetch("/api/packages")
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === "success") {
+                        this.state.packages = data.data;
+                    } else {
+                        this.state.error = data.message || "Failed to load packages";
+                    }
+                    this.state.loading = false;
+                })
+                .catch(error => {
+                    this.state.error = error.message || "Failed to load packages";
+                    this.state.loading = false;
+                });
+        } else {
+            // Mock data for server-side rendering
+            this.state.packages = [
+                {
+                    name: "http-client",
+                    version: "1.0.0",
+                    description: "HTTP client for Switch applications",
+                    author: "Switch Team",
+                    license: "MIT",
+                    dependencies: {
+                        "switch-core": "^1.0.0"
+                    },
+                    installed: true
+                },
+                {
+                    name: "date-formatter",
+                    version: "1.0.0",
+                    description: "Date formatting utilities for Switch applications",
+                    author: "Switch Team",
+                    license: "MIT",
+                    dependencies: {
+                        "switch-core": "^1.0.0"
+                    },
+                    installed: true
+                },
+                {
+                    name: "storage-manager",
+                    version: "1.0.0",
+                    description: "Storage management utilities for Switch applications",
+                    author: "Switch Team",
+                    license: "MIT",
+                    dependencies: {
+                        "switch-core": "^1.0.0"
+                    },
+                    installed: true
+                },
+                {
+                    name: "state-manager",
+                    version: "1.0.0",
+                    description: "State management utilities for Switch applications",
+                    author: "Switch Team",
+                    license: "MIT",
+                    dependencies: {
+                        "switch-core": "^1.0.0"
+                    },
+                    installed: true
+                },
+                {
+                    name: "router",
+                    version: "1.0.0",
+                    description: "Routing utilities for Switch applications",
+                    author: "Switch Team",
+                    license: "MIT",
+                    dependencies: {
+                        "switch-core": "^1.0.0"
+                    },
+                    installed: true
+                }
+            ];
+            
+            this.state.installedPackages = this.state.packages.filter(pkg => pkg.installed);
+            this.state.loading = false;
+        }
+    }
+    
+    function searchPackages() {
+        // Set loading state
+        this.state.loading = true;
+        
+        // Clear previous results
+        this.state.searchResults = [];
+        
+        // Check if search query is empty
+        if (!this.state.searchQuery) {
+            this.state.loading = false;
+            return;
+        }
+        
+        // Fetch search results from API
+        if (switch.isClient()) {
+            fetch(`/api/packages/search?q=${encodeURIComponent(this.state.searchQuery)}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === "success") {
+                        this.state.searchResults = data.data;
+                    } else {
+                        this.state.error = data.message || "Failed to search packages";
+                    }
+                    this.state.loading = false;
+                })
+                .catch(error => {
+                    this.state.error = error.message || "Failed to search packages";
+                    this.state.loading = false;
+                });
+        } else {
+            // Mock data for server-side rendering
+            this.state.searchResults = this.state.packages.filter(pkg => 
+                pkg.name.includes(this.state.searchQuery) || 
+                pkg.description.includes(this.state.searchQuery)
+            );
+            this.state.loading = false;
+        }
+    }
+    
+    function installPackage(name, version) {
+        // Set loading state
+        this.state.loading = true;
+        
+        // Clear previous messages
+        this.state.error = "";
+        this.state.success = "";
+        
+        // Install package
+        if (switch.isClient()) {
+            fetch("/api/packages/install", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    name: name,
+                    version: version
+                })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === "success") {
+                        this.state.success = data.message || `Package ${name}${version ? '@' + version : ''} installed`;
+                        this.loadPackages();
+                    } else {
+                        this.state.error = data.message || "Failed to install package";
+                    }
+                    this.state.loading = false;
+                })
+                .catch(error => {
+                    this.state.error = error.message || "Failed to install package";
+                    this.state.loading = false;
+                });
+        } else {
+            // Mock data for server-side rendering
+            this.state.success = `Package ${name}${version ? '@' + version : ''} installed`;
+            this.state.loading = false;
+        }
+    }
+    
+    function uninstallPackage(name) {
+        // Set loading state
+        this.state.loading = true;
+        
+        // Clear previous messages
+        this.state.error = "";
+        this.state.success = "";
+        
+        // Uninstall package
+        if (switch.isClient()) {
+            fetch("/api/packages/uninstall", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    name: name
+                })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === "success") {
+                        this.state.success = data.message || `Package ${name} uninstalled`;
+                        this.loadPackages();
+                    } else {
+                        this.state.error = data.message || "Failed to uninstall package";
+                    }
+                    this.state.loading = false;
+                })
+                .catch(error => {
+                    this.state.error = error.message || "Failed to uninstall package";
+                    this.state.loading = false;
+                });
+        } else {
+            // Mock data for server-side rendering
+            this.state.success = `Package ${name} uninstalled`;
+            this.state.loading = false;
+        }
+    }
+    
+    function selectPackage(pkg) {
+        this.state.selectedPackage = pkg;
+    }
+    
+    function handleSearchInput(event) {
+        this.state.searchQuery = event.target.value;
+    }
+    
+    function handleSearchSubmit(event) {
+        event.preventDefault();
+        this.searchPackages();
+    }
+    
+    function render() {
+        // Register client-side event handlers
+        switch.clientEvent("click", "handleClick");
+        switch.clientEvent("input", "handleInput");
+        switch.clientEvent("submit", "handleSubmit");
+        
+        // Create the component
+        var packagesPage = switch.component("PackagesPage", {
+            title: this.state.title,
+            packages: this.state.packages,
+            installedPackages: this.state.installedPackages,
+            searchQuery: this.state.searchQuery,
+            searchResults: this.state.searchResults,
+            selectedPackage: this.state.selectedPackage,
+            loading: this.state.loading,
+            error: this.state.error,
+            success: this.state.success
+        });
+        
+        // Return the HTML
+        return `
+            <div class="packages-page">
+                <h2 class="mb-4">${this.state.title}</h2>
+                
+                ${this.state.error ? `<div class="alert alert-danger">${this.state.error}</div>` : ''}
+                ${this.state.success ? `<div class="alert alert-success">${this.state.success}</div>` : ''}
+                
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h4 class="card-title">Installed Packages</h4>
+                            </div>
+                            <div class="card-body">
+                                ${this.state.loading ? 
+                                    '<div class="text-center"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div></div>' : 
+                                    this.renderInstalledPackages()
+                                }
+                            </div>
+                        </div>
+                        
+                        <div class="card">
+                            <div class="card-header">
+                                <h4 class="card-title">Search Packages</h4>
+                            </div>
+                            <div class="card-body">
+                                <form data-event="submit" data-action="search">
+                                    <div class="input-group mb-3">
+                                        <input type="text" class="form-control" placeholder="Search packages..." value="${this.state.searchQuery}" data-event="input" data-action="search-input">
+                                        <button class="btn btn-primary" type="submit">Search</button>
+                                    </div>
+                                </form>
+                                
+                                ${this.state.searchResults.length > 0 ? 
+                                    this.renderSearchResults() : 
+                                    this.state.searchQuery ? 
+                                        '<p>No packages found.</p>' : 
+                                        '<p>Enter a search query to find packages.</p>'
+                                }
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <h4 class="card-title">Package Details</h4>
+                            </div>
+                            <div class="card-body">
+                                ${this.state.selectedPackage ? 
+                                    this.renderPackageDetails() : 
+                                    '<p>Select a package to view details.</p>'
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+    
+    function renderInstalledPackages() {
+        if (this.state.installedPackages.length === 0) {
+            return '<p>No packages installed.</p>';
+        }
+        
+        return `
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Version</th>
+                            <th>Description</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${this.state.installedPackages.map(pkg => `
+                            <tr>
+                                <td><a href="#" data-event="click" data-action="select-package" data-package="${pkg.name}">${pkg.name}</a></td>
+                                <td>${pkg.version}</td>
+                                <td>${pkg.description}</td>
+                                <td>
+                                    <button class="btn btn-sm btn-danger" data-event="click" data-action="uninstall-package" data-package="${pkg.name}">Uninstall</button>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            </div>
+        `;
+    }
+    
+    function renderSearchResults() {
+        return `
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Version</th>
+                            <th>Description</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${this.state.searchResults.map(pkg => `
+                            <tr>
+                                <td><a href="#" data-event="click" data-action="select-package" data-package="${pkg.name}">${pkg.name}</a></td>
+                                <td>${pkg.version}</td>
+                                <td>${pkg.description}</td>
+                                <td>
+                                    ${pkg.installed ? 
+                                        '<span class="badge bg-success">Installed</span>' : 
+                                        `<button class="btn btn-sm btn-primary" data-event="click" data-action="install-package" data-package="${pkg.name}" data-version="${pkg.version}">Install</button>`
+                                    }
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            </div>
+        `;
+    }
+    
+    function renderPackageDetails() {
+        var pkg = this.state.selectedPackage;
+        
+        return `
+            <h5>${pkg.name}@${pkg.version}</h5>
+            <p>${pkg.description}</p>
+            
+            <div class="mb-3">
+                <strong>Author:</strong> ${pkg.author}
+            </div>
+            
+            <div class="mb-3">
+                <strong>License:</strong> ${pkg.license}
+            </div>
+            
+            <div class="mb-3">
+                <strong>Dependencies:</strong>
+                <ul>
+                    ${Object.entries(pkg.dependencies || {}).map(([name, version]) => `
+                        <li>${name}@${version}</li>
+                    `).join('')}
+                </ul>
+            </div>
+            
+            <div class="mt-3">
+                ${pkg.installed ? 
+                    `<button class="btn btn-danger" data-event="click" data-action="uninstall-package" data-package="${pkg.name}">Uninstall</button>` : 
+                    `<button class="btn btn-primary" data-event="click" data-action="install-package" data-package="${pkg.name}" data-version="${pkg.version}">Install</button>`
+                }
+            </div>
+        `;
+    }
+    
+    function handleClick(event) {
+        // Check if this is a select package action
+        if (event.target.dataset.action === "select-package" || event.target.closest("[data-action='select-package']")) {
+            event.preventDefault();
+            
+            // Get the package name
+            var packageName = event.target.dataset.package || event.target.closest("[data-action='select-package']").dataset.package;
+            
+            // Find the package
+            var pkg = this.state.packages.find(p => p.name === packageName) || 
+                      this.state.searchResults.find(p => p.name === packageName);
+            
+            // Select the package
+            this.selectPackage(pkg);
+        }
+        
+        // Check if this is an install package action
+        if (event.target.dataset.action === "install-package" || event.target.closest("[data-action='install-package']")) {
+            event.preventDefault();
+            
+            // Get the package name and version
+            var packageName = event.target.dataset.package || event.target.closest("[data-action='install-package']").dataset.package;
+            var packageVersion = event.target.dataset.version || event.target.closest("[data-action='install-package']").dataset.version;
+            
+            // Install the package
+            this.installPackage(packageName, packageVersion);
+        }
+        
+        // Check if this is an uninstall package action
+        if (event.target.dataset.action === "uninstall-package" || event.target.closest("[data-action='uninstall-package']")) {
+            event.preventDefault();
+            
+            // Get the package name
+            var packageName = event.target.dataset.package || event.target.closest("[data-action='uninstall-package']").dataset.package;
+            
+            // Uninstall the package
+            this.uninstallPackage(packageName);
+        }
+    }
+    
+    function handleInput(event) {
+        // Check if this is a search input action
+        if (event.target.dataset.action === "search-input") {
+            this.handleSearchInput(event);
+        }
+    }
+    
+    function handleSubmit(event) {
+        // Check if this is a search action
+        if (event.target.dataset.action === "search") {
+            this.handleSearchSubmit(event);
+        }
+    }
+}
+
+// Export the component
+export PackagesPage;

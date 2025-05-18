@@ -1,0 +1,274 @@
+//  __  __                   
+// |  \/  | ___  _ __   ___  
+// | |\/| |/ _ \| '_ \ / _ \ 
+// | |  | | (_) | | | | (_) |
+// |_|  |_|\___/|_| |_|\___/ 
+//                           
+// Dashboard Page
+
+component DashboardPage {
+    state {
+        stats: object = {
+            users: {
+                value: "1,250",
+                change: 5.2
+            },
+            sessions: {
+                value: "5,432",
+                change: -2.1
+            },
+            pageviews: {
+                value: "12,345",
+                change: 8.7
+            },
+            conversionRate: {
+                value: "3.45%",
+                change: 1.2
+            }
+        },
+        chartData: object = {
+            labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+            datasets: [
+                {
+                    label: "Users",
+                    data: [65, 59, 80, 81, 56, 55],
+                    borderColor: "rgba(75, 192, 192, 1)",
+                    backgroundColor: "rgba(75, 192, 192, 0.2)"
+                },
+                {
+                    label: "Sessions",
+                    data: [28, 48, 40, 19, 86, 27],
+                    borderColor: "rgba(54, 162, 235, 1)",
+                    backgroundColor: "rgba(54, 162, 235, 0.2)"
+                }
+            ]
+        },
+        recentUsers: array = [
+            {
+                id: 1,
+                name: "John Doe",
+                email: "john.doe@example.com",
+                status: "active",
+                lastLogin: "2023-06-15T10:30:00Z"
+            },
+            {
+                id: 2,
+                name: "Jane Smith",
+                email: "jane.smith@example.com",
+                status: "inactive",
+                lastLogin: "2023-06-10T08:15:00Z"
+            },
+            {
+                id: 3,
+                name: "Bob Johnson",
+                email: "bob.johnson@example.com",
+                status: "active",
+                lastLogin: "2023-06-14T14:45:00Z"
+            },
+            {
+                id: 4,
+                name: "Alice Brown",
+                email: "alice.brown@example.com",
+                status: "active",
+                lastLogin: "2023-06-15T09:20:00Z"
+            },
+            {
+                id: 5,
+                name: "Charlie Wilson",
+                email: "charlie.wilson@example.com",
+                status: "pending",
+                lastLogin: null
+            }
+        ],
+        loading: boolean = false
+    }
+    
+    function constructor() {
+        // Initialize the component
+        this.loadData();
+    }
+    
+    function loadData() {
+        // Load data from API
+        if (switch.isClient()) {
+            this.state.loading = true;
+            
+            // Fetch stats
+            fetch("/api/stats")
+                .then(response => response.json())
+                .then(data => {
+                    this.state.stats = {
+                        users: {
+                            value: data.users.toLocaleString(),
+                            change: 5.2
+                        },
+                        sessions: {
+                            value: data.sessions.toLocaleString(),
+                            change: -2.1
+                        },
+                        pageviews: {
+                            value: data.pageviews.toLocaleString(),
+                            change: 8.7
+                        },
+                        conversionRate: {
+                            value: data.conversionRate + "%",
+                            change: 1.2
+                        }
+                    };
+                    this.state.loading = false;
+                })
+                .catch(error => {
+                    console.error("Error loading stats:", error);
+                    this.state.loading = false;
+                });
+            
+            // Fetch chart data
+            fetch("/api/chart-data")
+                .then(response => response.json())
+                .then(data => {
+                    this.state.chartData = data;
+                })
+                .catch(error => {
+                    console.error("Error loading chart data:", error);
+                });
+        }
+    }
+    
+    function render() {
+        // Create the component
+        var dashboardPage = switch.component("DashboardPage", {
+            stats: this.state.stats,
+            chartData: this.state.chartData,
+            recentUsers: this.state.recentUsers,
+            loading: this.state.loading
+        });
+        
+        // Create the stats cards
+        var usersCard = new Card({
+            title: "Users",
+            subtitle: "Total users",
+            icon: "bi-people",
+            iconColor: "primary",
+            value: this.state.stats.users.value,
+            change: this.state.stats.users.change,
+            loading: this.state.loading
+        });
+        
+        var sessionsCard = new Card({
+            title: "Sessions",
+            subtitle: "Total sessions",
+            icon: "bi-window",
+            iconColor: "success",
+            value: this.state.stats.sessions.value,
+            change: this.state.stats.sessions.change,
+            loading: this.state.loading
+        });
+        
+        var pageviewsCard = new Card({
+            title: "Pageviews",
+            subtitle: "Total pageviews",
+            icon: "bi-eye",
+            iconColor: "info",
+            value: this.state.stats.pageviews.value,
+            change: this.state.stats.pageviews.change,
+            loading: this.state.loading
+        });
+        
+        var conversionRateCard = new Card({
+            title: "Conversion Rate",
+            subtitle: "Average conversion rate",
+            icon: "bi-graph-up-arrow",
+            iconColor: "warning",
+            value: this.state.stats.conversionRate.value,
+            change: this.state.stats.conversionRate.change,
+            loading: this.state.loading
+        });
+        
+        // Create the chart
+        var usersChart = new Chart({
+            title: "User Activity",
+            type: "line",
+            data: this.state.chartData,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: "top"
+                    }
+                }
+            },
+            loading: this.state.loading
+        });
+        
+        // Create the users table
+        var usersTable = new Table({
+            title: "Recent Users",
+            columns: [
+                { key: "name", label: "Name" },
+                { key: "email", label: "Email" },
+                { key: "status", label: "Status", format: (value) => {
+                    var badgeClass = "bg-secondary";
+                    if (value === "active") {
+                        badgeClass = "bg-success";
+                    } else if (value === "inactive") {
+                        badgeClass = "bg-danger";
+                    } else if (value === "pending") {
+                        badgeClass = "bg-warning";
+                    }
+                    return `<span class="badge ${badgeClass}">${value}</span>`;
+                }},
+                { key: "lastLogin", label: "Last Login", format: (value) => {
+                    if (!value) {
+                        return "Never";
+                    }
+                    return new Date(value).toLocaleString();
+                }}
+            ],
+            data: this.state.recentUsers,
+            loading: this.state.loading,
+            pagination: {
+                currentPage: 1,
+                totalPages: Math.ceil(this.state.recentUsers.length / 10),
+                pageSize: 10
+            }
+        });
+        
+        // Return the HTML
+        return `
+            <div class="dashboard-page">
+                <div class="container-fluid">
+                    <div class="row mb-4">
+                        <div class="col-md-6 col-xl-3 mb-4 mb-xl-0">
+                            ${usersCard.render()}
+                        </div>
+                        <div class="col-md-6 col-xl-3 mb-4 mb-xl-0">
+                            ${sessionsCard.render()}
+                        </div>
+                        <div class="col-md-6 col-xl-3 mb-4 mb-md-0">
+                            ${pageviewsCard.render()}
+                        </div>
+                        <div class="col-md-6 col-xl-3">
+                            ${conversionRateCard.render()}
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            ${usersChart.render()}
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-12">
+                            ${usersTable.render()}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+}
+
+// Export the component
+export DashboardPage;

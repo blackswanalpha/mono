@@ -1,0 +1,132 @@
+//  __  __
+// |  \/  | ___  _ __   ___
+// | |\/| |/ _ \| '_ \ / _ \
+// | |  | | (_) | | | | (_) |
+// |_|  |_|\___/|_| |_|\___/
+//
+// {{APP_NAME}} - Main Application Component
+
+// Import pages
+import "src/pages/home.mono"
+import "src/pages/about.mono"
+
+component App {
+    state {
+        title: string = "{{APP_NAME}}",
+        currentPage: string = "home"
+    }
+
+    function constructor(props) {
+        // Initialize with props if provided
+        if (props) {
+            if (props.currentPage) {
+                this.state.currentPage = props.currentPage;
+            }
+        }
+
+        // Initialize the application
+        this.loadUserPreferences();
+    }
+
+    function loadUserPreferences() {
+        // Load user preferences from localStorage
+        if (switch.isClient()) {
+            var darkMode = localStorage.getItem("darkMode") === "true";
+            var sidebarCollapsed = localStorage.getItem("sidebarCollapsed") === "true";
+
+            // Apply preferences
+            if (darkMode) {
+                document.body.classList.add("dark-mode");
+            }
+        }
+    }
+
+    function setCurrentPage(page: string) {
+        this.state.currentPage = page;
+    }
+
+    function renderPage() {
+        if (this.state.currentPage === "home") {
+            var home = new HomePage();
+            return home.render();
+        } else if (this.state.currentPage === "about") {
+            var about = new AboutPage();
+            return about.render();
+        } else {
+            return "<div>Page not found</div>";
+        }
+    }
+
+    function render() {
+        // Register client-side event handlers
+        switch.clientEvent("click", "handleNavigation");
+
+        // Create the component
+        var app = switch.component("App", {
+            title: this.state.title,
+            currentPage: this.state.currentPage
+        });
+
+        // Return the HTML
+        return `
+            <div class="app">
+                <header class="app-header">
+                    <div class="app-container">
+                        <div class="app-header-content">
+                            <h1 class="app-title">${this.state.title}</h1>
+                            <nav>
+                                <ul class="app-nav">
+                                    <li class="app-nav-item ${this.state.currentPage === 'home' ? 'app-nav-active' : ''}">
+                                        <a class="app-nav-link" href="/" data-event="click" data-action="navigate" data-page="home">Home</a>
+                                    </li>
+                                    <li class="app-nav-item ${this.state.currentPage === 'about' ? 'app-nav-active' : ''}">
+                                        <a class="app-nav-link" href="/about" data-event="click" data-action="navigate" data-page="about">About</a>
+                                    </li>
+                                </ul>
+                            </nav>
+                        </div>
+                    </div>
+                </header>
+
+                <main class="app-main">
+                    <div class="app-container">
+                        ${this.renderPage()}
+                    </div>
+                </main>
+
+                <footer class="app-footer">
+                    <div class="app-container">
+                        <p>&copy; ${new Date().getFullYear()} {{APP_NAME}}. All rights reserved.</p>
+                    </div>
+                </footer>
+            </div>
+        `;
+    }
+
+    function handleNavigation(event) {
+        // Check if this is a navigation link
+        if (event.target.dataset.action === "navigate" || event.target.closest("[data-action='navigate']")) {
+            // Prevent the default link behavior
+            event.preventDefault();
+
+            // Get the target element
+            var target = event.target.dataset.action === "navigate" ? event.target : event.target.closest("[data-action='navigate']");
+
+            // Get the page
+            var page = target.dataset.page;
+
+            // Update the current page
+            this.setCurrentPage(page);
+
+            // Update the URL
+            if (page === "home") {
+                history.pushState({}, "", "/");
+            } else {
+                history.pushState({}, "", "/" + page);
+            }
+        }
+    }
+}
+
+// Export the component
+export App;

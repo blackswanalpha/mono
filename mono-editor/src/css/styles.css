@@ -1,0 +1,424 @@
+/* Main styles for Mono Editor */
+
+/* Reset and base styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body, html {
+  height: 100%;
+  width: 100%;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  font-size: 14px;
+  overflow: hidden;
+}
+
+/* App container */
+.app-container {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+}
+
+/* Sidebar */
+.sidebar {
+  width: 250px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid var(--border-color);
+  background-color: var(--sidebar-bg);
+  color: var(--text-color);
+  transition: width 0.3s ease;
+}
+
+.sidebar.collapsed {
+  width: 50px;
+}
+
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+}
+
+.logo img {
+  width: 24px;
+  height: 24px;
+  margin-right: 8px;
+}
+
+.sidebar.collapsed .logo span {
+  display: none;
+}
+
+.sidebar-actions {
+  display: flex;
+  gap: 5px;
+}
+
+.sidebar-actions button {
+  background: none;
+  border: none;
+  color: var(--icon-color);
+  cursor: pointer;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 3px;
+}
+
+.sidebar-actions button:hover {
+  background-color: var(--hover-bg);
+}
+
+.sidebar-actions button:active,
+#new-file-btn:active,
+#open-file-btn:active,
+#open-folder-btn:active {
+  transform: translateY(1px);
+  opacity: 0.8;
+}
+
+.sidebar-actions button:disabled,
+#new-file-btn:disabled,
+#open-file-btn:disabled,
+#open-folder-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Main content */
+.main-content {
+  flex: 1;
+  display: flex;
+  height: 100%;
+  background-color: var(--editor-bg);
+}
+
+/* Editor and terminal container */
+.editor-terminal-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-width: 0; /* Prevent flex items from overflowing */
+}
+
+/* Editor tabs */
+.editor-tabs {
+  display: flex;
+  background-color: var(--tabs-bg);
+  border-bottom: 1px solid var(--border-color);
+  height: 35px;
+  overflow-x: auto;
+  white-space: nowrap;
+}
+
+.editor-tabs::-webkit-scrollbar {
+  height: 3px;
+}
+
+.editor-tabs::-webkit-scrollbar-thumb {
+  background-color: var(--scrollbar-thumb);
+  border-radius: 3px;
+}
+
+.editor-tabs::-webkit-scrollbar-track {
+  background-color: var(--scrollbar-track);
+}
+
+.editor-tabs > div {
+  display: flex;
+  align-items: center;
+  padding: 0 10px;
+  height: 100%;
+  border-right: 1px solid var(--border-color);
+  color: var(--tab-text);
+  background-color: var(--tab-bg);
+  cursor: pointer;
+  user-select: none;
+  position: relative;
+  min-width: 120px;
+  max-width: 200px;
+}
+
+.editor-tabs > div.active {
+  background-color: var(--tab-active-bg);
+  color: var(--tab-active-text);
+  border-bottom: 2px solid var(--primary-color);
+}
+
+.editor-tabs > div span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+}
+
+.editor-tabs > div .tab-close {
+  margin-left: 5px;
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-size: 14px;
+  opacity: 0.7;
+}
+
+.editor-tabs > div .tab-close:hover {
+  background-color: var(--hover-bg);
+  opacity: 1;
+}
+
+/* Editor container */
+.editor-container {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+}
+
+.editor-pane {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: none;
+}
+
+.editor-pane.active {
+  display: block;
+}
+
+/* Editor loading and error states */
+.editor-loading, .editor-error {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 20px;
+  font-size: 16px;
+  color: var(--text-dim-color, #888);
+  text-align: center;
+}
+
+.editor-loading::before {
+  content: '';
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  margin-right: 10px;
+  border: 2px solid var(--primary-color, #007acc);
+  border-radius: 50%;
+  border-top-color: transparent;
+  animation: spin 1s linear infinite;
+}
+
+.editor-error {
+  color: var(--error-color, #f44336);
+  background-color: rgba(244, 67, 54, 0.1);
+  border: 1px solid rgba(244, 67, 54, 0.3);
+  border-radius: 4px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Welcome screen */
+.welcome-screen {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background-color: var(--editor-bg);
+  color: var(--text-color);
+}
+
+.welcome-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.welcome-logo {
+  width: 100px;
+  height: 100px;
+  margin-bottom: 20px;
+}
+
+.welcome-header h1 {
+  font-size: 28px;
+  margin-bottom: 10px;
+}
+
+.welcome-actions {
+  display: flex;
+  gap: 40px;
+}
+
+.action-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 200px;
+}
+
+.action-group h2 {
+  font-size: 18px;
+  margin-bottom: 10px;
+  color: var(--primary-color);
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 5px;
+}
+
+.action-group button {
+  background-color: var(--button-bg);
+  color: var(--button-text);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  padding: 8px 12px;
+  cursor: pointer;
+  text-align: left;
+  transition: background-color 0.2s;
+}
+
+.action-group button:hover {
+  background-color: var(--button-hover-bg);
+}
+
+#recent-files {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.recent-file-item {
+  display: flex;
+  align-items: center;
+  padding: 5px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.recent-file-item:hover {
+  background-color: var(--hover-bg);
+}
+
+.recent-file-item img {
+  width: 16px;
+  height: 16px;
+  margin-right: 8px;
+}
+
+.no-recent {
+  color: var(--text-dim-color);
+  font-style: italic;
+}
+
+/* Icons */
+.icon {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.icon-new-file {
+  background-image: url('../../assets/icons/new-file.svg');
+}
+
+.icon-open-file {
+  background-image: url('../../assets/icons/open-file.svg');
+}
+
+.icon-open-folder {
+  background-image: url('../../assets/icons/open-folder.svg');
+}
+
+.icon-save {
+  background-image: url('../../assets/icons/save.svg');
+}
+
+.icon-collapse-all {
+  background-image: url('../../assets/icons/collapse-all.svg');
+}
+
+.icon-new-terminal {
+  background-image: url('../../assets/icons/terminal.svg');
+}
+
+.icon-clear {
+  background-image: url('../../assets/icons/clear.svg');
+}
+
+.icon-close {
+  background-image: url('../../assets/icons/close.svg');
+}
+
+.icon-debug {
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#toggle-devtools-btn.active {
+  background-color: var(--primary-color, #007acc);
+  color: white;
+}
+
+/* Scrollbars */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background-color: var(--scrollbar-track);
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: var(--scrollbar-thumb);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--scrollbar-thumb-hover);
+}
+
+/* Tooltips */
+[title]:hover::after {
+  content: attr(title);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--tooltip-bg, #333);
+  color: var(--tooltip-text, white);
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  white-space: nowrap;
+  z-index: 1000;
+  pointer-events: none;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}

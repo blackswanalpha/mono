@@ -1,0 +1,218 @@
+//  __  __                   
+// |  \/  | ___  _ __   ___  
+// | |\/| |/ _ \| '_ \ / _ \ 
+// | |  | | (_) | | | | (_) |
+// |_|  |_|\___/|_| |_|\___/ 
+//                           
+// Dashboard Layout Component
+
+layout DashboardLayout {
+    // Define variables
+    variables {
+        headerHeight: 60px;
+        sidebarWidth: 250px;
+        sidebarCollapsedWidth: 64px;
+        footerHeight: 40px;
+        contentPadding: 20px;
+        cardMargin: 15px;
+        cardBorderRadius: 8px;
+        cardShadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    // Define the root element
+    root {
+        width: 100%;
+        height: 100vh;
+        overflow: hidden;
+
+        // Header
+        element header {
+            width: 100%;
+            height: ${headerHeight};
+            z-index: 100;
+            constraint top: 0;
+            constraint left: 0;
+            background-color: #ffffff;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+        }
+
+        // Sidebar
+        element sidebar {
+            width: ${sidebarWidth};
+            height: calc(100vh - ${headerHeight});
+            z-index: 90;
+            constraint top: ${headerHeight};
+            constraint left: 0;
+            background-color: #f8f9fa;
+            border-right: 1px solid #e9ecef;
+            overflow-y: auto;
+            transition: width 0.3s ease;
+        }
+
+        // Content
+        element content {
+            width: calc(100% - ${sidebarWidth});
+            height: calc(100vh - ${headerHeight} - ${footerHeight});
+            constraint top: ${headerHeight};
+            constraint left: ${sidebarWidth};
+            overflow-y: auto;
+            padding: ${contentPadding};
+            background-color: #f1f3f5;
+            transition: width 0.3s ease, left 0.3s ease;
+        }
+
+        // Footer
+        element footer {
+            width: 100%;
+            height: ${footerHeight};
+            z-index: 100;
+            constraint bottom: 0;
+            constraint left: 0;
+            background-color: #ffffff;
+            border-top: 1px solid #e9ecef;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+        }
+
+        // Dashboard grid
+        element grid {
+            width: 100%;
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            grid-gap: 20px;
+            padding: 10px;
+        }
+
+        // Dashboard card
+        element card {
+            background-color: #ffffff;
+            border-radius: ${cardBorderRadius};
+            box-shadow: ${cardShadow};
+            margin: ${cardMargin};
+            overflow: hidden;
+        }
+
+        // Card header
+        element cardHeader {
+            padding: 15px 20px;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        // Card body
+        element cardBody {
+            padding: 20px;
+        }
+
+        // Card footer
+        element cardFooter {
+            padding: 15px 20px;
+            border-top: 1px solid #e9ecef;
+            background-color: #f8f9fa;
+        }
+    }
+
+    // Define responsive layouts
+    media mobile (max-width: 768px) {
+        root {
+            element sidebar {
+                width: 0;
+                display: none;
+            }
+
+            element content {
+                width: 100%;
+                constraint left: 0;
+            }
+
+            element grid {
+                grid-template-columns: repeat(1, 1fr);
+            }
+        }
+    }
+
+    // Define tablet layout
+    media tablet (min-width: 769px) and (max-width: 1024px) {
+        root {
+            element sidebar {
+                width: ${sidebarCollapsedWidth};
+            }
+
+            element content {
+                width: calc(100% - ${sidebarCollapsedWidth});
+                constraint left: ${sidebarCollapsedWidth};
+            }
+
+            element grid {
+                grid-template-columns: repeat(6, 1fr);
+            }
+        }
+    }
+
+    // Define collapsed sidebar state
+    state collapsed {
+        root {
+            element sidebar {
+                width: ${sidebarCollapsedWidth};
+            }
+
+            element content {
+                width: calc(100% - ${sidebarCollapsedWidth});
+                constraint left: ${sidebarCollapsedWidth};
+            }
+        }
+    }
+
+    // Define dark mode state
+    state darkMode {
+        root {
+            element header {
+                background-color: #343a40;
+                color: #f8f9fa;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            }
+
+            element sidebar {
+                background-color: #212529;
+                border-right: 1px solid #495057;
+                color: #f8f9fa;
+            }
+
+            element content {
+                background-color: #2b3035;
+                color: #f8f9fa;
+            }
+
+            element footer {
+                background-color: #343a40;
+                border-top: 1px solid #495057;
+                color: #f8f9fa;
+            }
+
+            element card {
+                background-color: #343a40;
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+                color: #f8f9fa;
+            }
+
+            element cardHeader {
+                border-bottom: 1px solid #495057;
+            }
+
+            element cardFooter {
+                border-top: 1px solid #495057;
+                background-color: #2b3035;
+            }
+        }
+    }
+}
+
+// Export the layout
+export DashboardLayout;

@@ -1,0 +1,31 @@
+// Print test example in Mono
+
+component PrintTest {
+  function start() {
+    // Simple string
+    print("Hello, World!");
+    
+    // Variable
+    var count = 42;
+    print(count);
+    
+    // Expression
+    print("The answer is " + count);
+    
+    // Multiple prints
+    print("Line 1");
+    print("Line 2");
+    print("Line 3");
+    
+    // Single quotes
+    print('Using single quotes');
+    
+    // Complex expression
+    var a = 10;
+    var b = 20;
+    print("Sum: " + (a + b));
+  }
+}
+
+// Export the component
+export default PrintTest;

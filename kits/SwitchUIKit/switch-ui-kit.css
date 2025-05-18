@@ -1,0 +1,838 @@
+/**
+ * Switch UI Kit CSS
+ *
+ * Styles for the Switch UI Kit components.
+ *
+ * Components:
+ * - Button
+ * - Card
+ * - Modal
+ * - Tabs
+ * - Alert
+ * - Dropdown
+ * - Table
+ * - Form
+ * - Tooltip
+ * - Accordion
+ * - Pagination
+ * - Progress
+ * - Spinner
+ * - Badge
+ * - Avatar
+ * - DatePicker
+ * - Slider
+ * - Carousel
+ */
+
+/* Base Variables */
+:root {
+  --switch-primary-color: #3b82f6;
+  --switch-secondary-color: #6b7280;
+  --switch-success-color: #10b981;
+  --switch-danger-color: #ef4444;
+  --switch-warning-color: #f59e0b;
+  --switch-info-color: #3b82f6;
+  --switch-light-color: #f3f4f6;
+  --switch-dark-color: #1f2937;
+  --switch-white-color: #ffffff;
+  --switch-black-color: #000000;
+
+  --switch-border-radius: 0.25rem;
+  --switch-border-color: #e5e7eb;
+  --switch-box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+
+  --switch-font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --switch-font-size: 1rem;
+  --switch-line-height: 1.5;
+
+  --switch-transition-duration: 0.2s;
+  --switch-transition-timing: ease-in-out;
+}
+
+/* Tooltip Component */
+.switch-tooltip {
+  position: absolute;
+  background-color: var(--switch-dark-color);
+  color: var(--switch-white-color);
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--switch-border-radius);
+  font-size: 0.875rem;
+  line-height: 1.25;
+  z-index: 9999;
+  box-shadow: var(--switch-box-shadow);
+  pointer-events: none;
+  max-width: 200px;
+  word-wrap: break-word;
+}
+
+.switch-tooltip.switch-tooltip-light {
+  background-color: var(--switch-white-color);
+  color: var(--switch-dark-color);
+  border: 1px solid var(--switch-border-color);
+}
+
+.switch-tooltip-arrow {
+  position: absolute;
+  width: 0;
+  height: 0;
+  border-style: solid;
+}
+
+.switch-tooltip-arrow-top {
+  bottom: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 6px 6px 0 6px;
+  border-color: var(--switch-dark-color) transparent transparent transparent;
+}
+
+.switch-tooltip-arrow-right {
+  left: -6px;
+  top: 50%;
+  transform: translateY(-50%);
+  border-width: 6px 6px 6px 0;
+  border-color: transparent var(--switch-dark-color) transparent transparent;
+}
+
+.switch-tooltip-arrow-bottom {
+  top: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 0 6px 6px 6px;
+  border-color: transparent transparent var(--switch-dark-color) transparent;
+}
+
+.switch-tooltip-arrow-left {
+  right: -6px;
+  top: 50%;
+  transform: translateY(-50%);
+  border-width: 6px 0 6px 6px;
+  border-color: transparent transparent transparent var(--switch-dark-color);
+}
+
+.switch-tooltip-light .switch-tooltip-arrow-top {
+  border-color: var(--switch-white-color) transparent transparent transparent;
+}
+
+.switch-tooltip-light .switch-tooltip-arrow-right {
+  border-color: transparent var(--switch-white-color) transparent transparent;
+}
+
+.switch-tooltip-light .switch-tooltip-arrow-bottom {
+  border-color: transparent transparent var(--switch-white-color) transparent;
+}
+
+.switch-tooltip-light .switch-tooltip-arrow-left {
+  border-color: transparent transparent transparent var(--switch-white-color);
+}
+
+/* Accordion Component */
+.switch-accordion {
+  width: 100%;
+  border-radius: var(--switch-border-radius);
+  overflow: hidden;
+}
+
+.switch-accordion-bordered {
+  border: 1px solid var(--switch-border-color);
+}
+
+.switch-accordion-item {
+  background-color: var(--switch-white-color);
+}
+
+.switch-accordion-bordered .switch-accordion-item:not(:last-child) {
+  border-bottom: 1px solid var(--switch-border-color);
+}
+
+.switch-accordion-header {
+  display: flex;
+  align-items: center;
+  padding: 1rem;
+  cursor: pointer;
+  user-select: none;
+  transition: background-color var(--switch-transition-duration) var(--switch-transition-timing);
+}
+
+.switch-accordion-header:hover {
+  background-color: var(--switch-light-color);
+}
+
+.switch-accordion-title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 500;
+  flex: 1;
+}
+
+.switch-accordion-icon {
+  display: inline-block;
+  width: 1rem;
+  height: 1rem;
+  position: relative;
+  margin-left: 0.5rem;
+  transition: transform var(--switch-transition-duration) var(--switch-transition-timing);
+}
+
+.switch-accordion-icon::before,
+.switch-accordion-icon::after {
+  content: '';
+  position: absolute;
+  background-color: var(--switch-dark-color);
+  top: 50%;
+  left: 0;
+  transition: transform var(--switch-transition-duration) var(--switch-transition-timing);
+}
+
+.switch-accordion-icon::before {
+  width: 100%;
+  height: 2px;
+  transform: translateY(-50%);
+}
+
+.switch-accordion-icon::after {
+  width: 2px;
+  height: 100%;
+  transform: translateX(calc(50% - 1px)) translateY(-50%);
+}
+
+.switch-accordion-icon-active::after {
+  transform: translateX(calc(50% - 1px)) translateY(-50%) rotate(90deg);
+}
+
+.switch-accordion-content {
+  overflow: hidden;
+  transition: height var(--switch-transition-duration) var(--switch-transition-timing);
+}
+
+.switch-accordion-body {
+  padding: 1rem;
+}
+
+/* Badge Component */
+.switch-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1;
+  border-radius: 9999px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.switch-badge-primary {
+  background-color: var(--switch-primary-color);
+  color: var(--switch-white-color);
+}
+
+.switch-badge-secondary {
+  background-color: var(--switch-secondary-color);
+  color: var(--switch-white-color);
+}
+
+.switch-badge-success {
+  background-color: var(--switch-success-color);
+  color: var(--switch-white-color);
+}
+
+.switch-badge-danger {
+  background-color: var(--switch-danger-color);
+  color: var(--switch-white-color);
+}
+
+.switch-badge-warning {
+  background-color: var(--switch-warning-color);
+  color: var(--switch-white-color);
+}
+
+.switch-badge-info {
+  background-color: var(--switch-info-color);
+  color: var(--switch-white-color);
+}
+
+.switch-badge-light {
+  background-color: var(--switch-light-color);
+  color: var(--switch-dark-color);
+}
+
+.switch-badge-dark {
+  background-color: var(--switch-dark-color);
+  color: var(--switch-white-color);
+}
+
+/* Avatar Component */
+.switch-avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  overflow: hidden;
+  background-color: var(--switch-light-color);
+}
+
+.switch-avatar-sm {
+  width: 2rem;
+  height: 2rem;
+  font-size: 0.75rem;
+}
+
+.switch-avatar-md {
+  width: 3rem;
+  height: 3rem;
+  font-size: 1rem;
+}
+
+.switch-avatar-lg {
+  width: 4rem;
+  height: 4rem;
+  font-size: 1.5rem;
+}
+
+.switch-avatar-xl {
+  width: 6rem;
+  height: 6rem;
+  font-size: 2rem;
+}
+
+.switch-avatar-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.switch-avatar-text {
+  font-weight: 600;
+  color: var(--switch-dark-color);
+}
+
+/* Progress Component */
+.switch-progress {
+  width: 100%;
+  height: 0.5rem;
+  background-color: var(--switch-light-color);
+  border-radius: var(--switch-border-radius);
+  overflow: hidden;
+}
+
+.switch-progress-bar {
+  height: 100%;
+  background-color: var(--switch-primary-color);
+  transition: width var(--switch-transition-duration) var(--switch-transition-timing);
+}
+
+.switch-progress-bar-striped {
+  background-image: linear-gradient(
+    45deg,
+    rgba(255, 255, 255, 0.15) 25%,
+    transparent 25%,
+    transparent 50%,
+    rgba(255, 255, 255, 0.15) 50%,
+    rgba(255, 255, 255, 0.15) 75%,
+    transparent 75%,
+    transparent
+  );
+  background-size: 1rem 1rem;
+}
+
+.switch-progress-bar-animated {
+  animation: switch-progress-bar-stripes 1s linear infinite;
+}
+
+@keyframes switch-progress-bar-stripes {
+  from {
+    background-position: 1rem 0;
+  }
+  to {
+    background-position: 0 0;
+  }
+}
+
+/* Spinner Component */
+.switch-spinner {
+  display: inline-block;
+  width: 1.5rem;
+  height: 1.5rem;
+  border: 0.2rem solid rgba(var(--switch-primary-color-rgb, 59, 130, 246), 0.25);
+  border-right-color: var(--switch-primary-color);
+  border-radius: 50%;
+  animation: switch-spinner 0.75s linear infinite;
+}
+
+.switch-spinner-sm {
+  width: 1rem;
+  height: 1rem;
+  border-width: 0.15rem;
+}
+
+.switch-spinner-lg {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-width: 0.25rem;
+}
+
+@keyframes switch-spinner {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* DatePicker Component */
+.switch-datepicker {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+  max-width: 300px;
+}
+
+.switch-datepicker-input-group {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.switch-datepicker-input {
+  width: 100%;
+  padding: 0.5rem 2.5rem 0.5rem 0.75rem;
+  font-size: 1rem;
+  line-height: 1.5;
+  color: var(--switch-dark-color);
+  background-color: var(--switch-white-color);
+  border: 1px solid var(--switch-border-color);
+  border-radius: var(--switch-border-radius);
+  transition: border-color var(--switch-transition-duration) var(--switch-transition-timing);
+}
+
+.switch-datepicker-input:focus {
+  outline: none;
+  border-color: var(--switch-primary-color);
+  box-shadow: 0 0 0 0.2rem rgba(var(--switch-primary-color-rgb, 59, 130, 246), 0.25);
+}
+
+.switch-datepicker-icon {
+  position: absolute;
+  right: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--switch-secondary-color);
+  cursor: pointer;
+}
+
+.switch-datepicker-calendar {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 1000;
+  width: 280px;
+  background-color: var(--switch-white-color);
+  border: 1px solid var(--switch-border-color);
+  border-radius: var(--switch-border-radius);
+  box-shadow: var(--switch-box-shadow);
+  margin-top: 0.25rem;
+  padding: 0.5rem;
+}
+
+.switch-datepicker-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+
+.switch-datepicker-prev,
+.switch-datepicker-next {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  line-height: 1;
+  padding: 0.25rem;
+  cursor: pointer;
+  color: var(--switch-secondary-color);
+  transition: color var(--switch-transition-duration) var(--switch-transition-timing);
+}
+
+.switch-datepicker-prev:hover,
+.switch-datepicker-next:hover {
+  color: var(--switch-primary-color);
+}
+
+.switch-datepicker-month-year {
+  font-weight: 500;
+  font-size: 1rem;
+}
+
+.switch-datepicker-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.25rem;
+  margin-bottom: 0.25rem;
+}
+
+.switch-datepicker-weekday {
+  text-align: center;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--switch-secondary-color);
+  padding: 0.25rem;
+}
+
+.switch-datepicker-days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.25rem;
+}
+
+.switch-datepicker-day {
+  text-align: center;
+  padding: 0.5rem;
+  font-size: 0.875rem;
+  border-radius: var(--switch-border-radius);
+  cursor: pointer;
+  transition: background-color var(--switch-transition-duration) var(--switch-transition-timing);
+}
+
+.switch-datepicker-day:hover {
+  background-color: var(--switch-light-color);
+}
+
+.switch-datepicker-day-selected {
+  background-color: var(--switch-primary-color);
+  color: var(--switch-white-color);
+}
+
+.switch-datepicker-day-selected:hover {
+  background-color: var(--switch-primary-color);
+}
+
+.switch-datepicker-day-disabled {
+  color: var(--switch-border-color);
+  cursor: not-allowed;
+}
+
+.switch-datepicker-day-disabled:hover {
+  background-color: transparent;
+}
+
+.switch-datepicker-day-empty {
+  cursor: default;
+}
+
+.switch-datepicker-day-empty:hover {
+  background-color: transparent;
+}
+
+/* Slider Component */
+.switch-slider-container {
+  position: relative;
+  width: 100%;
+  padding: 1rem 0;
+}
+
+.switch-slider-vertical {
+  height: 200px;
+  width: auto;
+  padding: 0 1rem;
+}
+
+.switch-slider-wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.switch-slider {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+  z-index: 2;
+}
+
+.switch-slider-vertical .switch-slider {
+  width: 100%;
+  height: 100%;
+  transform: rotate(270deg);
+  transform-origin: center center;
+}
+
+.switch-slider-track {
+  position: relative;
+  width: 100%;
+  height: 0.5rem;
+  background-color: var(--switch-light-color);
+  border-radius: var(--switch-border-radius);
+  overflow: hidden;
+}
+
+.switch-slider-vertical .switch-slider-track {
+  width: 0.5rem;
+  height: 100%;
+  margin: 0 auto;
+}
+
+.switch-slider-fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  background-color: var(--switch-primary-color);
+  border-radius: var(--switch-border-radius);
+}
+
+.switch-slider-vertical .switch-slider-fill {
+  width: 100%;
+  height: 0%;
+  bottom: 0;
+  top: auto;
+}
+
+.switch-slider-thumb {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 1.25rem;
+  height: 1.25rem;
+  background-color: var(--switch-white-color);
+  border: 2px solid var(--switch-primary-color);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1;
+  pointer-events: none;
+}
+
+.switch-slider-vertical .switch-slider-thumb {
+  left: 50%;
+  top: auto;
+  bottom: 0;
+  transform: translate(-50%, 50%);
+}
+
+.switch-slider-labels {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 0.5rem;
+  font-size: 0.75rem;
+  color: var(--switch-secondary-color);
+}
+
+.switch-slider-vertical .switch-slider-labels {
+  flex-direction: column;
+  height: 100%;
+  margin-top: 0;
+  margin-left: 1.5rem;
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+
+.switch-slider-ticks {
+  position: relative;
+  width: 100%;
+  height: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.switch-slider-vertical .switch-slider-ticks {
+  width: 0.5rem;
+  height: 100%;
+  margin-top: 0;
+  margin-left: 0.5rem;
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+
+.switch-slider-tick {
+  position: absolute;
+  top: 0;
+  width: 1px;
+  height: 0.5rem;
+  background-color: var(--switch-secondary-color);
+}
+
+.switch-slider-vertical .switch-slider-tick {
+  left: 0;
+  width: 0.5rem;
+  height: 1px;
+}
+
+.switch-slider-value {
+  margin-top: 1rem;
+  text-align: center;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.switch-slider-vertical .switch-slider-value {
+  margin-top: 0;
+  margin-left: 1.5rem;
+  position: absolute;
+  top: 50%;
+  right: 0;
+  transform: translateY(-50%);
+}
+
+.switch-slider-disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Carousel Component */
+.switch-carousel {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+}
+
+.switch-carousel-responsive {
+  position: relative;
+  width: 100%;
+  padding-bottom: var(--switch-carousel-aspect-ratio, 56.25%); /* Default 16:9 aspect ratio */
+}
+
+.switch-carousel-responsive .switch-carousel-track {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.switch-carousel-track {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.switch-carousel-slide {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  transition: opacity var(--switch-transition-duration) var(--switch-transition-timing),
+              transform var(--switch-transition-duration) var(--switch-transition-timing);
+  z-index: 1;
+}
+
+.switch-carousel-slide-active {
+  opacity: 1;
+  z-index: 2;
+}
+
+/* Slide animation */
+.switch-carousel-slide .switch-carousel-slide-prev {
+  transform: translateX(-100%);
+}
+
+.switch-carousel-slide .switch-carousel-slide-next {
+  transform: translateX(100%);
+}
+
+.switch-carousel-slide-active.switch-carousel-slide-prev,
+.switch-carousel-slide-active.switch-carousel-slide-next {
+  transform: translateX(0);
+}
+
+/* Fade animation */
+.switch-carousel-fade .switch-carousel-slide {
+  opacity: 0;
+  transform: none !important;
+}
+
+.switch-carousel-fade .switch-carousel-slide-active {
+  opacity: 1;
+}
+
+.switch-carousel-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.switch-carousel-content {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 3;
+}
+
+.switch-carousel-caption {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  padding: 1rem;
+  background-color: rgba(0, 0, 0, 0.5);
+  color: var(--switch-white-color);
+  z-index: 3;
+}
+
+.switch-carousel-control {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3rem;
+  height: 3rem;
+  background-color: rgba(0, 0, 0, 0.5);
+  color: var(--switch-white-color);
+  border: none;
+  border-radius: 50%;
+  font-size: 2rem;
+  line-height: 1;
+  text-align: center;
+  cursor: pointer;
+  z-index: 4;
+  transition: background-color var(--switch-transition-duration) var(--switch-transition-timing);
+}
+
+.switch-carousel-control:hover {
+  background-color: rgba(0, 0, 0, 0.7);
+}
+
+.switch-carousel-control-prev {
+  left: 1rem;
+}
+
+.switch-carousel-control-next {
+  right: 1rem;
+}
+
+.switch-carousel-indicators {
+  position: absolute;
+  bottom: 1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 0.5rem;
+  z-index: 4;
+}
+
+.switch-carousel-indicator {
+  width: 0.75rem;
+  height: 0.75rem;
+  background-color: rgba(255, 255, 255, 0.5);
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background-color var(--switch-transition-duration) var(--switch-transition-timing);
+}
+
+.switch-carousel-indicator:hover {
+  background-color: rgba(255, 255, 255, 0.8);
+}
+
+.switch-carousel-indicator-active {
+  background-color: var(--switch-white-color);
+}

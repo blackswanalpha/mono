@@ -1,0 +1,99 @@
+//  __  __                   
+// |  \/  | ___  _ __   ___  
+// | |\/| |/ _ \| '_ \ / _ \ 
+// | |  | | (_) | | | | (_) |
+// |_|  |_|\___/|_| |_|\___/ 
+//                           
+// Enhanced Page with Frames, Layouts, and Hydration
+
+// Import the Layout component
+{{ '@/components/layout.mono' }}
+
+// Import the EnhancedComponent
+{{ '@/components/enhanced-component.mono' }}
+
+component EnhancedPage {
+    props {
+        currentPage: string = "enhanced"
+    }
+
+    state {
+        title: string = "Enhanced Features",
+        subtitle: string = "Demonstrating Frames, Layouts, and Hydration",
+        darkMode: boolean = false
+    }
+
+    function constructor() {
+        // Check if dark mode is enabled
+        this.state.darkMode = localStorage.getItem("darkMode") === "true";
+
+        // Apply dark mode if enabled
+        if (this.state.darkMode) {
+            document.body.classList.add("dark-mode");
+        }
+    }
+
+    function render() {
+        // Create the component
+        var enhancedPage = switch.component("EnhancedPage", {
+            title: this.state.title,
+            currentPage: this.props.currentPage
+        });
+
+        // Create the enhanced page content
+        var enhancedContent = `
+            <div class="enhanced-page">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-12">
+                            <h1 class="display-4 mb-3">${this.state.title}</h1>
+                            <p class="lead mb-4">${this.state.subtitle}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="enhanced-component-container">
+                                <div id="enhanced-component">
+                                    <!-- EnhancedComponent will be rendered here -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    // Create the enhanced component
+                    const enhancedComponent = new EnhancedComponent({
+                        title: "Frames & Layouts Demo",
+                        description: "This component demonstrates the use of frames, layouts, and hydration in the Mono language."
+                    });
+                    
+                    // Render the component
+                    document.getElementById('enhanced-component').innerHTML = enhancedComponent.render();
+                    
+                    // Initialize MonoFrames
+                    if (window.MonoFrames) {
+                        MonoFrames.init();
+                    }
+                    
+                    // Initialize MonoHydration
+                    if (window.MonoHydration) {
+                        MonoHydration.init();
+                    }
+                });
+            </script>
+        `;
+
+        // Use the Layout component
+        return Layout.wrap(enhancedContent, {
+            title: "Enhanced Features",
+            currentPage: this.props.currentPage
+        });
+    }
+}
+
+// Export the component
+export EnhancedPage;

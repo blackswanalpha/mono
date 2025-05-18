@@ -1,0 +1,5 @@
+component Main{
+  function start(){
+print "started";
+  }
+}

@@ -1,0 +1,302 @@
+//  __  __
+// |  \/  | ___  _ __   ___
+// | |\/| |/ _ \| '_ \ / _ \
+// | |  | | (_) | | | | (_) |
+// |_|  |_|\___/|_| |_|\___/
+//
+// Feedback Page Component
+
+component FeedbackPage {
+    state {
+        title: string = "Feedback",
+        form: {
+            name: string = "",
+            email: string = "",
+            subject: string = "",
+            message: string = "",
+            rating: number = 5,
+            type: string = "general"
+        },
+        errors: {
+            name: string = "",
+            email: string = "",
+            subject: string = "",
+            message: string = ""
+        },
+        submitted: boolean = false,
+        submitting: boolean = false,
+        feedbackTypes: array = [
+            { value: "general", label: "General Feedback" },
+            { value: "bug", label: "Bug Report" },
+            { value: "feature", label: "Feature Request" },
+            { value: "question", label: "Question" },
+            { value: "other", label: "Other" }
+        ]
+    }
+
+    function constructor() {
+        // Initialize the component
+    }
+
+    function handleNameChange(event) {
+        this.state.form.name = event.target.value;
+        this.validateName();
+    }
+
+    function handleEmailChange(event) {
+        this.state.form.email = event.target.value;
+        this.validateEmail();
+    }
+
+    function handleSubjectChange(event) {
+        this.state.form.subject = event.target.value;
+        this.validateSubject();
+    }
+
+    function handleMessageChange(event) {
+        this.state.form.message = event.target.value;
+        this.validateMessage();
+    }
+
+    function handleRatingChange(event) {
+        this.state.form.rating = parseInt(event.target.value);
+    }
+
+    function handleTypeChange(event) {
+        this.state.form.type = event.target.value;
+    }
+
+    function validateName() {
+        if (!this.state.form.name) {
+            this.state.errors.name = "Name is required";
+            return false;
+        }
+
+        this.state.errors.name = "";
+        return true;
+    }
+
+    function validateEmail() {
+        if (!this.state.form.email) {
+            this.state.errors.email = "Email is required";
+            return false;
+        }
+
+        var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(this.state.form.email)) {
+            this.state.errors.email = "Invalid email address";
+            return false;
+        }
+
+        this.state.errors.email = "";
+        return true;
+    }
+
+    function validateSubject() {
+        if (!this.state.form.subject) {
+            this.state.errors.subject = "Subject is required";
+            return false;
+        }
+
+        this.state.errors.subject = "";
+        return true;
+    }
+
+    function validateMessage() {
+        if (!this.state.form.message) {
+            this.state.errors.message = "Message is required";
+            return false;
+        }
+
+        if (this.state.form.message.length < 10) {
+            this.state.errors.message = "Message must be at least 10 characters";
+            return false;
+        }
+
+        this.state.errors.message = "";
+        return true;
+    }
+
+    function validateForm() {
+        var isValid = true;
+
+        isValid = this.validateName() && isValid;
+        isValid = this.validateEmail() && isValid;
+        isValid = this.validateSubject() && isValid;
+        isValid = this.validateMessage() && isValid;
+
+        return isValid;
+    }
+
+    function handleSubmit(event) {
+        event.preventDefault();
+
+        if (!this.validateForm()) {
+            return;
+        }
+
+        this.state.submitting = true;
+
+        // Simulate API call
+        setTimeout(function() {
+            this.state.submitting = false;
+            this.state.submitted = true;
+
+            // Reset form
+            this.state.form = {
+                name: "",
+                email: "",
+                subject: "",
+                message: "",
+                rating: 5,
+                type: "general"
+            };
+        }.bind(this), 1500);
+    }
+
+    function renderForm() {
+        var typeOptions = "";
+        for (var i = 0; i < this.state.feedbackTypes.length; i++) {
+            var type = this.state.feedbackTypes[i];
+            typeOptions += `<option value="${type.value}">${type.label}</option>`;
+        }
+
+        return `
+            <form onsubmit="handleSubmit(event)">
+                <div class="mb-3">
+                    <label for="name" class="form-label">Name</label>
+                    <input type="text" class="form-control ${this.state.errors.name ? 'is-invalid' : ''}" id="name" value="${this.state.form.name}" onchange="handleNameChange(event)" required>
+                    ${this.state.errors.name ? `<div class="invalid-feedback">${this.state.errors.name}</div>` : ''}
+                </div>
+
+                <div class="mb-3">
+                    <label for="email" class="form-label">Email</label>
+                    <input type="email" class="form-control ${this.state.errors.email ? 'is-invalid' : ''}" id="email" value="${this.state.form.email}" onchange="handleEmailChange(event)" required>
+                    ${this.state.errors.email ? `<div class="invalid-feedback">${this.state.errors.email}</div>` : ''}
+                </div>
+
+                <div class="mb-3">
+                    <label for="type" class="form-label">Feedback Type</label>
+                    <select class="form-select" id="type" value="${this.state.form.type}" onchange="handleTypeChange(event)">
+                        ${typeOptions}
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label for="subject" class="form-label">Subject</label>
+                    <input type="text" class="form-control ${this.state.errors.subject ? 'is-invalid' : ''}" id="subject" value="${this.state.form.subject}" onchange="handleSubjectChange(event)" required>
+                    ${this.state.errors.subject ? `<div class="invalid-feedback">${this.state.errors.subject}</div>` : ''}
+                </div>
+
+                <div class="mb-3">
+                    <label for="message" class="form-label">Message</label>
+                    <textarea class="form-control ${this.state.errors.message ? 'is-invalid' : ''}" id="message" rows="5" onchange="handleMessageChange(event)" required>${this.state.form.message}</textarea>
+                    ${this.state.errors.message ? `<div class="invalid-feedback">${this.state.errors.message}</div>` : ''}
+                </div>
+
+                <div class="mb-3">
+                    <label for="rating" class="form-label">Rating (1-5)</label>
+                    <div class="rating">
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="rating" id="rating1" value="1" ${this.state.form.rating === 1 ? 'checked' : ''} onchange="handleRatingChange(event)">
+                            <label class="form-check-label" for="rating1">1</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="rating" id="rating2" value="2" ${this.state.form.rating === 2 ? 'checked' : ''} onchange="handleRatingChange(event)">
+                            <label class="form-check-label" for="rating2">2</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="rating" id="rating3" value="3" ${this.state.form.rating === 3 ? 'checked' : ''} onchange="handleRatingChange(event)">
+                            <label class="form-check-label" for="rating3">3</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="rating" id="rating4" value="4" ${this.state.form.rating === 4 ? 'checked' : ''} onchange="handleRatingChange(event)">
+                            <label class="form-check-label" for="rating4">4</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="rating" id="rating5" value="5" ${this.state.form.rating === 5 ? 'checked' : ''} onchange="handleRatingChange(event)">
+                            <label class="form-check-label" for="rating5">5</label>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary" ${this.state.submitting ? 'disabled' : ''}>
+                    ${this.state.submitting ? '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Submitting...' : 'Submit Feedback'}
+                </button>
+            </form>
+        `;
+    }
+
+    function renderSuccess() {
+        return `
+            <div class="alert alert-success">
+                <h4 class="alert-heading">Thank you for your feedback!</h4>
+                <p>We appreciate you taking the time to provide feedback. Your input helps us improve our product.</p>
+                <hr>
+                <p class="mb-0">We'll review your feedback and get back to you if necessary.</p>
+            </div>
+
+            <button class="btn btn-primary" onclick="this.state.submitted = false">Submit Another Feedback</button>
+        `;
+    }
+
+    function render() {
+        // Create the component
+        var feedbackPage = switch.component("FeedbackPage", {
+            title: this.state.title
+        });
+
+        // Use the base layout
+        // {{ '@/pages/base.html' }}
+
+        // Return the HTML
+        return `
+            <div class="feedback-page">
+                <div class="mb-4">
+                    <h2 class="mb-3">${this.state.title}</h2>
+                    <p class="lead">We value your feedback! Please let us know what you think about our product.</p>
+                </div>
+
+                <div class="row">
+                    <div class="col-lg-8">
+                        <div class="card">
+                            <div class="card-body">
+                                ${this.state.submitted ? this.renderSuccess() : this.renderForm()}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-4">
+                        <div class="card mb-4">
+                            <div class="card-body">
+                                <h5 class="card-title">Contact Information</h5>
+                                <p class="card-text">If you prefer to contact us directly, you can use the following information:</p>
+                                <ul class="list-unstyled">
+                                    <li><i class="bi bi-envelope me-2"></i> support@switch-app.com</li>
+                                    <li><i class="bi bi-telephone me-2"></i> +1 (123) 456-7890</li>
+                                    <li><i class="bi bi-geo-alt me-2"></i> 123 Switch Street, San Francisco, CA 94107</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">FAQ</h5>
+                                <p class="card-text">Before submitting feedback, you might want to check our FAQ section:</p>
+                                <ul>
+                                    <li><a href="/faq#general">General Questions</a></li>
+                                    <li><a href="/faq#account">Account Issues</a></li>
+                                    <li><a href="/faq#billing">Billing Questions</a></li>
+                                    <li><a href="/faq#technical">Technical Support</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+}
+
+// Export the component
+export FeedbackPage;

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{APP_NAME}}</title>
+
+    <!-- Switch Framework Styles -->
+    <link rel="stylesheet" href="/switch/switch.css">
+    <link rel="stylesheet" href="/switch/ui.css">
+    <link rel="stylesheet" href="/app.css">
+
+    <!-- Initial Component Data -->
+    <script>
+        window.SWITCH_INITIAL_DATA = {
+            name: "App",
+            props: {
+                title: "{{APP_NAME}}",
+                currentPage: "home"
+            }
+        };
+
+        window.SWITCH_ENV = {
+            debug: true,
+            hmr: true,
+            ssr: true
+        };
+    </script>
+</head>
+<body>
+    <!-- Root Element -->
+    <div id="switch-root"></div>
+
+    <!-- Switch Framework Scripts -->
+    <script src="/switch/dom.js"></script>
+    <script src="/switch/switch.js"></script>
+    <script src="/switch/store.js"></script>
+    <script src="/switch/components.js"></script>
+    <script src="/switch/ssr.js"></script>
+    <script src="/switch/ui.js"></script>
+    <script src="/static/js/app.js"></script>
+
+    <!-- Initialize Component -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Create the component
+            const component = Switch.createComponent(window.SWITCH_INITIAL_DATA);
+
+            // Render the component
+            Switch.renderComponent(component, document.getElementById('switch-root'));
+
+            // Enable HMR if configured
+            if (window.SWITCH_ENV.hmr && window.Switch.hmr) {
+                Switch.hmr.enable({
+                    debug: window.SWITCH_ENV.debug
+                });
+            }
+        });
+    </script>
+</body>
+</html>

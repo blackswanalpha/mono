@@ -1,0 +1,239 @@
+//  __  __                   
+// |  \/  | ___  _ __   ___  
+// | |\/| |/ _ \| '_ \ / _ \ 
+// | |  | | (_) | | | | (_) |
+// |_|  |_|\___/|_| |_|\___/ 
+//                           
+// Navbar Component
+
+component Navbar {
+    props {
+        brand: string = "",
+        brandImage: string = "",
+        brandHref: string = "/",
+        variant: string = "light", // light, dark
+        background: string = "light", // primary, secondary, success, danger, warning, info, light, dark
+        fixed: string = "", // top, bottom
+        sticky: boolean = false,
+        expand: string = "lg", // sm, md, lg, xl, xxl
+        container: boolean = true,
+        items: array = [],
+        rightItems: array = [],
+        onItemClick: function = null
+    }
+    
+    state {
+        isExpanded: boolean = false
+    }
+    
+    function constructor() {
+        // Initialize the component
+    }
+    
+    function toggleNavbar() {
+        this.state.isExpanded = !this.state.isExpanded;
+    }
+    
+    function handleItemClick(event, item) {
+        // Call the onItemClick handler if provided
+        if (this.props.onItemClick) {
+            this.props.onItemClick(event, item);
+        }
+    }
+    
+    function getClasses() {
+        var classes = ["navbar"];
+        
+        // Add variant class
+        classes.push("navbar-" + this.props.variant);
+        
+        // Add background class
+        classes.push("bg-" + this.props.background);
+        
+        // Add fixed class
+        if (this.props.fixed) {
+            classes.push("fixed-" + this.props.fixed);
+        }
+        
+        // Add sticky class
+        if (this.props.sticky) {
+            classes.push("sticky-top");
+        }
+        
+        // Add expand class
+        if (this.props.expand) {
+            classes.push("navbar-expand-" + this.props.expand);
+        }
+        
+        return classes.join(" ");
+    }
+    
+    function renderBrand() {
+        if (!this.props.brand && !this.props.brandImage) {
+            return "";
+        }
+        
+        var brandImageHtml = this.props.brandImage ? `<img src="${this.props.brandImage}" alt="${this.props.brand}" class="navbar-brand-image me-2">` : "";
+        
+        return `
+            <a class="navbar-brand" href="${this.props.brandHref}">
+                ${brandImageHtml}
+                ${this.props.brand}
+            </a>
+        `;
+    }
+    
+    function renderToggler() {
+        return `
+            <button class="navbar-toggler" type="button" onclick="toggleNavbar()">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+        `;
+    }
+    
+    function renderItems(items, isRight = false) {
+        if (!items || items.length === 0) {
+            return "";
+        }
+        
+        var itemsHtml = "";
+        
+        for (var i = 0; i < items.length; i++) {
+            var item = items[i];
+            
+            if (item.type === "link") {
+                itemsHtml += this.renderLink(item);
+            } else if (item.type === "dropdown") {
+                itemsHtml += this.renderDropdown(item);
+            } else if (item.type === "text") {
+                itemsHtml += this.renderText(item);
+            } else if (item.type === "form") {
+                itemsHtml += this.renderForm(item);
+            } else if (item.type === "divider") {
+                itemsHtml += this.renderDivider();
+            }
+        }
+        
+        var navClasses = "navbar-nav";
+        if (isRight) {
+            navClasses += " ms-auto";
+        }
+        
+        return `
+            <ul class="${navClasses}">
+                ${itemsHtml}
+            </ul>
+        `;
+    }
+    
+    function renderLink(item) {
+        var classes = "nav-link";
+        if (item.active) {
+            classes += " active";
+        }
+        if (item.disabled) {
+            classes += " disabled";
+        }
+        
+        var attributes = `class="${classes}" href="${item.href || '#'}"`;
+        if (item.target) {
+            attributes += ` target="${item.target}"`;
+        }
+        if (item.active) {
+            attributes += ` aria-current="page"`;
+        }
+        if (item.disabled) {
+            attributes += ` tabindex="-1" aria-disabled="true"`;
+        }
+        
+        return `
+            <li class="nav-item">
+                <a ${attributes} onclick="handleItemClick(event, ${JSON.stringify(item)})">
+                    ${item.icon ? `<i class="bi bi-${item.icon} me-2"></i>` : ''}
+                    ${item.text}
+                </a>
+            </li>
+        `;
+    }
+    
+    function renderDropdown(item) {
+        var dropdownItems = "";
+        
+        for (var i = 0; i < item.items.length; i++) {
+            var dropdownItem = item.items[i];
+            
+            if (dropdownItem.type === "link") {
+                dropdownItems += `
+                    <a class="dropdown-item" href="${dropdownItem.href || '#'}" onclick="handleItemClick(event, ${JSON.stringify(dropdownItem)})">
+                        ${dropdownItem.icon ? `<i class="bi bi-${dropdownItem.icon} me-2"></i>` : ''}
+                        ${dropdownItem.text}
+                    </a>
+                `;
+            } else if (dropdownItem.type === "divider") {
+                dropdownItems += `<div class="dropdown-divider"></div>`;
+            } else if (dropdownItem.type === "header") {
+                dropdownItems += `<h6 class="dropdown-header">${dropdownItem.text}</h6>`;
+            }
+        }
+        
+        return `
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    ${item.icon ? `<i class="bi bi-${item.icon} me-2"></i>` : ''}
+                    ${item.text}
+                </a>
+                <ul class="dropdown-menu">
+                    ${dropdownItems}
+                </ul>
+            </li>
+        `;
+    }
+    
+    function renderText(item) {
+        return `
+            <li class="nav-item">
+                <span class="nav-link">${item.text}</span>
+            </li>
+        `;
+    }
+    
+    function renderForm(item) {
+        return `
+            <li class="nav-item">
+                <form class="d-flex" role="search">
+                    <input class="form-control me-2" type="search" placeholder="${item.placeholder || 'Search'}" aria-label="Search">
+                    <button class="btn btn-${item.buttonType || 'outline-success'}" type="submit">${item.buttonText || 'Search'}</button>
+                </form>
+            </li>
+        `;
+    }
+    
+    function renderDivider() {
+        return `<li class="nav-item divider"></li>`;
+    }
+    
+    function render() {
+        // Create the component
+        var navbar = switch.component("Navbar", this.props);
+        
+        // Determine the container class
+        var containerClass = this.props.container ? "container" : "container-fluid";
+        
+        // Return the HTML
+        return `
+            <nav class="${this.getClasses()}">
+                <div class="${containerClass}">
+                    ${this.renderBrand()}
+                    ${this.renderToggler()}
+                    <div class="collapse navbar-collapse ${this.state.isExpanded ? 'show' : ''}">
+                        ${this.renderItems(this.props.items)}
+                        ${this.renderItems(this.props.rightItems, true)}
+                    </div>
+                </div>
+            </nav>
+        `;
+    }
+}
+
+// Export the component
+export Navbar;

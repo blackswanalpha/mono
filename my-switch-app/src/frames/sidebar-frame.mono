@@ -1,0 +1,193 @@
+//  __  __                   
+// |  \/  | ___  _ __   ___  
+// | |\/| |/ _ \| '_ \ / _ \ 
+// | |  | | (_) | | | | (_) |
+// |_|  |_|\___/|_| |_|\___/ 
+//                           
+// Sidebar Frame Component
+
+frame SidebarFrame {
+    state {
+        title: string = "Sidebar",
+        position: string = "left", // left, right
+        width: string = "250px",
+        collapsedWidth: string = "64px",
+        isCollapsed: boolean = false,
+        isVisible: boolean = true,
+        isDarkMode: boolean = false,
+        showToggle: boolean = true,
+        showHeader: boolean = true,
+        showFooter: boolean = false,
+        activeItem: string = "",
+        items: array = []
+    }
+    
+    function frameWillLoad() {
+        console.log("SidebarFrame will load");
+        
+        // Check if dark mode is enabled
+        this.state.isDarkMode = localStorage.getItem("darkMode") === "true";
+        
+        // Check if sidebar is collapsed
+        this.state.isCollapsed = localStorage.getItem("sidebarCollapsed") === "true";
+        
+        // Apply classes to body
+        if (this.state.isDarkMode) {
+            document.body.classList.add("dark-mode");
+        }
+        
+        if (this.state.isCollapsed) {
+            document.body.classList.add("sidebar-collapsed");
+        }
+    }
+    
+    function frameDidLoad() {
+        console.log("SidebarFrame did load");
+        
+        // Trigger sidebar:loaded event
+        this.triggerEvent("sidebar:loaded");
+    }
+    
+    function frameWillUnload() {
+        console.log("SidebarFrame will unload");
+        
+        // Remove classes from body
+        document.body.classList.remove("dark-mode");
+        document.body.classList.remove("sidebar-collapsed");
+    }
+    
+    function toggleCollapse() {
+        this.state.isCollapsed = !this.state.isCollapsed;
+        
+        // Save to localStorage
+        localStorage.setItem("sidebarCollapsed", this.state.isCollapsed.toString());
+        
+        // Update body class
+        if (this.state.isCollapsed) {
+            document.body.classList.add("sidebar-collapsed");
+        } else {
+            document.body.classList.remove("sidebar-collapsed");
+        }
+        
+        // Trigger sidebar:toggle event
+        this.triggerEvent("sidebar:toggle", { isCollapsed: this.state.isCollapsed });
+    }
+    
+    function toggleVisibility() {
+        this.state.isVisible = !this.state.isVisible;
+        
+        // Trigger sidebar:visibility event
+        this.triggerEvent("sidebar:visibility", { isVisible: this.state.isVisible });
+    }
+    
+    function setActiveItem(itemId) {
+        this.state.activeItem = itemId;
+        
+        // Trigger sidebar:activeItem event
+        this.triggerEvent("sidebar:activeItem", { activeItem: itemId });
+    }
+    
+    function getSidebarClasses() {
+        let classes = "sidebar-frame";
+        
+        // Add position class
+        classes += ` sidebar-${this.state.position}`;
+        
+        // Add collapsed class
+        if (this.state.isCollapsed) {
+            classes += " sidebar-collapsed";
+        }
+        
+        // Add visibility class
+        if (!this.state.isVisible) {
+            classes += " sidebar-hidden";
+        }
+        
+        // Add dark mode class
+        if (this.state.isDarkMode) {
+            classes += " sidebar-dark";
+        }
+        
+        return classes;
+    }
+    
+    function getSidebarStyles() {
+        return `
+            width: ${this.state.isCollapsed ? this.state.collapsedWidth : this.state.width};
+            transition: width 0.3s ease;
+        `;
+    }
+    
+    function renderHeader() {
+        if (!this.state.showHeader) {
+            return "";
+        }
+        
+        return `
+            <div class="sidebar-header">
+                <div class="sidebar-title">
+                    ${this.state.isCollapsed ? `<span class="sidebar-title-short">${this.state.title.charAt(0)}</span>` : this.state.title}
+                </div>
+                ${this.state.showToggle ? `
+                    <button class="sidebar-toggle" data-event="click" data-action="toggleCollapse">
+                        <i class="bi bi-${this.state.isCollapsed ? 'chevron-right' : 'chevron-left'}"></i>
+                    </button>
+                ` : ""}
+            </div>
+        `;
+    }
+    
+    function renderItems() {
+        if (!this.state.items || this.state.items.length === 0) {
+            return `<div class="sidebar-no-items">No items</div>`;
+        }
+        
+        return `
+            <ul class="sidebar-nav">
+                ${this.state.items.map(item => `
+                    <li class="sidebar-item ${this.state.activeItem === item.id ? 'active' : ''}">
+                        <a href="${item.url || '#'}" class="sidebar-link" data-event="click" data-action="setActiveItem" data-params="${item.id}">
+                            ${item.icon ? `<i class="sidebar-icon ${item.icon}"></i>` : ''}
+                            ${this.state.isCollapsed ? '' : `<span class="sidebar-label">${item.label}</span>`}
+                        </a>
+                    </li>
+                `).join('')}
+            </ul>
+        `;
+    }
+    
+    function renderFooter() {
+        if (!this.state.showFooter) {
+            return "";
+        }
+        
+        return `
+            <div class="sidebar-footer">
+                <slot name="footer">
+                    <div class="sidebar-footer-content">
+                        ${this.state.isCollapsed ? '' : '© ' + new Date().getFullYear()}
+                    </div>
+                </slot>
+            </div>
+        `;
+    }
+    
+    function render() {
+        return `
+            <div class="${this.getSidebarClasses()}" style="${this.getSidebarStyles()}">
+                ${this.renderHeader()}
+                
+                <div class="sidebar-content">
+                    <slot name="content">
+                        ${this.renderItems()}
+                    </slot>
+                </div>
+                
+                ${this.renderFooter()}
+            </div>
+        `;
+    }
+}
+
+// Export the frame
+export SidebarFrame;

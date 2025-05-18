@@ -1,0 +1,47 @@
+//  __  __                   
+// |  \/  | ___  _ __   ___  
+// | |\/| |/ _ \| '_ \ / _ \ 
+// | |  | | (_) | | | | (_) |
+// |_|  |_|\___/|_| |_|\___/ 
+//                           
+// {{COMPONENT_NAME}} Component
+
+component {{COMPONENT_NAME}} {
+    state {
+        // Component state
+    }
+    
+    function constructor() {
+        // Initialize the component
+    }
+    
+    function render() {
+        // Use the Switch framework to render the component
+        switch.clientEvent("click", "handleClick");
+        
+        // Create a Switch component
+        var component = switch.component("{{COMPONENT_NAME}}", {
+            // Props
+        });
+        
+        // Return the HTML
+        return `
+            <div class="{{COMPONENT_NAME.toLowerCase()}}">
+                <h2>{{COMPONENT_NAME}}</h2>
+                <div class="{{COMPONENT_NAME.toLowerCase()}}-content">
+                    <!-- Component content -->
+                </div>
+                <button class="switch-button switch-button-primary" data-event="click" data-action="click">
+                    Click Me
+                </button>
+            </div>
+        `;
+    }
+    
+    function handleClick(event) {
+        if (event.target.dataset.action === "click") {
+            // Handle click event
+            print "Button clicked";
+        }
+    }
+}

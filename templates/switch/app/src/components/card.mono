@@ -1,0 +1,90 @@
+//  __  __                   
+// |  \/  | ___  _ __   ___  
+// | |\/| |/ _ \| '_ \ / _ \ 
+// | |  | | (_) | | | | (_) |
+// |_|  |_|\___/|_| |_|\___/ 
+//                           
+// Card Component
+
+component Card {
+    state {
+        title: string = "",
+        subtitle: string = "",
+        content: string = "",
+        footer: string = "",
+        headerClass: string = "",
+        bodyClass: string = "",
+        footerClass: string = ""
+    }
+    
+    function constructor(props) {
+        // Initialize with props if provided
+        if (props) {
+            if (props.title) {
+                this.state.title = props.title;
+            }
+            
+            if (props.subtitle) {
+                this.state.subtitle = props.subtitle;
+            }
+            
+            if (props.content) {
+                this.state.content = props.content;
+            }
+            
+            if (props.footer) {
+                this.state.footer = props.footer;
+            }
+            
+            if (props.headerClass) {
+                this.state.headerClass = props.headerClass;
+            }
+            
+            if (props.bodyClass) {
+                this.state.bodyClass = props.bodyClass;
+            }
+            
+            if (props.footerClass) {
+                this.state.footerClass = props.footerClass;
+            }
+        }
+    }
+    
+    function render() {
+        // Create the component
+        var card = switch.component("Card", {
+            title: this.state.title,
+            subtitle: this.state.subtitle,
+            content: this.state.content,
+            footer: this.state.footer,
+            headerClass: this.state.headerClass,
+            bodyClass: this.state.bodyClass,
+            footerClass: this.state.footerClass
+        });
+        
+        // Return the HTML
+        return `
+            <div class="card">
+                ${this.state.title ? `
+                    <div class="card-header ${this.state.headerClass}">
+                        <h5 class="card-title">${this.state.title}</h5>
+                        ${this.state.subtitle ? `<h6 class="card-subtitle">${this.state.subtitle}</h6>` : ''}
+                    </div>
+                ` : ''}
+                
+                <div class="card-body ${this.state.bodyClass}">
+                    ${this.state.content}
+                </div>
+                
+                ${this.state.footer ? `
+                    <div class="card-footer ${this.state.footerClass}">
+                        ${this.state.footer}
+                    </div>
+                ` : ''}
+            </div>
+        `;
+    }
+}
+
+// Export the component
+export Card;

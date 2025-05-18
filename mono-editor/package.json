@@ -1,0 +1,74 @@
+{
+  "name": "mono-editor",
+  "version": "1.0.0",
+  "description": "A modern editor for the Mono language",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron . --dev",
+    "build": "electron-builder",
+    "build:win": "electron-builder --win",
+    "build:mac": "electron-builder --mac",
+    "build:linux": "electron-builder --linux",
+    "setup": "node install-deps.js",
+    "postinstall": "electron-builder install-app-deps"
+  },
+  "keywords": [
+    "mono",
+    "editor",
+    "code",
+    "electron"
+  ],
+  "author": "Mono Team",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^25.0.0",
+    "electron-builder": "^24.4.0"
+  },
+  "dependencies": {
+    "monaco-editor": "^0.40.0",
+    "xterm": "^5.2.1",
+    "xterm-addon-fit": "^0.7.0",
+    "node-pty": "^1.0.0",
+    "fs-extra": "^11.1.1",
+    "chokidar": "^3.5.3",
+    "lodash": "^4.17.21",
+    "jquery": "^3.7.1",
+    "bootstrap": "^5.3.2",
+    "popper.js": "^1.16.1",
+    "electron-store": "^8.1.0"
+  },
+  "build": {
+    "appId": "com.mono.editor",
+    "productName": "Mono Editor",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "**/*",
+      "!**/node_modules/*/{CHANGELOG.md,README.md,README,readme.md,readme}",
+      "!**/node_modules/*/{test,__tests__,tests,powered-test,example,examples}",
+      "!**/node_modules/*.d.ts",
+      "!**/node_modules/.bin",
+      "!**/*.{iml,o,hprof,orig,pyc,pyo,rbc,swp,csproj,sln,xproj}",
+      "!.editorconfig",
+      "!**/._*",
+      "!**/{.DS_Store,.git,.hg,.svn,CVS,RCS,SCCS,.gitignore,.gitattributes}",
+      "!**/{__pycache__,thumbs.db,.flowconfig,.idea,.vs,.nyc_output}",
+      "!**/{appveyor.yml,.travis.yml,circle.yml}",
+      "!**/{npm-debug.log,yarn.lock,.yarn-integrity,.yarn-metadata.json}"
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "assets/icons/win/icon.ico"
+    },
+    "mac": {
+      "target": "dmg",
+      "icon": "assets/icons/mac/icon.icns"
+    },
+    "linux": {
+      "target": "AppImage",
+      "icon": "assets/icons/png/512x512.png"
+    }
+  }
+}

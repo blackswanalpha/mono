@@ -1,0 +1,675 @@
+//  __  __
+// |  \/  | ___  _ __   ___
+// | |\/| |/ _ \| '_ \ / _ \
+// | |  | | (_) | | | | (_) |
+// |_|  |_|\___/|_| |_|\___/
+//
+// Switch Components Demo
+
+component Main {
+    function start() {
+        print "=== Switch Components Demo ===";
+
+        // Configure routes
+        http.get("/", function(req, res) {
+            this.handleRoot(req, res);
+        });
+
+        http.get("/app.js", function(req, res) {
+            this.handleAppJs(req, res);
+        });
+
+        http.get("/app.css", function(req, res) {
+            this.handleAppCss(req, res);
+        });
+
+        http.get("/kits/SwitchUIKit/loader.js", function(req, res) {
+            this.handleLoaderJs(req, res);
+        });
+
+        // Start the server
+        http.start();
+    }
+
+    function handleRoot(req, res) {
+        print "Handling request to /";
+
+        // Create the ComponentsDemo component
+        var demo = new ComponentsDemo();
+
+        // Render the app
+        var html = demo.render();
+
+        // Create the HTML document
+        var fullHtml = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Switch Components Demo</title>
+    <link rel="stylesheet" href="/app.css">
+</head>
+<body>
+    ${html}
+    <script src="/app.js"></script>
+</body>
+</html>`;
+
+        // Send the response
+        res.html(fullHtml);
+    }
+
+    function handleAppJs(req, res) {
+        print "Handling request to /app.js";
+
+        // Send the custom JavaScript
+        res.header("Content-Type", "application/javascript");
+        res.text(`
+            // Custom JavaScript for Switch Components Demo
+            console.log('Switch Components Demo initialized');
+
+            document.addEventListener('DOMContentLoaded', function() {
+                // Initialize DatePicker
+                const datePicker = SwitchComponents.DatePicker.create({
+                    value: new Date(),
+                    format: 'yyyy-mm-dd',
+                    placeholder: 'Select a date',
+                    onChange: function(date) {
+                        console.log('Selected date:', date);
+                        document.getElementById('selected-date').textContent = date.toLocaleDateString();
+                    }
+                });
+
+                // Add the DatePicker to the container
+                const datePickerContainer = document.getElementById('date-picker-container');
+                datePickerContainer.appendChild(datePicker.getElement());
+
+                // Initialize Slider
+                const slider = SwitchComponents.Slider.create({
+                    min: 0,
+                    max: 100,
+                    value: 50,
+                    step: 1,
+                    showValue: true,
+                    showLabels: true,
+                    showTicks: true,
+                    tickInterval: 10,
+                    onChange: function(value) {
+                        console.log('Slider value:', value);
+                        document.getElementById('slider-value').textContent = value;
+                    }
+                });
+
+                // Add the Slider to the container
+                const sliderContainer = document.getElementById('slider-container');
+                sliderContainer.appendChild(slider.getElement());
+
+                // Initialize Carousel
+                const carousel = SwitchComponents.Carousel.create({
+                    items: [
+                        {
+                            image: 'https://via.placeholder.com/800x400/3b82f6/ffffff?text=Slide+1',
+                            caption: 'Slide 1'
+                        },
+                        {
+                            image: 'https://via.placeholder.com/800x400/10b981/ffffff?text=Slide+2',
+                            caption: 'Slide 2'
+                        },
+                        {
+                            image: 'https://via.placeholder.com/800x400/ef4444/ffffff?text=Slide+3',
+                            caption: 'Slide 3'
+                        }
+                    ],
+                    autoplay: true,
+                    autoplayInterval: 5000,
+                    showControls: true,
+                    showIndicators: true,
+                    showCaptions: true,
+                    animation: 'slide',
+                    onChange: function(index) {
+                        console.log('Carousel slide:', index);
+                        document.getElementById('carousel-index').textContent = index + 1;
+                    }
+                });
+
+                // Add the Carousel to the container
+                const carouselContainer = document.getElementById('carousel-container');
+                carouselContainer.appendChild(carousel.getElement());
+            });
+        `);
+    }
+
+    function handleAppCss(req, res) {
+        print "Handling request to /app.css";
+
+        // Send the custom CSS
+        res.header("Content-Type", "text/css");
+        res.text(`
+            /* Custom CSS for Switch Components Demo */
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+                line-height: 1.5;
+                color: #333;
+                max-width: 800px;
+                margin: 0 auto;
+                padding: 2rem;
+                background-color: #f8f9fa;
+            }
+
+            .container {
+                background-color: #fff;
+                border-radius: 0.5rem;
+                box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+                padding: 2rem;
+                margin-bottom: 2rem;
+            }
+
+            h1 {
+                margin-top: 0;
+                margin-bottom: 2rem;
+                text-align: center;
+                color: #3b82f6;
+            }
+
+            h2 {
+                margin-top: 0;
+                margin-bottom: 1rem;
+                color: #4b5563;
+                border-bottom: 1px solid #e5e7eb;
+                padding-bottom: 0.5rem;
+            }
+
+            .component-container {
+                margin-bottom: 2rem;
+            }
+
+            .component-info {
+                margin-top: 1rem;
+                padding: 1rem;
+                background-color: #f3f4f6;
+                border-radius: 0.25rem;
+            }
+
+            .component-info p {
+                margin: 0;
+            }
+
+            .component-info strong {
+                font-weight: 600;
+                color: #4b5563;
+            }
+
+            .date-picker-container,
+            .slider-container,
+            .carousel-container {
+                margin-top: 1rem;
+            }
+
+            .carousel-container {
+                max-width: 100%;
+                overflow: hidden;
+            }
+        `);
+    }
+
+    function handleLoaderJs(req, res) {
+        print "Handling request to /kits/SwitchUIKit/loader.js";
+
+        // Create a simple loader script
+        res.header("Content-Type", "application/javascript");
+        res.text(`
+            // Switch UI Kit Loader
+            console.log('Loading Switch UI Kit...');
+
+            // Create the SwitchComponents namespace if it doesn't exist
+            window.SwitchComponents = window.SwitchComponents || {};
+
+            // DatePicker Component
+            window.SwitchComponents.DatePicker = class {
+                static create(options) {
+                    return new window.SwitchComponents.DatePicker(options);
+                }
+
+                constructor(options) {
+                    this.options = options || {};
+                    this.element = this._createElement();
+                    return this;
+                }
+
+                _createElement() {
+                    const container = document.createElement('div');
+                    container.className = 'switch-datepicker';
+
+                    const input = document.createElement('input');
+                    input.type = 'date';
+                    input.className = 'switch-datepicker-input';
+                    input.value = this.options.value ? this._formatDate(this.options.value) : '';
+                    input.placeholder = this.options.placeholder || 'Select a date';
+
+                    if (this.options.onChange) {
+                        input.addEventListener('change', (e) => {
+                            this.options.onChange(new Date(e.target.value));
+                        });
+                    }
+
+                    container.appendChild(input);
+                    return container;
+                }
+
+                _formatDate(date) {
+                    const d = new Date(date);
+                    const year = d.getFullYear();
+                    const month = String(d.getMonth() + 1).padStart(2, '0');
+                    const day = String(d.getDate()).padStart(2, '0');
+                    return \`\${year}-\${month}-\${day}\`;
+                }
+
+                render() {
+                    return this.element.outerHTML;
+                }
+
+                getElement() {
+                    return this.element;
+                }
+            };
+
+            // Slider Component
+            window.SwitchComponents.Slider = class {
+                static create(options) {
+                    return new window.SwitchComponents.Slider(options);
+                }
+
+                constructor(options) {
+                    this.options = options || {};
+                    this.element = this._createElement();
+                    return this;
+                }
+
+                _createElement() {
+                    const container = document.createElement('div');
+                    container.className = 'switch-slider-container';
+
+                    const slider = document.createElement('input');
+                    slider.type = 'range';
+                    slider.className = 'switch-slider';
+                    slider.min = this.options.min || 0;
+                    slider.max = this.options.max || 100;
+                    slider.value = this.options.value || 50;
+                    slider.step = this.options.step || 1;
+
+                    if (this.options.onChange) {
+                        slider.addEventListener('change', (e) => {
+                            this.options.onChange(parseFloat(e.target.value));
+                        });
+                    }
+
+                    container.appendChild(slider);
+
+                    if (this.options.showValue) {
+                        const value = document.createElement('div');
+                        value.className = 'switch-slider-value';
+                        value.textContent = slider.value;
+
+                        slider.addEventListener('input', (e) => {
+                            value.textContent = e.target.value;
+                        });
+
+                        container.appendChild(value);
+                    }
+
+                    return container;
+                }
+
+                render() {
+                    return this.element.outerHTML;
+                }
+
+                getElement() {
+                    return this.element;
+                }
+            };
+
+            // Carousel Component
+            window.SwitchComponents.Carousel = class {
+                static create(options) {
+                    return new window.SwitchComponents.Carousel(options);
+                }
+
+                constructor(options) {
+                    this.options = options || {};
+                    this.currentIndex = 0;
+                    this.element = this._createElement();
+
+                    if (this.options.autoplay) {
+                        this._startAutoplay();
+                    }
+
+                    return this;
+                }
+
+                _createElement() {
+                    const container = document.createElement('div');
+                    container.className = 'switch-carousel';
+
+                    // Create the track
+                    const track = document.createElement('div');
+                    track.className = 'switch-carousel-track';
+
+                    // Create the slides
+                    this.slides = [];
+
+                    (this.options.items || []).forEach((item, index) => {
+                        const slide = document.createElement('div');
+                        slide.className = 'switch-carousel-slide';
+
+                        if (index === 0) {
+                            slide.classList.add('switch-carousel-slide-active');
+                        }
+
+                        // Add image
+                        if (typeof item === 'string') {
+                            const img = document.createElement('img');
+                            img.src = item;
+                            img.className = 'switch-carousel-image';
+                            slide.appendChild(img);
+                        } else if (item.image) {
+                            const img = document.createElement('img');
+                            img.src = item.image;
+                            img.className = 'switch-carousel-image';
+                            slide.appendChild(img);
+
+                            // Add caption
+                            if (item.caption && this.options.showCaptions) {
+                                const caption = document.createElement('div');
+                                caption.className = 'switch-carousel-caption';
+                                caption.textContent = item.caption;
+                                slide.appendChild(caption);
+                            }
+                        }
+
+                        track.appendChild(slide);
+                        this.slides.push(slide);
+                    });
+
+                    container.appendChild(track);
+
+                    // Add controls
+                    if (this.options.showControls && this.slides.length > 1) {
+                        const prevButton = document.createElement('button');
+                        prevButton.className = 'switch-carousel-control switch-carousel-control-prev';
+                        prevButton.innerHTML = '&lsaquo;';
+                        prevButton.addEventListener('click', () => this.prev());
+
+                        const nextButton = document.createElement('button');
+                        nextButton.className = 'switch-carousel-control switch-carousel-control-next';
+                        nextButton.innerHTML = '&rsaquo;';
+                        nextButton.addEventListener('click', () => this.next());
+
+                        container.appendChild(prevButton);
+                        container.appendChild(nextButton);
+                    }
+
+                    // Add indicators
+                    if (this.options.showIndicators && this.slides.length > 1) {
+                        const indicators = document.createElement('div');
+                        indicators.className = 'switch-carousel-indicators';
+
+                        this.indicators = [];
+
+                        for (let i = 0; i < this.slides.length; i++) {
+                            const indicator = document.createElement('button');
+                            indicator.className = 'switch-carousel-indicator';
+
+                            if (i === 0) {
+                                indicator.classList.add('switch-carousel-indicator-active');
+                            }
+
+                            indicator.addEventListener('click', () => this.goTo(i));
+                            indicators.appendChild(indicator);
+                            this.indicators.push(indicator);
+                        }
+
+                        container.appendChild(indicators);
+                    }
+
+                    // Add styles
+                    const style = document.createElement('style');
+                    style.textContent = \`
+                        .switch-carousel {
+                            position: relative;
+                            width: 100%;
+                            overflow: hidden;
+                        }
+
+                        .switch-carousel-track {
+                            position: relative;
+                            width: 100%;
+                            height: 100%;
+                        }
+
+                        .switch-carousel-slide {
+                            position: absolute;
+                            top: 0;
+                            left: 0;
+                            width: 100%;
+                            height: 100%;
+                            opacity: 0;
+                            transition: opacity 0.5s ease;
+                        }
+
+                        .switch-carousel-slide-active {
+                            opacity: 1;
+                            z-index: 1;
+                        }
+
+                        .switch-carousel-image {
+                            width: 100%;
+                            height: auto;
+                            display: block;
+                        }
+
+                        .switch-carousel-caption {
+                            position: absolute;
+                            bottom: 0;
+                            left: 0;
+                            width: 100%;
+                            padding: 1rem;
+                            background-color: rgba(0, 0, 0, 0.5);
+                            color: white;
+                            text-align: center;
+                        }
+
+                        .switch-carousel-control {
+                            position: absolute;
+                            top: 50%;
+                            transform: translateY(-50%);
+                            width: 3rem;
+                            height: 3rem;
+                            background-color: rgba(0, 0, 0, 0.5);
+                            color: white;
+                            border: none;
+                            border-radius: 50%;
+                            font-size: 2rem;
+                            line-height: 1;
+                            text-align: center;
+                            cursor: pointer;
+                            z-index: 2;
+                        }
+
+                        .switch-carousel-control-prev {
+                            left: 1rem;
+                        }
+
+                        .switch-carousel-control-next {
+                            right: 1rem;
+                        }
+
+                        .switch-carousel-indicators {
+                            position: absolute;
+                            bottom: 1rem;
+                            left: 50%;
+                            transform: translateX(-50%);
+                            display: flex;
+                            gap: 0.5rem;
+                            z-index: 2;
+                        }
+
+                        .switch-carousel-indicator {
+                            width: 0.75rem;
+                            height: 0.75rem;
+                            background-color: rgba(255, 255, 255, 0.5);
+                            border: none;
+                            border-radius: 50%;
+                            cursor: pointer;
+                        }
+
+                        .switch-carousel-indicator-active {
+                            background-color: white;
+                        }
+
+                        .switch-datepicker {
+                            display: inline-block;
+                            width: 100%;
+                            max-width: 300px;
+                        }
+
+                        .switch-datepicker-input {
+                            width: 100%;
+                            padding: 0.5rem;
+                            font-size: 1rem;
+                            border: 1px solid #ccc;
+                            border-radius: 0.25rem;
+                        }
+
+                        .switch-slider-container {
+                            width: 100%;
+                            padding: 1rem 0;
+                        }
+
+                        .switch-slider {
+                            width: 100%;
+                        }
+
+                        .switch-slider-value {
+                            margin-top: 0.5rem;
+                            text-align: center;
+                            font-weight: bold;
+                        }
+                    \`;
+
+                    document.head.appendChild(style);
+
+                    return container;
+                }
+
+                goTo(index) {
+                    if (index < 0 || index >= this.slides.length || index === this.currentIndex) {
+                        return;
+                    }
+
+                    // Remove active class from current slide
+                    this.slides[this.currentIndex].classList.remove('switch-carousel-slide-active');
+
+                    // Add active class to new slide
+                    this.slides[index].classList.add('switch-carousel-slide-active');
+
+                    // Update indicators
+                    if (this.indicators) {
+                        this.indicators[this.currentIndex].classList.remove('switch-carousel-indicator-active');
+                        this.indicators[index].classList.add('switch-carousel-indicator-active');
+                    }
+
+                    // Update current index
+                    this.currentIndex = index;
+
+                    // Call onChange callback
+                    if (this.options.onChange) {
+                        this.options.onChange(index);
+                    }
+                }
+
+                next() {
+                    const nextIndex = (this.currentIndex + 1) % this.slides.length;
+                    this.goTo(nextIndex);
+                }
+
+                prev() {
+                    const prevIndex = (this.currentIndex - 1 + this.slides.length) % this.slides.length;
+                    this.goTo(prevIndex);
+                }
+
+                _startAutoplay() {
+                    this.autoplayInterval = setInterval(() => {
+                        this.next();
+                    }, this.options.autoplayInterval || 5000);
+                }
+
+                _stopAutoplay() {
+                    clearInterval(this.autoplayInterval);
+                }
+
+                render() {
+                    return this.element.outerHTML;
+                }
+
+                getElement() {
+                    return this.element;
+                }
+            };
+
+            console.log('Switch UI Kit loaded successfully!');
+        `);
+    }
+}
+
+component ComponentsDemo {
+    function render() {
+        return `
+            <div class="components-demo">
+                <h1>Switch Components Demo</h1>
+
+                <div class="container">
+                    <h2>DatePicker Component</h2>
+                    <p>The DatePicker component provides a date selection interface.</p>
+
+                    <div class="component-container">
+                        <div id="date-picker-container" class="date-picker-container"></div>
+
+                        <div class="component-info">
+                            <p><strong>Selected Date:</strong> <span id="selected-date">None</span></p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="container">
+                    <h2>Slider Component</h2>
+                    <p>The Slider component provides a range input with customizable appearance and behavior.</p>
+
+                    <div class="component-container">
+                        <div id="slider-container" class="slider-container"></div>
+
+                        <div class="component-info">
+                            <p><strong>Slider Value:</strong> <span id="slider-value">50</span></p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="container">
+                    <h2>Carousel Component</h2>
+                    <p>The Carousel component provides a slideshow for cycling through elements.</p>
+
+                    <div class="component-container">
+                        <div id="carousel-container" class="carousel-container"></div>
+
+                        <div class="component-info">
+                            <p><strong>Current Slide:</strong> <span id="carousel-index">1</span> of 3</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Include the Switch UI Kit -->
+            <script src="/kits/SwitchUIKit/loader.js"></script>
+        `;
+    }
+}

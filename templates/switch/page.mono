@@ -1,0 +1,41 @@
+//  __  __                   
+// |  \/  | ___  _ __   ___  
+// | |\/| |/ _ \| '_ \ / _ \ 
+// | |  | | (_) | | | | (_) |
+// |_|  |_|\___/|_| |_|\___/ 
+//                           
+// {{PAGE_NAME}} Page Component
+
+component {{PAGE_NAME}} {
+    state {
+        title: string = "{{PAGE_NAME}}"
+    }
+    
+    function constructor() {
+        // Initialize the component
+    }
+    
+    function render() {
+        // Create a Switch component
+        var page = switch.component("{{PAGE_NAME}}", {
+            title: this.state.title
+        });
+        
+        // Return the HTML
+        return `
+            <div class="{{PAGE_NAME.toLowerCase()}}-page">
+                <h1>${this.state.title}</h1>
+                <p>This is the {{PAGE_NAME}} page.</p>
+                
+                <div class="switch-card switch-mt-4">
+                    <div class="switch-card-header">
+                        <h2>Content</h2>
+                    </div>
+                    <div class="switch-card-body">
+                        <p>Add your content here.</p>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+}

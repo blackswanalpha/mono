@@ -1,0 +1,306 @@
+#!/usr/bin/env python3
+"""
+Mono Switch CLI - Command-line tool for scaffolding Switch applications
+
+Usage:
+    mono-switch-cli <command> [options]
+
+Commands:
+    create      Create a new Switch application
+    component   Generate a new component
+    page        Generate a new page
+    store       Generate a store module
+    help        Show help information
+"""
+
+import os
+import sys
+import argparse
+import shutil
+import re
+from pathlib import Path
+
+# Templates directory
+TEMPLATES_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "templates", "switch")
+
+def create_app(args):
+    """Create a new Switch application."""
+    app_name = args.name
+    app_dir = os.path.abspath(app_name)
+    
+    # Check if directory already exists
+    if os.path.exists(app_dir):
+        if not args.force:
+            print(f"Error: Directory '{app_dir}' already exists. Use --force to overwrite.")
+            return False
+        
+        # Remove existing directory
+        shutil.rmtree(app_dir)
+    
+    # Create app directory
+    os.makedirs(app_dir)
+    
+    # Create app structure
+    os.makedirs(os.path.join(app_dir, "components"))
+    os.makedirs(os.path.join(app_dir, "pages"))
+    os.makedirs(os.path.join(app_dir, "store"))
+    os.makedirs(os.path.join(app_dir, "assets"))
+    
+    # Copy template files
+    template_dir = os.path.join(TEMPLATES_DIR, "app")
+    
+    # Copy main.mono
+    with open(os.path.join(template_dir, "main.mono"), "r") as f:
+        content = f.read()
+    
+    # Replace placeholders
+    content = content.replace("{{APP_NAME}}", app_name)
+    
+    with open(os.path.join(app_dir, "main.mono"), "w") as f:
+        f.write(content)
+    
+    # Copy app.mono
+    with open(os.path.join(template_dir, "app.mono"), "r") as f:
+        content = f.read()
+    
+    # Replace placeholders
+    content = content.replace("{{APP_NAME}}", app_name)
+    
+    with open(os.path.join(app_dir, "app.mono"), "w") as f:
+        f.write(content)
+    
+    # Copy home page
+    with open(os.path.join(template_dir, "home.mono"), "r") as f:
+        content = f.read()
+    
+    with open(os.path.join(app_dir, "pages", "home.mono"), "w") as f:
+        f.write(content)
+    
+    # Copy about page
+    with open(os.path.join(template_dir, "about.mono"), "r") as f:
+        content = f.read()
+    
+    with open(os.path.join(app_dir, "pages", "about.mono"), "w") as f:
+        f.write(content)
+    
+    # Copy store
+    with open(os.path.join(template_dir, "store.mono"), "r") as f:
+        content = f.read()
+    
+    with open(os.path.join(app_dir, "store", "index.mono"), "w") as f:
+        f.write(content)
+    
+    # Copy README
+    with open(os.path.join(template_dir, "README.md"), "r") as f:
+        content = f.read()
+    
+    # Replace placeholders
+    content = content.replace("{{APP_NAME}}", app_name)
+    
+    with open(os.path.join(app_dir, "README.md"), "w") as f:
+        f.write(content)
+    
+    print(f"Created new Switch application: {app_name}")
+    print(f"To run the application:")
+    print(f"  cd {app_name}")
+    print(f"  mono-switch main.mono")
+    
+    return True
+
+def create_component(args):
+    """Create a new component."""
+    component_name = args.name
+    
+    # Check if component name is valid
+    if not re.match(r'^[A-Z][a-zA-Z0-9]*$', component_name):
+        print(f"Error: Component name must start with an uppercase letter and contain only alphanumeric characters.")
+        return False
+    
+    # Determine component directory
+    if args.dir:
+        component_dir = os.path.abspath(args.dir)
+    else:
+        component_dir = os.path.join(os.getcwd(), "components")
+    
+    # Create component directory if it doesn't exist
+    if not os.path.exists(component_dir):
+        os.makedirs(component_dir)
+    
+    # Component file path
+    component_file = os.path.join(component_dir, f"{component_name.lower()}.mono")
+    
+    # Check if component file already exists
+    if os.path.exists(component_file) and not args.force:
+        print(f"Error: Component file '{component_file}' already exists. Use --force to overwrite.")
+        return False
+    
+    # Copy template file
+    template_file = os.path.join(TEMPLATES_DIR, "component.mono")
+    
+    with open(template_file, "r") as f:
+        content = f.read()
+    
+    # Replace placeholders
+    content = content.replace("{{COMPONENT_NAME}}", component_name)
+    
+    with open(component_file, "w") as f:
+        f.write(content)
+    
+    print(f"Created new component: {component_name}")
+    print(f"Component file: {component_file}")
+    
+    return True
+
+def create_page(args):
+    """Create a new page."""
+    page_name = args.name
+    
+    # Check if page name is valid
+    if not re.match(r'^[A-Z][a-zA-Z0-9]*$', page_name):
+        print(f"Error: Page name must start with an uppercase letter and contain only alphanumeric characters.")
+        return False
+    
+    # Determine page directory
+    if args.dir:
+        page_dir = os.path.abspath(args.dir)
+    else:
+        page_dir = os.path.join(os.getcwd(), "pages")
+    
+    # Create page directory if it doesn't exist
+    if not os.path.exists(page_dir):
+        os.makedirs(page_dir)
+    
+    # Page file path
+    page_file = os.path.join(page_dir, f"{page_name.lower()}.mono")
+    
+    # Check if page file already exists
+    if os.path.exists(page_file) and not args.force:
+        print(f"Error: Page file '{page_file}' already exists. Use --force to overwrite.")
+        return False
+    
+    # Copy template file
+    template_file = os.path.join(TEMPLATES_DIR, "page.mono")
+    
+    with open(template_file, "r") as f:
+        content = f.read()
+    
+    # Replace placeholders
+    content = content.replace("{{PAGE_NAME}}", page_name)
+    
+    with open(page_file, "w") as f:
+        f.write(content)
+    
+    print(f"Created new page: {page_name}")
+    print(f"Page file: {page_file}")
+    
+    return True
+
+def create_store(args):
+    """Create a new store module."""
+    module_name = args.name
+    
+    # Check if module name is valid
+    if not re.match(r'^[a-z][a-zA-Z0-9]*$', module_name):
+        print(f"Error: Module name must start with a lowercase letter and contain only alphanumeric characters.")
+        return False
+    
+    # Determine store directory
+    if args.dir:
+        store_dir = os.path.abspath(args.dir)
+    else:
+        store_dir = os.path.join(os.getcwd(), "store")
+    
+    # Create store directory if it doesn't exist
+    if not os.path.exists(store_dir):
+        os.makedirs(store_dir)
+    
+    # Module file path
+    module_file = os.path.join(store_dir, f"{module_name}.mono")
+    
+    # Check if module file already exists
+    if os.path.exists(module_file) and not args.force:
+        print(f"Error: Module file '{module_file}' already exists. Use --force to overwrite.")
+        return False
+    
+    # Copy template file
+    template_file = os.path.join(TEMPLATES_DIR, "store_module.mono")
+    
+    with open(template_file, "r") as f:
+        content = f.read()
+    
+    # Replace placeholders
+    content = content.replace("{{MODULE_NAME}}", module_name)
+    
+    with open(module_file, "w") as f:
+        f.write(content)
+    
+    print(f"Created new store module: {module_name}")
+    print(f"Module file: {module_file}")
+    
+    return True
+
+def show_help():
+    """Show help information."""
+    print(__doc__)
+    print("For more information, run:")
+    print("  mono-switch-cli <command> --help")
+
+def parse_args():
+    """Parse command-line arguments."""
+    parser = argparse.ArgumentParser(description="Mono Switch CLI")
+    subparsers = parser.add_subparsers(dest="command", help="Command to run")
+    
+    # Create command
+    create_parser = subparsers.add_parser("create", help="Create a new Switch application")
+    create_parser.add_argument("name", help="Application name")
+    create_parser.add_argument("--force", "-f", action="store_true", help="Overwrite existing files")
+    
+    # Component command
+    component_parser = subparsers.add_parser("component", help="Generate a new component")
+    component_parser.add_argument("name", help="Component name")
+    component_parser.add_argument("--dir", "-d", help="Directory to create the component in")
+    component_parser.add_argument("--force", "-f", action="store_true", help="Overwrite existing files")
+    
+    # Page command
+    page_parser = subparsers.add_parser("page", help="Generate a new page")
+    page_parser.add_argument("name", help="Page name")
+    page_parser.add_argument("--dir", "-d", help="Directory to create the page in")
+    page_parser.add_argument("--force", "-f", action="store_true", help="Overwrite existing files")
+    
+    # Store command
+    store_parser = subparsers.add_parser("store", help="Generate a store module")
+    store_parser.add_argument("name", help="Module name")
+    store_parser.add_argument("--dir", "-d", help="Directory to create the module in")
+    store_parser.add_argument("--force", "-f", action="store_true", help="Overwrite existing files")
+    
+    # Help command
+    help_parser = subparsers.add_parser("help", help="Show help information")
+    
+    return parser.parse_args()
+
+def main():
+    """Main entry point."""
+    # Parse command-line arguments
+    args = parse_args()
+    
+    # Handle different commands
+    if args.command == "create":
+        success = create_app(args)
+    elif args.command == "component":
+        success = create_component(args)
+    elif args.command == "page":
+        success = create_page(args)
+    elif args.command == "store":
+        success = create_store(args)
+    elif args.command == "help" or not args.command:
+        show_help()
+        success = True
+    else:
+        print(f"Unknown command: {args.command}")
+        show_help()
+        success = False
+    
+    return 0 if success else 1
+
+if __name__ == "__main__":
+    sys.exit(main())

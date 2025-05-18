@@ -1,0 +1,105 @@
+#!/bin/bash
+
+# Simple Mono interpreter script
+# This is a placeholder for the actual Mono interpreter
+
+echo "Mono Interpreter v0.1"
+echo "====================="
+
+# Check if a file was provided
+if [ $# -eq 0 ]; then
+    echo "Error: No Mono file specified"
+    echo "Usage: mono <filename.mono>"
+    exit 1
+fi
+
+# Get the file path
+FILE_PATH="$1"
+
+# Check if the file exists
+if [ ! -f "$FILE_PATH" ]; then
+    echo "Error: File not found: $FILE_PATH"
+    exit 1
+fi
+
+# Check if the file is a Mono file
+if [[ "$FILE_PATH" != *.mono ]]; then
+    echo "Warning: File does not have a .mono extension"
+fi
+
+echo "Running Mono file: $FILE_PATH"
+echo ""
+
+# Read the file content
+CONTENT=$(cat "$FILE_PATH")
+
+# Simple parsing and execution simulation
+echo "Parsing Mono code..."
+sleep 1
+echo "Executing Mono code..."
+sleep 1
+
+# Extract and display component declarations
+COMPONENTS=$(grep -i "component" "$FILE_PATH" | sed 's/^[[:space:]]*//')
+if [ -n "$COMPONENTS" ]; then
+    echo ""
+    echo "Found components:"
+    echo "$COMPONENTS"
+fi
+
+# Extract and display function declarations
+FUNCTIONS=$(grep -i "function" "$FILE_PATH" | sed 's/^[[:space:]]*//')
+if [ -n "$FUNCTIONS" ]; then
+    echo ""
+    echo "Found functions:"
+    echo "$FUNCTIONS"
+fi
+
+# Look for print statements and execute them
+PRINTS=$(grep -i "print" "$FILE_PATH" | sed 's/^[[:space:]]*//')
+if [ -n "$PRINTS" ]; then
+    echo ""
+    echo "Output:"
+    # Extract content inside print statements and display it
+    while IFS= read -r line; do
+        if [[ "$line" == *"print"* ]]; then
+            # Handle different print statement formats
+
+            # Format 1: print("string")
+            if [[ "$line" =~ print[[:space:]]*\([[:space:]]*\"([^\"]*)\"[[:space:]]*\) ]]; then
+                echo "${BASH_REMATCH[1]}"
+                continue
+            fi
+
+            # Format 2: print('string')
+            if [[ "$line" =~ print[[:space:]]*\([[:space:]]*\'([^\']*)\'[[:space:]]*\) ]]; then
+                echo "${BASH_REMATCH[1]}"
+                continue
+            fi
+
+            # Format 3: print(variable)
+            if [[ "$line" =~ print[[:space:]]*\([[:space:]]*([a-zA-Z0-9_]+)[[:space:]]*\) ]]; then
+                var_name="${BASH_REMATCH[1]}"
+                echo "[Variable: $var_name]"
+                continue
+            fi
+
+            # Format 4: print(expression) - handle basic expressions
+            if [[ "$line" =~ print[[:space:]]*\([[:space:]]*(.*)[[:space:]]*\) ]]; then
+                expr="${BASH_REMATCH[1]}"
+                # Remove quotes for display
+                expr_clean=$(echo "$expr" | tr -d '"'"'")
+                echo "$expr_clean"
+                continue
+            fi
+
+            # Fallback for any other print format
+            content=$(echo "$line" | sed -n 's/.*print[[:space:]]*(\([^)]*\)).*/\1/p' | tr -d '"'"'")
+            echo "$content"
+        fi
+    done <<< "$CONTENT"
+fi
+
+echo ""
+echo "Mono execution completed successfully"
+exit 0

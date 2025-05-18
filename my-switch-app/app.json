@@ -1,0 +1,41 @@
+{
+  "name": "my-switch-app",
+  "version": "1.0.0",
+  "description": "A Switch application",
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "switch-core": "^1.0.0",
+    "switch-ui-kit": "^1.0.0",
+    "http-client": "^1.0.0",
+    "date-formatter": "^1.0.0",
+    "storage-manager": "^1.0.0",
+    "state-manager": "^1.0.0",
+    "router": "^1.0.0"
+  },
+  "devDependencies": {
+    "switch-dev-server": "^1.0.0",
+    "switch-bundler": "^1.0.0",
+    "switch-minifier": "^1.0.0",
+    "switch-tree-shaker": "^1.0.0"
+  },
+  "scripts": {
+    "start": "switch run app --reload",
+    "build": "switch build app --minify --bundle --tree-shake",
+    "deploy": "switch deploy app",
+    "pkg:install": "switch pkg install",
+    "pkg:uninstall": "switch pkg uninstall",
+    "pkg:list": "switch pkg list",
+    "pkg:search": "switch pkg search",
+    "kit:install": "switch kit install",
+    "kit:uninstall": "switch kit uninstall",
+    "kit:list": "switch kit list",
+    "kit:search": "switch kit search"
+  },
+  "settings": {
+    "port": 8000,
+    "host": "localhost",
+    "ssr": true,
+    "hmr": true
+  }
+}

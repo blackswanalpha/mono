@@ -1,0 +1,61 @@
+//  __  __                   
+// |  \/  | ___  _ __   ___  
+// | |\/| |/ _ \| '_ \ / _ \ 
+// | |  | | (_) | | | | (_) |
+// |_|  |_|\___/|_| |_|\___/ 
+//                           
+// {{APP_NAME}} - About Page Component
+
+component AboutPage {
+    state {
+        title: string = "About {{APP_NAME}}"
+    }
+    
+    function constructor() {
+        // Initialize the component
+    }
+    
+    function render() {
+        // Create a Switch component
+        var about = switch.component("AboutPage", {
+            title: this.state.title
+        });
+        
+        // Return the HTML
+        return `
+            <div class="about-page">
+                <h1>${this.state.title}</h1>
+                <p>This is a sample application built with the Switch framework for Mono.</p>
+                
+                <div class="switch-card switch-mt-4">
+                    <div class="switch-card-header">
+                        <h2>About Switch Framework</h2>
+                    </div>
+                    <div class="switch-card-body">
+                        <p>Switch is a robust frontend framework for the Mono language that enables developers to build interactive web applications. It integrates seamlessly with Mono's HTTP server to provide a complete solution for building modern web applications.</p>
+                        
+                        <h3 class="switch-mt-3">Features</h3>
+                        <ul>
+                            <li><strong>Component-based architecture:</strong> Build UIs with reusable components</li>
+                            <li><strong>Client-side rendering:</strong> Render components on the client for a responsive UI</li>
+                            <li><strong>State management:</strong> Components have internal mutable state</li>
+                            <li><strong>Event handling:</strong> Handle user interactions with event handlers</li>
+                            <li><strong>Routing:</strong> Navigate between pages without full page reloads</li>
+                            <li><strong>Server integration:</strong> Seamlessly integrate with Mono's HTTP server</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="switch-card switch-mt-4">
+                    <div class="switch-card-header">
+                        <h2>Contact</h2>
+                    </div>
+                    <div class="switch-card-body">
+                        <p>For more information about this application, please contact:</p>
+                        <p><a href="mailto:info@example.com">info@example.com</a></p>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+}

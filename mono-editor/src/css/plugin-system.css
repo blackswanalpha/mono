@@ -1,0 +1,370 @@
+/* Plugin System Styles for Mono Editor */
+
+/* Plugin Marketplace */
+.plugin-marketplace {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: var(--background-color);
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.marketplace-header {
+  padding: 15px;
+  border-bottom: 1px solid var(--border-color);
+  background-color: var(--panel-background);
+}
+
+.marketplace-header h2 {
+  margin: 0 0 15px 0;
+  color: var(--foreground-color);
+  font-size: 1.5rem;
+}
+
+.marketplace-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.search-container {
+  display: flex;
+  flex: 1;
+  min-width: 250px;
+}
+
+.search-container input {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid var(--border-color);
+  background-color: var(--input-background);
+  color: var(--input-foreground);
+  border-radius: 4px 0 0 4px;
+  outline: none;
+}
+
+.search-container button {
+  padding: 8px 12px;
+  background-color: var(--button-background);
+  color: var(--button-foreground);
+  border: 1px solid var(--border-color);
+  border-left: none;
+  border-radius: 0 4px 4px 0;
+  cursor: pointer;
+}
+
+.search-container button:hover {
+  background-color: var(--button-hover-background);
+}
+
+.filter-container {
+  display: flex;
+  gap: 10px;
+}
+
+.filter-container select {
+  padding: 8px 12px;
+  border: 1px solid var(--border-color);
+  background-color: var(--input-background);
+  color: var(--input-foreground);
+  border-radius: 4px;
+  outline: none;
+}
+
+.marketplace-content {
+  flex: 1;
+  padding: 15px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.featured-plugins, .all-plugins {
+  background-color: var(--panel-background);
+  border-radius: 6px;
+  padding: 15px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.featured-plugins h3, .all-plugins h3 {
+  margin: 0 0 15px 0;
+  color: var(--foreground-color);
+  font-size: 1.2rem;
+}
+
+.featured-plugins-list {
+  display: flex;
+  gap: 15px;
+  overflow-x: auto;
+  padding-bottom: 10px;
+}
+
+.plugin-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 15px;
+}
+
+.plugin-item {
+  background-color: var(--background-color);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.plugin-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.plugin-item.featured {
+  border-color: var(--accent-color);
+  background-color: rgba(var(--accent-color-rgb), 0.05);
+}
+
+.plugin-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.plugin-name {
+  margin: 0;
+  font-size: 1.1rem;
+  color: var(--foreground-color);
+}
+
+.plugin-version {
+  font-size: 0.8rem;
+  color: var(--foreground-secondary);
+  background-color: var(--badge-background);
+  padding: 2px 6px;
+  border-radius: 10px;
+}
+
+.plugin-description {
+  color: var(--foreground-secondary);
+  font-size: 0.9rem;
+  line-height: 1.4;
+  flex: 1;
+}
+
+.plugin-meta {
+  display: flex;
+  gap: 10px;
+  font-size: 0.8rem;
+  color: var(--foreground-secondary);
+}
+
+.plugin-author, .plugin-downloads, .plugin-rating {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.plugin-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.plugin-install-btn, .plugin-enable-btn, .plugin-settings-btn {
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  border: 1px solid var(--border-color);
+}
+
+.plugin-install-btn {
+  background-color: var(--button-primary-background);
+  color: var(--button-primary-foreground);
+  flex: 1;
+}
+
+.plugin-install-btn:hover {
+  background-color: var(--button-primary-hover-background);
+}
+
+.plugin-install-btn:disabled {
+  background-color: var(--button-disabled-background);
+  color: var(--button-disabled-foreground);
+  cursor: not-allowed;
+}
+
+.plugin-enable-btn {
+  background-color: var(--button-secondary-background);
+  color: var(--button-secondary-foreground);
+}
+
+.plugin-enable-btn:hover {
+  background-color: var(--button-secondary-hover-background);
+}
+
+.plugin-enable-btn:disabled {
+  background-color: var(--button-disabled-background);
+  color: var(--button-disabled-foreground);
+  cursor: not-allowed;
+}
+
+.plugin-settings-btn {
+  background-color: var(--button-background);
+  color: var(--button-foreground);
+}
+
+.plugin-settings-btn:hover {
+  background-color: var(--button-hover-background);
+}
+
+.marketplace-loading {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 1001;
+}
+
+.marketplace-loading .spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: var(--accent-color);
+  animation: spin 1s linear infinite;
+}
+
+.marketplace-loading p {
+  margin-top: 10px;
+  color: white;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Plugin Settings */
+.plugin-settings-panel {
+  background-color: var(--panel-background);
+  border-radius: 6px;
+  padding: 20px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.plugin-settings-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.plugin-settings-header h3 {
+  margin: 0;
+  font-size: 1.3rem;
+  color: var(--foreground-color);
+}
+
+.plugin-settings-close {
+  background: none;
+  border: none;
+  color: var(--foreground-secondary);
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+.plugin-settings-close:hover {
+  color: var(--foreground-color);
+}
+
+.plugin-settings-content {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.plugin-setting-item {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.plugin-setting-label {
+  font-size: 0.9rem;
+  color: var(--foreground-color);
+  font-weight: 500;
+}
+
+.plugin-setting-description {
+  font-size: 0.8rem;
+  color: var(--foreground-secondary);
+  margin-bottom: 5px;
+}
+
+.plugin-setting-input {
+  padding: 8px 12px;
+  border: 1px solid var(--border-color);
+  background-color: var(--input-background);
+  color: var(--input-foreground);
+  border-radius: 4px;
+  outline: none;
+}
+
+.plugin-setting-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.plugin-setting-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.plugin-setting-save, .plugin-setting-reset {
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  border: 1px solid var(--border-color);
+}
+
+.plugin-setting-save {
+  background-color: var(--button-primary-background);
+  color: var(--button-primary-foreground);
+}
+
+.plugin-setting-save:hover {
+  background-color: var(--button-primary-hover-background);
+}
+
+.plugin-setting-reset {
+  background-color: var(--button-background);
+  color: var(--button-foreground);
+}
+
+.plugin-setting-reset:hover {
+  background-color: var(--button-hover-background);
+}

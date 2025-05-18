@@ -87,6 +87,12 @@ A simple interpreter for the Mono programming language with support for reactive
 - Hot Reloading: Update components at runtime without restarting
 - Resource Management: Monitor and control memory and CPU usage
 
+### Web Server
+- HTTP Server: A simple HTTP server for handling web requests
+- Request Handling: Parse and handle HTTP requests
+- Response Building: Build and send HTTP responses
+- Routing: Route requests to appropriate handlers
+
 ## Supported Components
 
 - **Counter**: A simple counter with increment and decrement methods
@@ -414,6 +420,27 @@ The documentation server provides:
 - Case studies for best practices
 - API reference for Mono features
 - Examples of Mono applications
+
+### Web Server
+
+```bash
+./bin/mono-http <script.mono>
+```
+
+Example:
+```bash
+./bin/mono-http examples/web_server.mono
+./bin/mono-http examples/rest_api.mono
+./bin/mono-http examples/static_server.mono
+```
+
+This enables support for HTTP server functionality:
+- HTTP Server: `http.start()` and `http.stop()`
+- Route Registration: `http.get(path, handlerMethod)`, `http.post(path, handlerMethod)`, etc.
+- Request Handling: Access request data via `req.method`, `req.path`, `req.headers`, `req.body`, etc.
+- Response Building: Send responses with `res.status(code)`, `res.header(name, value)`, `res.text(content)`, `res.html(content)`, `res.json(data)`
+
+For more information, see [HTTP Server Documentation](docs/http_server.md).
 
 ### Data Structures
 
@@ -1281,6 +1308,80 @@ component App {
 }
 ```
 
+## Web Server Examples
+
+### Simple Web Server
+
+```mono
+component WebServer {
+    state {
+        port: number = 8000;
+        host: string = "localhost";
+    }
+
+    function constructor(port: number, host: string) {
+        if (port) {
+            this.port = port;
+        }
+        if (host) {
+            this.host = host;
+        }
+    }
+
+    function start() {
+        print "Starting web server on " + this.host + ":" + this.port;
+
+        // Configure routes
+        http.get("/", "handleRoot");
+        http.get("/hello", "handleHello");
+        http.get("/users/:id", "handleUser");
+        http.post("/api/data", "handleData");
+
+        // Start the server
+        http.start();
+
+        print "Server is running. Press Ctrl+C to stop.";
+    }
+
+    function handleRoot(req, res) {
+        print "Handling request to /";
+        res.html("<html><body><h1>Welcome to Mono Web Server</h1><p>A simple HTTP server written in Mono</p></body></html>");
+    }
+
+    function handleHello(req, res) {
+        print "Handling request to /hello";
+
+        // Get the name from query parameters
+        var name = req.query.name ? req.query.name[0] : "World";
+
+        res.html("<html><body><h1>Hello, " + name + "!</h1><p>Welcome to Mono Web Server</p></body></html>");
+    }
+
+    function handleUser(req, res) {
+        print "Handling request to /users/:id";
+
+        // Get the user ID from route parameters
+        var userId = req.params.id;
+
+        // Simulate a database lookup
+        var user = {
+            id: userId,
+            name: "User " + userId,
+            email: "user" + userId + "@example.com"
+        };
+
+        res.json(user);
+    }
+}
+
+component Main {
+    function start() {
+        var server = new WebServer(8000, "localhost");
+        server.start();
+    }
+}
+```
+
 ## Runtime Environment Examples
 
 ### Task Scheduling
@@ -1644,7 +1745,8 @@ mono/
 │   ├── mono-kit      # Mono kit manager
 │   ├── mono-layout   # Mono layout manager
 │   ├── mono-runtime  # Mono runtime environment
-│   └── mono-docs     # Mono documentation server
+│   ├── mono-docs     # Mono documentation server
+│   └── mono-http     # Mono HTTP server
 ├── spark/         # Spark editor for Mono
 │   ├── __init__.py   # Package initialization
 │   ├── main.py       # Main editor code
@@ -1676,7 +1778,9 @@ mono/
 │   ├── mono_combined_interpreter.py  # Combined interpreter with all features
 │   ├── mono_kits.py  # Kit system for Mono
 │   ├── mono_layouts.py  # Layout system for Mono
-│   └── mono_runtime.py  # Runtime environment for Mono
+│   ├── mono_runtime.py  # Runtime environment for Mono
+│   ├── mono_http.py  # HTTP server for Mono
+│   └── mono_http_interpreter.py  # Interpreter with HTTP server support
 ├── templates/     # Example Mono scripts
 │   ├── app_layout.layout  # App layout definition
 │   ├── basic_counter.mono  # Basic counter example
@@ -1703,6 +1807,10 @@ mono/
 │   ├── todo_manager.mono   # Todo manager application
 │   ├── typed_counter.mono  # Typed counter example
 │   └── ui_kit.mono        # UI kit definition
+├── examples/      # Example applications
+│   ├── web_server.mono    # Simple web server example
+│   ├── rest_api.mono      # RESTful API server example
+│   └── static_server.mono # Static file server example
 ├── README.md      # Documentation
 ├── README_REACTIVE.md # Reactive Mono documentation
 └── setup.py       # Installation script

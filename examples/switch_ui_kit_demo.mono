@@ -1,0 +1,451 @@
+//  __  __
+// |  \/  | ___  _ __   ___
+// | |\/| |/ _ \| '_ \ / _ \
+// | |  | | (_) | | | | (_) |
+// |_|  |_|\___/|_| |_|\___/
+//
+// Switch UI Kit Demo
+
+component Main {
+    state {
+        demo: any = null
+    }
+
+    function start() {
+        print "Starting Switch UI Kit Demo...";
+
+        // Create the demo component
+        this.state.demo = new SwitchUIKitDemo();
+
+        // Configure routes
+        http.get("/", "handleRoot");
+        http.get("/app.js", "handleAppJs");
+        http.get("/app.css", "handleAppCss");
+
+        // Start the server
+        http.start();
+    }
+
+    function handleRoot(req, res) {
+        print "Main: Handling request to /";
+        this.state.demo.handleRoot(req, res);
+    }
+
+    function handleAppJs(req, res) {
+        print "Main: Handling request to /app.js";
+        this.state.demo.handleAppJs(req, res);
+    }
+
+    function handleAppCss(req, res) {
+        print "Main: Handling request to /app.css";
+        this.state.demo.handleAppCss(req, res);
+    }
+}
+
+component SwitchUIKitDemo {
+    state {
+        title: string = "Switch UI Kit Demo",
+        activeTab: number = 0,
+        showModal: boolean = false,
+        showTooltip: boolean = false,
+        accordionItems: array = [
+            { title: "Section 1", content: "This is the content for section 1." },
+            { title: "Section 2", content: "This is the content for section 2." },
+            { title: "Section 3", content: "This is the content for section 3." }
+        ],
+        tableData: array = [
+            { id: 1, name: "John Doe", email: "john@example.com", role: "Admin" },
+            { id: 2, name: "Jane Smith", email: "jane@example.com", role: "User" },
+            { id: 3, name: "Bob Johnson", email: "bob@example.com", role: "User" },
+            { id: 4, name: "Alice Brown", email: "alice@example.com", role: "Editor" },
+            { id: 5, name: "Charlie Davis", email: "charlie@example.com", role: "User" }
+        ],
+        progress: number = 50
+    }
+
+    function start() {
+        print "=== Switch UI Kit Demo ===";
+
+        // Configure routes
+        http.get("/", "handleRoot");
+        http.get("/app.js", "handleAppJs");
+        http.get("/app.css", "handleAppCss");
+
+        // Start the server
+        http.start();
+    }
+
+    function handleRoot(req, res) {
+        print "Handling request to /";
+
+        // Render the app
+        var html = switch.render("Switch UI Kit Demo", ["/app.js"], ["/app.css"]);
+
+        // Send the response
+        res.html(html);
+    }
+
+    function handleAppJs(req, res) {
+        print "Handling request to /app.js";
+
+        // Send the custom JavaScript
+        res.header("Content-Type", "application/javascript");
+        res.text(`
+            // Custom JavaScript for Switch UI Kit Demo
+            console.log('Switch UI Kit Demo JavaScript loaded');
+
+            // Initialize tooltips
+            document.addEventListener('DOMContentLoaded', function() {
+                // Create tooltips for elements with data-tooltip attribute
+                document.querySelectorAll('[data-tooltip]').forEach(function(element) {
+                    const tooltipId = element.getAttribute('data-tooltip');
+                    const tooltipContent = element.getAttribute('data-tooltip-content');
+
+                    SwitchComponents.Tooltip.create({
+                        id: tooltipId,
+                        content: tooltipContent,
+                        position: element.getAttribute('data-tooltip-position') || 'top'
+                    });
+                });
+            });
+        `);
+    }
+
+    function handleAppCss(req, res) {
+        print "Handling request to /app.css";
+
+        // Send the custom CSS
+        res.header("Content-Type", "text/css");
+        res.text(`
+            /* Custom CSS for Switch UI Kit Demo */
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+                margin: 0;
+                padding: 0;
+                background-color: #f8f9fa;
+                color: #333;
+                line-height: 1.5;
+            }
+
+            .container {
+                max-width: 1200px;
+                margin: 0 auto;
+                padding: 1rem;
+            }
+
+            .header {
+                background-color: #343a40;
+                color: white;
+                padding: 1rem 0;
+                margin-bottom: 2rem;
+            }
+
+            .header-content {
+                max-width: 1200px;
+                margin: 0 auto;
+                padding: 0 1rem;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+
+            .title {
+                margin: 0;
+                font-size: 1.5rem;
+            }
+
+            .section {
+                margin-bottom: 2rem;
+                padding: 1.5rem;
+                background-color: white;
+                border-radius: 0.25rem;
+                box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+            }
+
+            .section-title {
+                margin-top: 0;
+                margin-bottom: 1rem;
+                border-bottom: 1px solid #dee2e6;
+                padding-bottom: 0.5rem;
+            }
+
+            .component-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+                gap: 1rem;
+                margin-bottom: 1rem;
+            }
+
+            .component-item {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                padding: 1rem;
+                border: 1px solid #dee2e6;
+                border-radius: 0.25rem;
+                text-align: center;
+            }
+
+            .component-name {
+                margin-top: 0.5rem;
+                font-size: 0.875rem;
+                font-weight: 500;
+            }
+
+            .button-group {
+                display: flex;
+                gap: 0.5rem;
+                margin-bottom: 1rem;
+            }
+
+            .tooltip-demo {
+                display: flex;
+                justify-content: center;
+                gap: 1rem;
+                margin: 2rem 0;
+            }
+
+            .progress-demo {
+                margin: 2rem 0;
+            }
+
+            .avatar-demo {
+                display: flex;
+                gap: 1rem;
+                margin: 1rem 0;
+                align-items: center;
+            }
+        `);
+    }
+
+    function render() {
+        // Use the Switch framework to render the component
+        switch.clientEvent("click", "handleClick");
+
+        // Create a Switch component
+        var demo = switch.component("SwitchUIKitDemo", {
+            title: this.state.title,
+            activeTab: this.state.activeTab,
+            showModal: this.state.showModal,
+            accordionItems: this.state.accordionItems,
+            tableData: this.state.tableData,
+            progress: this.state.progress
+        });
+
+        // Return the HTML
+        return `
+            <div class="app">
+                <header class="header">
+                    <div class="header-content">
+                        <h1 class="title">${this.state.title}</h1>
+                    </div>
+                </header>
+                <main class="container">
+                    <div class="section">
+                        <h2 class="section-title">Buttons</h2>
+                        <div class="button-group">
+                            <button class="switch-button switch-button-primary" data-event="click" data-action="show-modal">Primary</button>
+                            <button class="switch-button switch-button-secondary">Secondary</button>
+                            <button class="switch-button switch-button-success">Success</button>
+                            <button class="switch-button switch-button-danger">Danger</button>
+                            <button class="switch-button switch-button-warning">Warning</button>
+                            <button class="switch-button switch-button-info">Info</button>
+                        </div>
+                        <div class="button-group">
+                            <button class="switch-button switch-button-primary switch-button-sm">Small</button>
+                            <button class="switch-button switch-button-primary">Medium</button>
+                            <button class="switch-button switch-button-primary switch-button-lg">Large</button>
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <h2 class="section-title">Alerts</h2>
+                        <div class="switch-alert switch-alert-primary">
+                            <div class="switch-alert-content">
+                                <h4 class="switch-alert-title">Primary Alert</h4>
+                                <div class="switch-alert-message">This is a primary alert.</div>
+                            </div>
+                        </div>
+                        <div class="switch-alert switch-alert-success">
+                            <div class="switch-alert-content">
+                                <h4 class="switch-alert-title">Success Alert</h4>
+                                <div class="switch-alert-message">This is a success alert.</div>
+                            </div>
+                        </div>
+                        <div class="switch-alert switch-alert-danger">
+                            <div class="switch-alert-content">
+                                <h4 class="switch-alert-title">Danger Alert</h4>
+                                <div class="switch-alert-message">This is a danger alert.</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <h2 class="section-title">Cards</h2>
+                        <div class="component-grid">
+                            <div class="switch-card">
+                                <div class="switch-card-header">
+                                    <h3>Card Title</h3>
+                                </div>
+                                <div class="switch-card-body">
+                                    <p>This is a basic card with a header and body.</p>
+                                </div>
+                            </div>
+                            <div class="switch-card">
+                                <img src="https://via.placeholder.com/300x200" class="switch-card-img-top" alt="Card image">
+                                <div class="switch-card-body">
+                                    <h3 class="switch-card-title">Card with Image</h3>
+                                    <p class="switch-card-text">This card has an image at the top.</p>
+                                </div>
+                            </div>
+                            <div class="switch-card">
+                                <div class="switch-card-body">
+                                    <h3 class="switch-card-title">Card with Footer</h3>
+                                    <p class="switch-card-text">This card has a footer.</p>
+                                </div>
+                                <div class="switch-card-footer">
+                                    <small class="switch-text-muted">Last updated 3 mins ago</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <h2 class="section-title">Badges</h2>
+                        <div class="button-group">
+                            <span class="switch-badge switch-badge-primary">Primary</span>
+                            <span class="switch-badge switch-badge-secondary">Secondary</span>
+                            <span class="switch-badge switch-badge-success">Success</span>
+                            <span class="switch-badge switch-badge-danger">Danger</span>
+                            <span class="switch-badge switch-badge-warning">Warning</span>
+                            <span class="switch-badge switch-badge-info">Info</span>
+                            <span class="switch-badge switch-badge-light">Light</span>
+                            <span class="switch-badge switch-badge-dark">Dark</span>
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <h2 class="section-title">Tooltips</h2>
+                        <div class="tooltip-demo">
+                            <button class="switch-button switch-button-primary"
+                                    data-tooltip="tooltip-top"
+                                    data-tooltip-content="This is a tooltip on the top"
+                                    data-tooltip-position="top">
+                                Tooltip on Top
+                            </button>
+                            <button class="switch-button switch-button-primary"
+                                    data-tooltip="tooltip-right"
+                                    data-tooltip-content="This is a tooltip on the right"
+                                    data-tooltip-position="right">
+                                Tooltip on Right
+                            </button>
+                            <button class="switch-button switch-button-primary"
+                                    data-tooltip="tooltip-bottom"
+                                    data-tooltip-content="This is a tooltip on the bottom"
+                                    data-tooltip-position="bottom">
+                                Tooltip on Bottom
+                            </button>
+                            <button class="switch-button switch-button-primary"
+                                    data-tooltip="tooltip-left"
+                                    data-tooltip-content="This is a tooltip on the left"
+                                    data-tooltip-position="left">
+                                Tooltip on Left
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <h2 class="section-title">Progress</h2>
+                        <div class="progress-demo">
+                            <div class="switch-progress">
+                                <div class="switch-progress-bar" style="width: ${this.state.progress}%"></div>
+                            </div>
+                            <div style="margin-top: 1rem;">
+                                <button class="switch-button switch-button-primary switch-button-sm" data-event="click" data-action="decrease-progress">Decrease</button>
+                                <button class="switch-button switch-button-primary switch-button-sm" data-event="click" data-action="increase-progress">Increase</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <h2 class="section-title">Spinners</h2>
+                        <div class="button-group">
+                            <div class="switch-spinner switch-spinner-sm"></div>
+                            <div class="switch-spinner"></div>
+                            <div class="switch-spinner switch-spinner-lg"></div>
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <h2 class="section-title">Avatars</h2>
+                        <div class="avatar-demo">
+                            <div class="switch-avatar switch-avatar-sm">
+                                <span class="switch-avatar-text">JS</span>
+                            </div>
+                            <div class="switch-avatar switch-avatar-md">
+                                <span class="switch-avatar-text">JS</span>
+                            </div>
+                            <div class="switch-avatar switch-avatar-lg">
+                                <span class="switch-avatar-text">JS</span>
+                            </div>
+                            <div class="switch-avatar switch-avatar-xl">
+                                <span class="switch-avatar-text">JS</span>
+                            </div>
+                        </div>
+                    </div>
+                </main>
+
+                ${this.renderModal()}
+            </div>
+        `;
+    }
+
+    function renderModal() {
+        if (!this.state.showModal) {
+            return "";
+        }
+
+        return `
+            <div class="switch-modal switch-modal-visible">
+                <div class="switch-modal-dialog">
+                    <div class="switch-modal-content">
+                        <div class="switch-modal-header">
+                            <h5 class="switch-modal-title">Modal Title</h5>
+                            <button type="button" class="switch-modal-close"
+                                    data-event="click" data-action="hide-modal">
+                                &times;
+                            </button>
+                        </div>
+                        <div class="switch-modal-body">
+                            <p>This is a modal dialog from the Switch UI Kit.</p>
+                            <p>You can use it to display important information or collect user input.</p>
+                        </div>
+                        <div class="switch-modal-footer">
+                            <button type="button" class="switch-button switch-button-secondary"
+                                    data-event="click" data-action="hide-modal">
+                                Close
+                            </button>
+                            <button type="button" class="switch-button switch-button-primary">
+                                Save changes
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="switch-modal-backdrop switch-modal-backdrop-visible"></div>
+        `;
+    }
+
+    function handleClick(event) {
+        if (event.target.dataset.action === "show-modal") {
+            this.state.showModal = true;
+        } else if (event.target.dataset.action === "hide-modal") {
+            this.state.showModal = false;
+        } else if (event.target.dataset.action === "increase-progress") {
+            this.state.progress = Math.min(100, this.state.progress + 10);
+        } else if (event.target.dataset.action === "decrease-progress") {
+            this.state.progress = Math.max(0, this.state.progress - 10);
+        }
+    }
+}

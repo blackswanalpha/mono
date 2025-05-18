@@ -1,0 +1,101 @@
+#!/usr/bin/env python3
+"""
+Run Switch - Run a Switch application with enhanced features
+
+Usage:
+    run-switch [options] <file>
+
+Options:
+    --ssr           Enable server-side rendering
+    --hmr           Enable hot module replacement
+    --reload        Enable live reloading
+    --dev           Enable development mode (equivalent to --hmr --reload)
+    --prod          Enable production mode (disables development features)
+    --port=<port>   Port to listen on (default: 8000)
+    --host=<host>   Host to listen on (default: 127.0.0.1)
+    --workers=<n>   Number of worker processes (default: 1)
+    --no-kits       Disable kit integration
+    --debug         Enable debug mode (shows detailed error messages)
+"""
+
+import os
+import sys
+import argparse
+from pathlib import Path
+
+# Add the parent directory to the path
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+
+# Import the Switch CLI functions
+from lib.switch_cli import _run_application, _run_with_workers, _run_with_reloader
+
+def main():
+    """Run a Switch application with enhanced features."""
+    # Parse command-line arguments
+    parser = argparse.ArgumentParser(description='Run a Switch application with enhanced features')
+    parser.add_argument('file', help='Mono script file to run')
+    parser.add_argument('--ssr', action='store_true', help='Enable server-side rendering')
+    parser.add_argument('--hmr', action='store_true', help='Enable hot module replacement')
+    parser.add_argument('--reload', action='store_true', help='Enable live reloading')
+    parser.add_argument('--dev', action='store_true', help='Enable development mode (equivalent to --hmr --reload)')
+    parser.add_argument('--prod', action='store_true', help='Enable production mode (disables development features)')
+    parser.add_argument('--port', type=int, default=8000, help='Port to listen on (default: 8000)')
+    parser.add_argument('--host', default='127.0.0.1', help='Host to listen on (default: 127.0.0.1)')
+    parser.add_argument('--workers', type=int, default=1, help='Number of worker processes (default: 1)')
+    parser.add_argument('--no-kits', action='store_true', help='Disable kit integration')
+    parser.add_argument('--debug', action='store_true', help='Enable debug mode (shows detailed error messages)')
+    args = parser.parse_args()
+
+    # Check if the file exists
+    if not os.path.exists(args.file):
+        print(f"Error: File not found: {args.file}")
+        sys.exit(1)
+
+    # Determine mode
+    use_ssr = args.ssr
+    use_hmr = args.hmr or args.dev
+    use_reload = args.reload or args.dev
+    use_kits = not args.no_kits
+    debug = args.debug or args.dev
+
+    # Production mode disables development features
+    if args.prod:
+        use_hmr = False
+        use_reload = False
+        debug = False
+
+    # Set environment variables
+    os.environ["SWITCH_PORT"] = str(args.port)
+    os.environ["SWITCH_HOST"] = args.host
+    os.environ["SWITCH_WORKERS"] = str(args.workers)
+
+    # Run the application
+    try:
+        # If using multiple workers, spawn worker processes
+        if args.workers > 1 and not use_reload:
+            exit_code = _run_with_workers(args.file, args.workers, use_ssr, use_hmr, use_kits, debug)
+        # If using live reloading, start the reloader
+        elif use_reload:
+            exit_code = _run_with_reloader(args.file, use_ssr, use_hmr, use_kits, debug)
+        # Otherwise, run the application directly
+        else:
+            exit_code = _run_application(args.file, use_ssr, use_hmr, use_kits, debug)
+
+        sys.exit(exit_code)
+    except KeyboardInterrupt:
+        print("\nApplication stopped")
+        sys.exit(0)
+    except Exception as e:
+        if debug:
+            # Print detailed error information in debug mode
+            import traceback
+            print(f"Error: {str(e)}")
+            print(traceback.format_exc())
+        else:
+            # Print simple error message in production mode
+            print(f"Error: {str(e)}")
+            print("Run with --debug for more information.")
+        sys.exit(1)
+
+if __name__ == '__main__':
+    main()

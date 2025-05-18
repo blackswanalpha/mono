@@ -1,0 +1,245 @@
+/* Snippet Manager Styles */
+
+/* Snippet Manager Icon */
+.icon-snippet {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  background-image: url('../../assets/icons/snippet.svg');
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+/* Snippet Manager Dialog */
+#snippet-manager-dialog {
+  width: 900px;
+  max-width: 90vw;
+  height: 600px;
+  max-height: 80vh;
+}
+
+.snippet-manager-container {
+  display: flex;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* Snippet List */
+.snippet-list-container {
+  width: 250px;
+  border-right: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.snippet-list-header {
+  padding: 10px;
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.snippet-list-header h3 {
+  margin: 0;
+  font-size: 16px;
+}
+
+.snippet-list-actions {
+  display: flex;
+  gap: 5px;
+}
+
+.snippet-categories {
+  padding: 10px;
+  border-bottom: 1px solid var(--border-color);
+  overflow-y: auto;
+  max-height: 150px;
+}
+
+.snippet-categories ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.snippet-categories li {
+  padding: 5px 10px;
+  cursor: pointer;
+  border-radius: 3px;
+  margin-bottom: 2px;
+}
+
+.snippet-categories li:hover {
+  background-color: var(--hover-bg-color);
+}
+
+.snippet-categories li.active {
+  background-color: var(--active-bg-color);
+  color: var(--active-text-color);
+}
+
+.snippet-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 10px;
+}
+
+.snippet-list ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.snippet-list li {
+  padding: 8px 10px;
+  cursor: pointer;
+  border-radius: 3px;
+  margin-bottom: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.snippet-list li:hover {
+  background-color: var(--hover-bg-color);
+}
+
+.snippet-list li.active {
+  background-color: var(--active-bg-color);
+  color: var(--active-text-color);
+}
+
+/* Snippet Editor */
+.snippet-editor-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+.snippet-editor-header {
+  padding: 10px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.snippet-editor-header h3 {
+  margin: 0;
+  font-size: 16px;
+}
+
+.snippet-editor-form {
+  flex: 1;
+  padding: 10px;
+  overflow-y: auto;
+}
+
+.snippet-editor-form .form-group {
+  margin-bottom: 15px;
+}
+
+.snippet-editor-form label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 500;
+}
+
+.snippet-editor-form input[type="text"] {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid var(--border-color);
+  border-radius: 3px;
+  background-color: var(--input-bg-color);
+  color: var(--text-color);
+}
+
+.snippet-body-editor {
+  height: 250px;
+  border: 1px solid var(--border-color);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.snippet-editor-actions {
+  padding: 10px;
+  border-top: 1px solid var(--border-color);
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+/* Buttons */
+.btn {
+  padding: 8px 16px;
+  border-radius: 3px;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.btn-sm {
+  padding: 4px 8px;
+  font-size: 12px;
+}
+
+.btn-primary {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: var(--primary-hover-color);
+}
+
+.btn-secondary {
+  background-color: var(--secondary-color);
+  color: white;
+}
+
+.btn-secondary:hover {
+  background-color: var(--secondary-hover-color);
+}
+
+.btn-danger {
+  background-color: var(--danger-color);
+  color: white;
+}
+
+.btn-danger:hover {
+  background-color: var(--danger-hover-color);
+}
+
+/* Dark Theme Variables */
+.theme-dark {
+  --border-color: #444;
+  --hover-bg-color: #3a3a3a;
+  --active-bg-color: #007acc;
+  --active-text-color: #fff;
+  --input-bg-color: #252525;
+  --text-color: #e0e0e0;
+  --primary-color: #007acc;
+  --primary-hover-color: #0062a3;
+  --secondary-color: #6c757d;
+  --secondary-hover-color: #5a6268;
+  --danger-color: #e74c3c;
+  --danger-hover-color: #c0392b;
+}
+
+/* Light Theme Variables */
+.theme-light {
+  --border-color: #ddd;
+  --hover-bg-color: #f0f0f0;
+  --active-bg-color: #007acc;
+  --active-text-color: #fff;
+  --input-bg-color: #fff;
+  --text-color: #333;
+  --primary-color: #007acc;
+  --primary-hover-color: #0062a3;
+  --secondary-color: #6c757d;
+  --secondary-hover-color: #5a6268;
+  --danger-color: #e74c3c;
+  --danger-hover-color: #c0392b;
+}

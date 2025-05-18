@@ -1,0 +1,227 @@
+#!/usr/bin/env python3
+"""
+Mono Switch Build - Build Mono Switch applications for production
+
+Usage:
+    mono-switch-build [options] <file>
+
+Options:
+    --output DIR    Output directory (default: ./build)
+    --minify        Minify JavaScript and CSS files
+    --no-sourcemap  Disable source maps
+    --verbose       Show verbose output
+"""
+
+import os
+import sys
+import argparse
+import shutil
+import json
+from pathlib import Path
+
+# Add the parent directory to the path
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+
+# Import the Switch interpreter and application
+from lib.switch_interpreter import SwitchInterpreter
+from lib.mono_switch_app import SwitchApp, get_switch_app, set_switch_app
+
+def build_switch_app(file_path, output_dir, minify=False, sourcemap=True, verbose=False):
+    """Build a Switch application for production."""
+    # Get the absolute paths
+    file_path = os.path.abspath(file_path)
+    output_dir = os.path.abspath(output_dir)
+    
+    if verbose:
+        print(f"Building {file_path} to {output_dir}")
+    
+    # Create the output directory if it doesn't exist
+    os.makedirs(output_dir, exist_ok=True)
+    
+    # Create a Switch interpreter with production settings
+    interpreter = SwitchInterpreter(use_ssr=True, use_hmr=False, use_kits=True, debug=False)
+    
+    # Get the application directory
+    app_dir = os.path.dirname(file_path)
+    
+    # Create a Switch application
+    app = SwitchApp(use_ssr=True, use_hmr=False, debug=False)
+    
+    # Set the static directory if it exists
+    static_dir = os.path.join(app_dir, "static")
+    if os.path.isdir(static_dir):
+        app.set_static_dir(static_dir)
+    
+    # Set the build directory
+    app.set_build_dir(output_dir)
+    
+    # Set the global application
+    set_switch_app(app)
+    
+    # Run the application to initialize it
+    if verbose:
+        print("Running the application...")
+    
+    try:
+        interpreter.run_file(file_path)
+    except Exception as e:
+        print(f"Error running the application: {e}")
+        return False
+    
+    # Build the application
+    if verbose:
+        print("Building the application...")
+    
+    try:
+        app.build(output_dir)
+    except Exception as e:
+        print(f"Error building the application: {e}")
+        return False
+    
+    # Copy the Switch framework files
+    if verbose:
+        print("Copying framework files...")
+    
+    switch_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "switch")
+    output_switch_dir = os.path.join(output_dir, "switch")
+    
+    os.makedirs(output_switch_dir, exist_ok=True)
+    
+    # Copy the core Switch files
+    for file in ["switch.js", "store.js", "components.js", "switch.css", "hydrate.js"]:
+        src_path = os.path.join(switch_dir, file)
+        dst_path = os.path.join(output_switch_dir, file)
+        
+        if os.path.isfile(src_path):
+            shutil.copy2(src_path, dst_path)
+    
+    # Copy the component files
+    components_dir = os.path.join(switch_dir, "components")
+    output_components_dir = os.path.join(output_switch_dir, "components")
+    
+    if os.path.isdir(components_dir):
+        os.makedirs(output_components_dir, exist_ok=True)
+        
+        for file in os.listdir(components_dir):
+            if file.endswith(".js"):
+                src_path = os.path.join(components_dir, file)
+                dst_path = os.path.join(output_components_dir, file)
+                
+                shutil.copy2(src_path, dst_path)
+    
+    # Copy the UI Kit files if they exist
+    kits_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "kits")
+    output_kits_dir = os.path.join(output_dir, "kits")
+    
+    if os.path.isdir(kits_dir):
+        os.makedirs(output_kits_dir, exist_ok=True)
+        
+        # Copy the SwitchUIKit
+        ui_kit_dir = os.path.join(kits_dir, "SwitchUIKit")
+        output_ui_kit_dir = os.path.join(output_kits_dir, "SwitchUIKit")
+        
+        if os.path.isdir(ui_kit_dir):
+            os.makedirs(output_ui_kit_dir, exist_ok=True)
+            
+            # Copy the core UI Kit files
+            for file in ["loader.js", "switch-ui-kit.css"]:
+                src_path = os.path.join(ui_kit_dir, file)
+                dst_path = os.path.join(output_ui_kit_dir, file)
+                
+                if os.path.isfile(src_path):
+                    shutil.copy2(src_path, dst_path)
+            
+            # Copy the component files
+            ui_kit_components_dir = os.path.join(ui_kit_dir, "components")
+            output_ui_kit_components_dir = os.path.join(output_ui_kit_dir, "components")
+            
+            if os.path.isdir(ui_kit_components_dir):
+                os.makedirs(output_ui_kit_components_dir, exist_ok=True)
+                
+                for file in os.listdir(ui_kit_components_dir):
+                    if file.endswith(".js"):
+                        src_path = os.path.join(ui_kit_components_dir, file)
+                        dst_path = os.path.join(output_ui_kit_components_dir, file)
+                        
+                        shutil.copy2(src_path, dst_path)
+    
+    # Minify JavaScript and CSS files if requested
+    if minify:
+        if verbose:
+            print("Minifying files...")
+        
+        try:
+            import terser
+            import csscompressor
+            
+            # Minify JavaScript files
+            for root, _, files in os.walk(output_dir):
+                for file in files:
+                    if file.endswith(".js"):
+                        file_path = os.path.join(root, file)
+                        
+                        with open(file_path, "r") as f:
+                            content = f.read()
+                        
+                        # Minify the JavaScript
+                        minified = terser.minify(content, {
+                            "compress": True,
+                            "mangle": True,
+                            "sourceMap": sourcemap
+                        })
+                        
+                        with open(file_path, "w") as f:
+                            f.write(minified["code"])
+                        
+                        # Create a source map if requested
+                        if sourcemap and "map" in minified:
+                            with open(f"{file_path}.map", "w") as f:
+                                f.write(minified["map"])
+            
+            # Minify CSS files
+            for root, _, files in os.walk(output_dir):
+                for file in files:
+                    if file.endswith(".css"):
+                        file_path = os.path.join(root, file)
+                        
+                        with open(file_path, "r") as f:
+                            content = f.read()
+                        
+                        # Minify the CSS
+                        minified = csscompressor.compress(content)
+                        
+                        with open(file_path, "w") as f:
+                            f.write(minified)
+        except ImportError:
+            print("Warning: terser and/or csscompressor not installed. Skipping minification.")
+    
+    if verbose:
+        print(f"Build completed successfully: {output_dir}")
+    
+    return True
+
+def main():
+    """Build a Switch application for production."""
+    # Parse command-line arguments
+    parser = argparse.ArgumentParser(description='Build Mono Switch applications for production')
+    parser.add_argument('file', help='Mono file to build')
+    parser.add_argument('--output', default='./build', help='Output directory (default: ./build)')
+    parser.add_argument('--minify', action='store_true', help='Minify JavaScript and CSS files')
+    parser.add_argument('--no-sourcemap', action='store_true', help='Disable source maps')
+    parser.add_argument('--verbose', action='store_true', help='Show verbose output')
+    args = parser.parse_args()
+    
+    # Build the application
+    success = build_switch_app(
+        args.file,
+        args.output,
+        minify=args.minify,
+        sourcemap=not args.no_sourcemap,
+        verbose=args.verbose
+    )
+    
+    if not success:
+        sys.exit(1)
+
+if __name__ == '__main__':
+    main()

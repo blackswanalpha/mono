@@ -1,0 +1,130 @@
+//  __  __                   
+// |  \/  | ___  _ __   ___  
+// | |\/| |/ _ \| '_ \ / _ \ 
+// | |  | | (_) | | | | (_) |
+// |_|  |_|\___/|_| |_|\___/ 
+//                           
+// Splash Screen Component
+
+component SplashScreen {
+    props {
+        logo: string = "",
+        title: string = "My App",
+        subtitle: string = "Loading...",
+        duration: number = 3000,
+        theme: string = "light", // light, dark, primary
+        animation: string = "fade", // fade, zoom, slide
+        onFinish: function = null,
+        showProgress: boolean = false,
+        progressDuration: number = 2500
+    }
+    
+    state {
+        visible: boolean = true,
+        progress: number = 0,
+        progressInterval: any = null
+    }
+    
+    function constructor() {
+        // Initialize the component
+        if (this.props.showProgress) {
+            this.startProgressAnimation();
+        }
+        
+        // Hide the splash screen after the specified duration
+        setTimeout(function() {
+            this.hide();
+        }.bind(this), this.props.duration);
+    }
+    
+    function startProgressAnimation() {
+        var startTime = Date.now();
+        var duration = this.props.progressDuration;
+        
+        this.state.progressInterval = setInterval(function() {
+            var elapsed = Date.now() - startTime;
+            var progress = Math.min(100, (elapsed / duration) * 100);
+            
+            this.state.progress = progress;
+            
+            if (progress >= 100) {
+                clearInterval(this.state.progressInterval);
+            }
+        }.bind(this), 30);
+    }
+    
+    function hide() {
+        this.state.visible = false;
+        
+        if (this.state.progressInterval) {
+            clearInterval(this.state.progressInterval);
+        }
+        
+        if (this.props.onFinish) {
+            this.props.onFinish();
+        }
+    }
+    
+    function getContainerClasses() {
+        var classes = ["splash-screen"];
+        
+        // Add theme class
+        classes.push("splash-screen-" + this.props.theme);
+        
+        // Add animation class
+        classes.push("splash-screen-animation-" + this.props.animation);
+        
+        // Add visibility class
+        if (!this.state.visible) {
+            classes.push("splash-screen-hidden");
+        }
+        
+        return classes.join(" ");
+    }
+    
+    function getLogoHtml() {
+        if (!this.props.logo) {
+            return `
+                <div class="splash-screen-logo-placeholder">
+                    <i class="bi bi-code-slash"></i>
+                </div>
+            `;
+        }
+        
+        return `<img src="${this.props.logo}" alt="${this.props.title}" class="splash-screen-logo">`;
+    }
+    
+    function getProgressHtml() {
+        if (!this.props.showProgress) {
+            return "";
+        }
+        
+        return `
+            <div class="splash-screen-progress-container">
+                <div class="splash-screen-progress-bar" style="width: ${this.state.progress}%"></div>
+            </div>
+        `;
+    }
+    
+    function render() {
+        // Create the component
+        var splashScreen = switch.component("SplashScreen", this.props);
+        
+        // Return the HTML
+        return `
+            <div class="${this.getContainerClasses()}">
+                <div class="splash-screen-content">
+                    <div class="splash-screen-logo-container">
+                        ${this.getLogoHtml()}
+                    </div>
+                    <h1 class="splash-screen-title">${this.props.title}</h1>
+                    <p class="splash-screen-subtitle">${this.props.subtitle}</p>
+                    ${this.getProgressHtml()}
+                </div>
+            </div>
+        `;
+    }
+}
+
+// Export the component
+export SplashScreen;

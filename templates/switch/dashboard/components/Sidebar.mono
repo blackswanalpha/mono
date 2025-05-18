@@ -1,0 +1,82 @@
+//  __  __                   
+// |  \/  | ___  _ __   ___  
+// | |\/| |/ _ \| '_ \ / _ \ 
+// | |  | | (_) | | | | (_) |
+// |_|  |_|\___/|_| |_|\___/ 
+//                           
+// Sidebar Component
+
+component Sidebar {
+    state {
+        collapsed: boolean = false,
+        currentPage: string = "dashboard"
+    }
+    
+    function constructor(props) {
+        // Initialize the component with props
+        if (props) {
+            if (props.collapsed !== undefined) {
+                this.state.collapsed = props.collapsed;
+            }
+            
+            if (props.currentPage) {
+                this.state.currentPage = props.currentPage;
+            }
+        }
+    }
+    
+    function render() {
+        // Create the component
+        var sidebar = switch.component("Sidebar", {
+            collapsed: this.state.collapsed,
+            currentPage: this.state.currentPage
+        });
+        
+        // Return the HTML
+        return `
+            <aside class="sidebar ${this.state.collapsed ? 'collapsed' : ''}">
+                <div class="sidebar-header">
+                    <div class="logo">
+                        ${this.state.collapsed ? 
+                            '<span class="logo-icon"><i class="bi bi-grid-1x2-fill"></i></span>' : 
+                            '<span class="logo-text">{{APP_NAME}}</span>'}
+                    </div>
+                </div>
+                
+                <div class="sidebar-content">
+                    <nav class="sidebar-nav">
+                        <ul class="nav flex-column">
+                            <li class="nav-item ${this.state.currentPage === 'dashboard' ? 'active' : ''}">
+                                <a href="/" class="nav-link" data-page="dashboard" data-event="click">
+                                    <i class="bi bi-speedometer2"></i>
+                                    ${!this.state.collapsed ? '<span>Dashboard</span>' : ''}
+                                </a>
+                            </li>
+                            <li class="nav-item ${this.state.currentPage === 'analytics' ? 'active' : ''}">
+                                <a href="/analytics" class="nav-link" data-page="analytics" data-event="click">
+                                    <i class="bi bi-graph-up"></i>
+                                    ${!this.state.collapsed ? '<span>Analytics</span>' : ''}
+                                </a>
+                            </li>
+                            <li class="nav-item ${this.state.currentPage === 'settings' ? 'active' : ''}">
+                                <a href="/settings" class="nav-link" data-page="settings" data-event="click">
+                                    <i class="bi bi-gear"></i>
+                                    ${!this.state.collapsed ? '<span>Settings</span>' : ''}
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+                
+                <div class="sidebar-footer">
+                    <button class="btn btn-toggle" data-action="toggle-sidebar" data-event="click">
+                        <i class="bi ${this.state.collapsed ? 'bi-chevron-right' : 'bi-chevron-left'}"></i>
+                    </button>
+                </div>
+            </aside>
+        `;
+    }
+}
+
+// Export the component
+export Sidebar;

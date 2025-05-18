@@ -1,0 +1,374 @@
+//  __  __                   
+// |  \/  | ___  _ __   ___  
+// | |\/| |/ _ \| '_ \ / _ \ 
+// | |  | | (_) | | | | (_) |
+// |_|  |_|\___/|_| |_|\___/ 
+//                           
+// {{APP_NAME}} - A Switch Dashboard Application
+
+// Import components
+import "./components/Sidebar.mono";
+import "./components/Header.mono";
+import "./components/Card.mono";
+import "./components/Chart.mono";
+import "./components/Table.mono";
+
+// Import pages
+import "./pages/Dashboard.mono";
+import "./pages/Analytics.mono";
+import "./pages/Settings.mono";
+
+component App {
+    state {
+        title: string = "{{APP_NAME}}",
+        currentPage: string = "dashboard",
+        user: object = {
+            name: "Admin User",
+            email: "admin@example.com",
+            avatar: "/static/img/avatar.png"
+        },
+        sidebarCollapsed: boolean = false,
+        darkMode: boolean = false
+    }
+    
+    function constructor() {
+        // Initialize the application
+        this.loadUserPreferences();
+    }
+    
+    function loadUserPreferences() {
+        // Load user preferences from localStorage
+        if (switch.isClient()) {
+            var darkMode = localStorage.getItem("darkMode") === "true";
+            var sidebarCollapsed = localStorage.getItem("sidebarCollapsed") === "true";
+            
+            this.state.darkMode = darkMode;
+            this.state.sidebarCollapsed = sidebarCollapsed;
+        }
+    }
+    
+    function saveUserPreferences() {
+        // Save user preferences to localStorage
+        if (switch.isClient()) {
+            localStorage.setItem("darkMode", this.state.darkMode);
+            localStorage.setItem("sidebarCollapsed", this.state.sidebarCollapsed);
+        }
+    }
+    
+    function setCurrentPage(page: string) {
+        this.state.currentPage = page;
+    }
+    
+    function toggleSidebar() {
+        this.state.sidebarCollapsed = !this.state.sidebarCollapsed;
+        this.saveUserPreferences();
+    }
+    
+    function toggleDarkMode() {
+        this.state.darkMode = !this.state.darkMode;
+        this.saveUserPreferences();
+    }
+    
+    function render() {
+        // Register client-side event handlers
+        switch.clientEvent("click", "handleNavigation");
+        
+        // Create the component
+        var app = switch.component("App", {
+            title: this.state.title,
+            currentPage: this.state.currentPage,
+            user: this.state.user,
+            sidebarCollapsed: this.state.sidebarCollapsed,
+            darkMode: this.state.darkMode
+        });
+        
+        // Determine which page to render
+        var pageContent = "";
+        
+        if (this.state.currentPage === "dashboard") {
+            var dashboardPage = new DashboardPage();
+            pageContent = dashboardPage.render();
+        } else if (this.state.currentPage === "analytics") {
+            var analyticsPage = new AnalyticsPage();
+            pageContent = analyticsPage.render();
+        } else if (this.state.currentPage === "settings") {
+            var settingsPage = new SettingsPage();
+            pageContent = settingsPage.render();
+        } else {
+            pageContent = "<p>Page not found</p>";
+        }
+        
+        // Create the sidebar
+        var sidebar = new Sidebar({
+            collapsed: this.state.sidebarCollapsed,
+            currentPage: this.state.currentPage
+        });
+        
+        // Create the header
+        var header = new Header({
+            title: this.state.title,
+            user: this.state.user,
+            sidebarCollapsed: this.state.sidebarCollapsed,
+            darkMode: this.state.darkMode
+        });
+        
+        // Return the HTML
+        return `
+            <div class="app ${this.state.darkMode ? 'dark-mode' : ''} ${this.state.sidebarCollapsed ? 'sidebar-collapsed' : ''}">
+                ${sidebar.render()}
+                
+                <div class="main-content">
+                    ${header.render()}
+                    
+                    <main class="content">
+                        ${pageContent}
+                    </main>
+                    
+                    <footer class="footer">
+                        <div class="container-fluid">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p>&copy; ${new Date().getFullYear()} {{APP_NAME}}. All rights reserved.</p>
+                                </div>
+                                <div class="col-md-6 text-end">
+                                    <p>Version 1.0.0</p>
+                                </div>
+                            </div>
+                        </div>
+                    </footer>
+                </div>
+            </div>
+        `;
+    }
+    
+    function handleNavigation(event) {
+        // Check if this is a navigation link
+        if (event.target.dataset.page) {
+            // Prevent the default link behavior
+            event.preventDefault();
+            
+            // Get the page
+            var page = event.target.dataset.page;
+            
+            // Update the current page
+            this.setCurrentPage(page);
+            
+            // Update the URL
+            if (page === "dashboard") {
+                history.pushState({}, "", "/");
+            } else {
+                history.pushState({}, "", "/" + page);
+            }
+        }
+        
+        // Check if this is a sidebar toggle
+        if (event.target.dataset.action === "toggle-sidebar") {
+            event.preventDefault();
+            this.toggleSidebar();
+        }
+        
+        // Check if this is a dark mode toggle
+        if (event.target.dataset.action === "toggle-dark-mode") {
+            event.preventDefault();
+            this.toggleDarkMode();
+        }
+    }
+}
+
+component Main {
+    state {
+        app: any = null
+    }
+    
+    function start() {
+        print "=== {{APP_NAME}} ===";
+        
+        // Create the app
+        this.state.app = new App();
+        
+        // Configure routes
+        http.get("/", "handleRoot");
+        http.get("/dashboard", "handleDashboard");
+        http.get("/analytics", "handleAnalytics");
+        http.get("/settings", "handleSettings");
+        http.get("/static/(.*)", "handleStatic");
+        http.get("/api/(.*)", "handleApi");
+        
+        // Start the server
+        http.start();
+    }
+    
+    function handleRoot(req, res) {
+        print "Handling request to /";
+        
+        // Create the app
+        this.state.app = new App();
+        this.state.app.setCurrentPage("dashboard");
+        
+        // Render the app
+        var html = switch.render("{{APP_NAME}} - Dashboard", [
+            "https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js",
+            "https://cdn.jsdelivr.net/npm/chart.js@4.3.0/dist/chart.umd.min.js",
+            "/static/js/app.js"
+        ], [
+            "https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css",
+            "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css",
+            "/static/css/app.css"
+        ]);
+        
+        // Send the response
+        res.html(html);
+    }
+    
+    function handleDashboard(req, res) {
+        print "Handling request to /dashboard";
+        
+        // Create the app
+        this.state.app = new App();
+        this.state.app.setCurrentPage("dashboard");
+        
+        // Render the app
+        var html = switch.render("{{APP_NAME}} - Dashboard", [
+            "https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js",
+            "https://cdn.jsdelivr.net/npm/chart.js@4.3.0/dist/chart.umd.min.js",
+            "/static/js/app.js"
+        ], [
+            "https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css",
+            "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css",
+            "/static/css/app.css"
+        ]);
+        
+        // Send the response
+        res.html(html);
+    }
+    
+    function handleAnalytics(req, res) {
+        print "Handling request to /analytics";
+        
+        // Create the app
+        this.state.app = new App();
+        this.state.app.setCurrentPage("analytics");
+        
+        // Render the app
+        var html = switch.render("{{APP_NAME}} - Analytics", [
+            "https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js",
+            "https://cdn.jsdelivr.net/npm/chart.js@4.3.0/dist/chart.umd.min.js",
+            "/static/js/app.js"
+        ], [
+            "https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css",
+            "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css",
+            "/static/css/app.css"
+        ]);
+        
+        // Send the response
+        res.html(html);
+    }
+    
+    function handleSettings(req, res) {
+        print "Handling request to /settings";
+        
+        // Create the app
+        this.state.app = new App();
+        this.state.app.setCurrentPage("settings");
+        
+        // Render the app
+        var html = switch.render("{{APP_NAME}} - Settings", [
+            "https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js",
+            "https://cdn.jsdelivr.net/npm/chart.js@4.3.0/dist/chart.umd.min.js",
+            "/static/js/app.js"
+        ], [
+            "https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css",
+            "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css",
+            "/static/css/app.css"
+        ]);
+        
+        // Send the response
+        res.html(html);
+    }
+    
+    function handleStatic(req, res) {
+        // Extract the file path from the URL
+        var match = req.path.match(/\/static\/(.*)/);
+        if (!match) {
+            res.status(404).text("Not Found");
+            return;
+        }
+        
+        var filePath = match[1];
+        var fullPath = "static/" + filePath;
+        
+        // Check if the file exists
+        if (!fs.exists(fullPath)) {
+            res.status(404).text("File not found: " + filePath);
+            return;
+        }
+        
+        // Determine the content type
+        var contentType = "application/octet-stream";
+        
+        if (filePath.endsWith(".css")) {
+            contentType = "text/css";
+        } else if (filePath.endsWith(".js")) {
+            contentType = "application/javascript";
+        } else if (filePath.endsWith(".html")) {
+            contentType = "text/html";
+        } else if (filePath.endsWith(".json")) {
+            contentType = "application/json";
+        } else if (filePath.endsWith(".png")) {
+            contentType = "image/png";
+        } else if (filePath.endsWith(".jpg") || filePath.endsWith(".jpeg")) {
+            contentType = "image/jpeg";
+        } else if (filePath.endsWith(".gif")) {
+            contentType = "image/gif";
+        } else if (filePath.endsWith(".svg")) {
+            contentType = "image/svg+xml";
+        }
+        
+        // Read the file
+        var content = fs.readFile(fullPath);
+        
+        // Send the response
+        res.header("Content-Type", contentType);
+        res.binary(content);
+    }
+    
+    function handleApi(req, res) {
+        // Extract the API path from the URL
+        var match = req.path.match(/\/api\/(.*)/);
+        if (!match) {
+            res.status(404).json({ error: "Not Found" });
+            return;
+        }
+        
+        var apiPath = match[1];
+        
+        // Handle different API endpoints
+        if (apiPath === "stats") {
+            // Return some sample statistics
+            res.json({
+                users: 1250,
+                sessions: 5432,
+                pageviews: 12345,
+                conversionRate: 3.45
+            });
+        } else if (apiPath === "chart-data") {
+            // Return some sample chart data
+            res.json({
+                labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+                datasets: [
+                    {
+                        label: "Users",
+                        data: [65, 59, 80, 81, 56, 55]
+                    },
+                    {
+                        label: "Sessions",
+                        data: [28, 48, 40, 19, 86, 27]
+                    }
+                ]
+            });
+        } else {
+            // Unknown API endpoint
+            res.status(404).json({ error: "API endpoint not found" });
+        }
+    }
+}

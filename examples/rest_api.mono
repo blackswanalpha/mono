@@ -1,0 +1,206 @@
+//  __  __                   
+// |  \/  | ___  _ __   ___  
+// | |\/| |/ _ \| '_ \ / _ \ 
+// | |  | | (_) | | | | (_) |
+// |_|  |_|\___/|_| |_|\___/ 
+//
+// REST API Example - A RESTful API server in Mono
+
+component UserDatabase {
+    state {
+        users: array = [
+            { id: "1", name: "John Doe", email: "john@example.com", role: "admin" },
+            { id: "2", name: "Jane Smith", email: "jane@example.com", role: "user" },
+            { id: "3", name: "Bob Johnson", email: "bob@example.com", role: "user" }
+        ];
+        nextId: number = 4;
+    }
+    
+    function getAll() {
+        return this.users;
+    }
+    
+    function getById(id) {
+        for var i = 0; i < this.users.length; i++ {
+            if (this.users[i].id == id) {
+                return this.users[i];
+            }
+        }
+        return null;
+    }
+    
+    function create(userData) {
+        var user = {
+            id: this.nextId.toString(),
+            name: userData.name,
+            email: userData.email,
+            role: userData.role || "user"
+        };
+        
+        this.users.push(user);
+        this.nextId = this.nextId + 1;
+        
+        return user;
+    }
+    
+    function update(id, userData) {
+        for var i = 0; i < this.users.length; i++ {
+            if (this.users[i].id == id) {
+                // Update user properties
+                if (userData.name) {
+                    this.users[i].name = userData.name;
+                }
+                if (userData.email) {
+                    this.users[i].email = userData.email;
+                }
+                if (userData.role) {
+                    this.users[i].role = userData.role;
+                }
+                
+                return this.users[i];
+            }
+        }
+        
+        return null;
+    }
+    
+    function delete(id) {
+        for var i = 0; i < this.users.length; i++ {
+            if (this.users[i].id == id) {
+                // Remove the user
+                var user = this.users[i];
+                this.users.splice(i, 1);
+                return user;
+            }
+        }
+        
+        return null;
+    }
+}
+
+component RestApiServer {
+    state {
+        port: number = 8000;
+        host: string = "localhost";
+        db: UserDatabase = null;
+    }
+    
+    function constructor(port: number, host: string) {
+        if (port) {
+            this.port = port;
+        }
+        if (host) {
+            this.host = host;
+        }
+        
+        // Initialize the database
+        this.db = new UserDatabase();
+    }
+    
+    function start() {
+        print "Starting REST API server on " + this.host + ":" + this.port;
+        
+        // Configure routes
+        http.get("/", "handleRoot");
+        http.get("/api/users", "handleGetUsers");
+        http.get("/api/users/:id", "handleGetUser");
+        http.post("/api/users", "handleCreateUser");
+        http.put("/api/users/:id", "handleUpdateUser");
+        http.delete("/api/users/:id", "handleDeleteUser");
+        
+        // Start the server
+        http.start();
+        
+        print "Server is running. Press Ctrl+C to stop.";
+    }
+    
+    function handleRoot(req, res) {
+        res.html("<html><body><h1>Mono REST API Server</h1><p>A RESTful API server written in Mono</p></body></html>");
+    }
+    
+    function handleGetUsers(req, res) {
+        print "GET /api/users";
+        
+        // Get all users
+        var users = this.db.getAll();
+        
+        // Send response
+        res.json(users);
+    }
+    
+    function handleGetUser(req, res) {
+        var userId = req.params.id;
+        print "GET /api/users/" + userId;
+        
+        // Get user by ID
+        var user = this.db.getById(userId);
+        
+        if (user) {
+            res.json(user);
+        } else {
+            res.status(404).json({ error: "User not found" });
+        }
+    }
+    
+    function handleCreateUser(req, res) {
+        print "POST /api/users";
+        
+        // Parse request body
+        var userData = JSON.parse(req.body);
+        
+        // Validate required fields
+        if (!userData.name || !userData.email) {
+            res.status(400).json({ error: "Name and email are required" });
+            return;
+        }
+        
+        // Create user
+        var user = this.db.create(userData);
+        
+        // Send response
+        res.status(201).json(user);
+    }
+    
+    function handleUpdateUser(req, res) {
+        var userId = req.params.id;
+        print "PUT /api/users/" + userId;
+        
+        // Parse request body
+        var userData = JSON.parse(req.body);
+        
+        // Update user
+        var user = this.db.update(userId, userData);
+        
+        if (user) {
+            res.json(user);
+        } else {
+            res.status(404).json({ error: "User not found" });
+        }
+    }
+    
+    function handleDeleteUser(req, res) {
+        var userId = req.params.id;
+        print "DELETE /api/users/" + userId;
+        
+        // Delete user
+        var user = this.db.delete(userId);
+        
+        if (user) {
+            res.status(204).text("");
+        } else {
+            res.status(404).json({ error: "User not found" });
+        }
+    }
+}
+
+component Main {
+    function start() {
+        print "=== Mono REST API Server Example ===";
+        
+        // Create a REST API server on port 8000
+        var server = new RestApiServer(8000, "localhost");
+        
+        // Start the server
+        server.start();
+    }
+}

@@ -1,0 +1,416 @@
+//  __  __
+// |  \/  | ___  _ __   ___
+// | |\/| |/ _ \| '_ \ / _ \
+// | |  | | (_) | | | | (_) |
+// |_|  |_|\___/|_| |_|\___/
+//
+// Layout Component
+
+// Import the MainFrame
+{{ '@/frames/main-frame.mono' }}
+
+// Import the AppLayout
+{{ '@/layouts/app-layout.mono' }}
+
+component Layout {
+    props {
+        title: string = "my-switch-app",
+        currentPage: string = "home",
+        children: string = ""
+    }
+
+    state {
+        darkMode: boolean = false,
+        sidebarCollapsed: boolean = false,
+        frame: object = null,
+        layout: object = null,
+        navItems: array = [
+            {
+                type: "link",
+                text: "Home",
+                href: "/",
+                icon: "house",
+                active: false
+            },
+            {
+                type: "link",
+                text: "Tutorials",
+                href: "/tutorials",
+                icon: "book",
+                active: false
+            },
+            {
+                type: "link",
+                text: "About",
+                href: "/about",
+                icon: "info-circle",
+                active: false
+            },
+            {
+                type: "link",
+                text: "Feedback",
+                href: "/feedback",
+                icon: "chat-dots",
+                active: false
+            },
+            {
+                type: "link",
+                text: "Enhanced",
+                href: "/enhanced",
+                icon: "stars",
+                active: false
+            },
+            {
+                type: "link",
+                text: "Advanced",
+                href: "/advanced",
+                icon: "lightning-charge",
+                active: false
+            }
+        ],
+        rightNavItems: array = [
+            {
+                type: "dropdown",
+                text: "Theme",
+                icon: "palette",
+                items: [
+                    {
+                        type: "link",
+                        text: "Light Mode",
+                        icon: "sun",
+                        onClick: "toggleDarkMode"
+                    },
+                    {
+                        type: "link",
+                        text: "Dark Mode",
+                        icon: "moon",
+                        onClick: "toggleDarkMode"
+                    }
+                ]
+            },
+            {
+                type: "dropdown",
+                text: "Account",
+                icon: "person-circle",
+                items: [
+                    {
+                        type: "link",
+                        text: "Profile",
+                        icon: "person",
+                        href: "/profile"
+                    },
+                    {
+                        type: "link",
+                        text: "Settings",
+                        icon: "gear",
+                        href: "/settings"
+                    },
+                    {
+                        type: "divider"
+                    },
+                    {
+                        type: "link",
+                        text: "Logout",
+                        icon: "box-arrow-right",
+                        href: "/logout"
+                    }
+                ]
+            }
+        ]
+    }
+
+    function constructor() {
+        console.log("Layout constructor - Current page:", this.props.currentPage);
+
+        // Set the active nav item based on the current page
+        for (var i = 0; i < this.state.navItems.length; i++) {
+            var item = this.state.navItems[i];
+
+            // Reset active state
+            item.active = false;
+
+            // Set active state based on current page
+            if (item.href === "/" && this.props.currentPage === "home") {
+                item.active = true;
+            } else if (item.href === "/" + this.props.currentPage) {
+                item.active = true;
+            }
+        }
+
+        // Check if dark mode is enabled
+        this.state.darkMode = localStorage.getItem("darkMode") === "true";
+
+        // Apply dark mode to body if enabled
+        if (this.state.darkMode) {
+            document.body.classList.add("dark-mode");
+        } else {
+            document.body.classList.remove("dark-mode");
+        }
+
+        // Check if sidebar is collapsed
+        this.state.sidebarCollapsed = localStorage.getItem("sidebarCollapsed") === "true";
+
+        // Create the frame
+        this.state.frame = SwitchEnhanced.frame.create({
+            name: "MainFrame",
+            state: {
+                title: this.props.title,
+                theme: this.state.darkMode ? "dark" : "light"
+            }
+        });
+
+        // Create the layout
+        this.state.layout = SwitchEnhanced.layout.create({
+            name: "AppLayout"
+        });
+
+        // Add this component to the frame
+        this.state.frame.addComponent(this);
+    }
+
+    function toggleDarkMode() {
+        this.state.darkMode = !this.state.darkMode;
+        localStorage.setItem("darkMode", this.state.darkMode.toString());
+        document.body.classList.toggle("dark-mode");
+    }
+
+    function toggleSidebar() {
+        this.state.sidebarCollapsed = !this.state.sidebarCollapsed;
+        localStorage.setItem("sidebarCollapsed", this.state.sidebarCollapsed.toString());
+        document.body.classList.toggle("sidebar-collapsed");
+    }
+
+    function handleNavItemClick(event, item) {
+        // Handle navigation
+        if (item.href) {
+            // Prevent default link behavior
+            event.preventDefault();
+
+            // Update the URL
+            if (item.href === "/") {
+                history.pushState({}, "", "/");
+            } else {
+                history.pushState({}, "", item.href);
+            }
+
+            // Reload the page
+            window.location.reload();
+        }
+
+        // Handle actions
+        if (item.onClick === "toggleDarkMode") {
+            this.toggleDarkMode();
+        } else if (item.onClick === "toggleSidebar") {
+            this.toggleSidebar();
+        }
+    }
+
+    function renderNavbar() {
+        // Create the navbar component
+        var navbar = switch.component("Navbar", {
+            brand: this.props.title,
+            brandHref: "/",
+            variant: "dark",
+            background: "primary",
+            expand: "lg",
+            container: true,
+            items: this.state.navItems,
+            rightItems: this.state.rightNavItems,
+            onItemClick: this.handleNavItemClick
+        });
+
+        // Return the HTML
+        return `
+            <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+                <div class="container">
+                    <a class="navbar-brand" href="/" data-nav="true">
+                        <img src="src/static/img/switch-logo.svg" alt="Switch Logo" width="30" height="30" class="d-inline-block align-top me-2">
+                        ${this.props.title}
+                    </a>
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <div class="collapse navbar-collapse" id="navbarNav">
+                        <ul class="navbar-nav me-auto">
+                            ${this.renderNavItems()}
+                        </ul>
+                        <ul class="navbar-nav">
+                            ${this.renderRightNavItems()}
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+        `;
+    }
+
+    function renderNavItems() {
+        var html = "";
+
+        for (var i = 0; i < this.state.navItems.length; i++) {
+            var item = this.state.navItems[i];
+            var activeClass = item.active ? "active" : "";
+
+            html += `
+                <li class="nav-item">
+                    <a class="nav-link ${activeClass}" href="${item.href}" data-nav="true">
+                        <i class="bi bi-${item.icon} me-1"></i>
+                        ${item.text}
+                    </a>
+                </li>
+            `;
+        }
+
+        return html;
+    }
+
+    function renderRightNavItems() {
+        var html = "";
+
+        // Add dark mode toggle
+        html += `
+            <li class="nav-item">
+                <a class="nav-link" href="#" id="dark-mode-toggle">
+                    <i class="bi bi-${this.state.darkMode ? 'sun' : 'moon'} me-1"></i>
+                    ${this.state.darkMode ? 'Light Mode' : 'Dark Mode'}
+                </a>
+            </li>
+        `;
+
+        return html;
+    }
+
+    function renderFooter() {
+        return `
+            <footer class="footer">
+                <div class="container text-center">
+                    <p class="mb-0">
+                        &copy; ${new Date().getFullYear()} ${this.props.title}. Built with
+                        <a href="https://github.com/blackswanalpha/mono" target="_blank">Mono</a> and
+                        <a href="https://github.com/blackswanalpha/mono/tree/main/switch" target="_blank">Switch</a>.
+                    </p>
+                </div>
+            </footer>
+        `;
+    }
+
+    function render() {
+        // Create the component with enhanced features
+        var layout = SwitchEnhanced.component.create({
+            name: "Layout",
+            props: this.props,
+            children: [
+                SwitchEnhanced.component.create({
+                    name: "Content",
+                    props: {
+                        content: this.props.children
+                    }
+                })
+            ]
+        });
+
+        // Apply the layout to the component
+        if (this.state.layout) {
+            this.state.layout.addComponent(layout);
+        }
+
+        // Return the HTML using the frame and layout
+        return `
+            <div class="app ${this.state.darkMode ? 'dark-mode' : ''} ${this.state.sidebarCollapsed ? 'sidebar-collapsed' : ''}">
+                <div class="app-header">
+                    ${this.renderNavbar()}
+                </div>
+
+                <div class="app-container">
+                    <div class="app-sidebar ${this.state.sidebarCollapsed ? 'collapsed' : ''}">
+                        <div class="sidebar-toggle" data-event="click" data-action="toggleSidebar">
+                            <i class="bi bi-${this.state.sidebarCollapsed ? 'chevron-right' : 'chevron-left'}"></i>
+                        </div>
+                        <div class="sidebar-content">
+                            <ul class="sidebar-nav">
+                                ${this.renderNavItems()}
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="app-content">
+                        <div class="content-container">
+                            ${this.props.children}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="app-footer">
+                    ${this.renderFooter()}
+                </div>
+            </div>
+
+            <script>
+                // Add event listener for dark mode toggle
+                document.addEventListener('DOMContentLoaded', function() {
+                    const darkModeToggle = document.getElementById('dark-mode-toggle');
+                    if (darkModeToggle) {
+                        darkModeToggle.addEventListener('click', function(e) {
+                            e.preventDefault();
+
+                            // Toggle dark mode class on body
+                            document.body.classList.toggle('dark-mode');
+
+                            // Update localStorage
+                            const isDarkMode = document.body.classList.contains('dark-mode');
+                            localStorage.setItem('darkMode', isDarkMode);
+
+                            // Update the icon and text
+                            const icon = darkModeToggle.querySelector('i');
+                            if (isDarkMode) {
+                                icon.className = 'bi bi-sun me-1';
+                                darkModeToggle.innerHTML = icon.outerHTML + ' Light Mode';
+                            } else {
+                                icon.className = 'bi bi-moon me-1';
+                                darkModeToggle.innerHTML = icon.outerHTML + ' Dark Mode';
+                            }
+                        });
+                    }
+
+                    // Add event listener for sidebar toggle
+                    const sidebarToggle = document.querySelector('.sidebar-toggle');
+                    if (sidebarToggle) {
+                        sidebarToggle.addEventListener('click', function(e) {
+                            e.preventDefault();
+
+                            // Toggle sidebar collapsed class
+                            document.querySelector('.app-sidebar').classList.toggle('collapsed');
+                            document.querySelector('.app').classList.toggle('sidebar-collapsed');
+
+                            // Update localStorage
+                            const isCollapsed = document.querySelector('.app-sidebar').classList.contains('collapsed');
+                            localStorage.setItem('sidebarCollapsed', isCollapsed);
+
+                            // Update the icon
+                            const icon = sidebarToggle.querySelector('i');
+                            if (isCollapsed) {
+                                icon.className = 'bi bi-chevron-right';
+                            } else {
+                                icon.className = 'bi bi-chevron-left';
+                            }
+                        });
+                    }
+                });
+            </script>
+        `;
+    }
+
+    // Static method to create a new Layout instance
+    static create(props) {
+        return new Layout(props);
+    }
+
+    // Static method to wrap content with the layout
+    static wrap(content, props) {
+        const layout = Layout.create(props || {});
+        layout.props.children = content;
+        return layout.render();
+    }
+}
+
+// Export the component
+export Layout;

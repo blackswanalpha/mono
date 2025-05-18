@@ -1,0 +1,167 @@
+//  __  __                   
+// |  \/  | ___  _ __   ___  
+// | |\/| |/ _ \| '_ \ / _ \ 
+// | |  | | (_) | | | | (_) |
+// |_|  |_|\___/|_| |_|\___/ 
+//                           
+// Modal Frame Component
+
+frame ModalFrame {
+    state {
+        title: string = "Modal Dialog",
+        isOpen: boolean = false,
+        size: string = "medium", // small, medium, large, fullscreen
+        closeOnEscape: boolean = true,
+        closeOnBackdropClick: boolean = true,
+        showCloseButton: boolean = true,
+        animation: string = "fade", // fade, slide, zoom, none
+        position: string = "center", // center, top, bottom
+        maxWidth: string = "500px",
+        zIndex: number = 1050
+    }
+    
+    function frameWillLoad() {
+        console.log("ModalFrame will load");
+        
+        // Add event listeners for keyboard events
+        if (this.state.closeOnEscape) {
+            document.addEventListener("keydown", this.handleKeyDown.bind(this));
+        }
+        
+        // Add class to body when modal is open
+        if (this.state.isOpen) {
+            document.body.classList.add("modal-open");
+        }
+    }
+    
+    function frameDidLoad() {
+        console.log("ModalFrame did load");
+        
+        // Focus the first focusable element
+        if (this.state.isOpen) {
+            this.focusFirstElement();
+        }
+    }
+    
+    function frameWillUnload() {
+        console.log("ModalFrame will unload");
+        
+        // Remove event listeners
+        document.removeEventListener("keydown", this.handleKeyDown.bind(this));
+        
+        // Remove class from body
+        document.body.classList.remove("modal-open");
+    }
+    
+    function handleKeyDown(event) {
+        // Close on escape key
+        if (event.key === "Escape" && this.state.closeOnEscape && this.state.isOpen) {
+            this.close();
+        }
+    }
+    
+    function open() {
+        if (!this.state.isOpen) {
+            this.state.isOpen = true;
+            document.body.classList.add("modal-open");
+            
+            // Focus the first focusable element
+            setTimeout(() => {
+                this.focusFirstElement();
+            }, 100);
+            
+            // Trigger open event
+            this.triggerEvent("modal:open");
+        }
+    }
+    
+    function close() {
+        if (this.state.isOpen) {
+            this.state.isOpen = false;
+            document.body.classList.remove("modal-open");
+            
+            // Trigger close event
+            this.triggerEvent("modal:close");
+        }
+    }
+    
+    function handleBackdropClick(event) {
+        // Close on backdrop click if enabled
+        if (this.state.closeOnBackdropClick && event.target === event.currentTarget) {
+            this.close();
+        }
+    }
+    
+    function focusFirstElement() {
+        // Find the first focusable element in the modal
+        const modal = document.querySelector(".modal-content");
+        if (modal) {
+            const focusable = modal.querySelectorAll("button, [href], input, select, textarea, [tabindex]:not([tabindex='-1'])");
+            if (focusable.length > 0) {
+                focusable[0].focus();
+            }
+        }
+    }
+    
+    function getModalClasses() {
+        let classes = "modal-frame";
+        
+        // Add open class
+        if (this.state.isOpen) {
+            classes += " modal-open";
+        }
+        
+        // Add size class
+        classes += ` modal-${this.state.size}`;
+        
+        // Add animation class
+        classes += ` modal-animation-${this.state.animation}`;
+        
+        // Add position class
+        classes += ` modal-position-${this.state.position}`;
+        
+        return classes;
+    }
+    
+    function getModalStyles() {
+        return `
+            z-index: ${this.state.zIndex};
+            ${this.state.maxWidth && this.state.size !== "fullscreen" ? `max-width: ${this.state.maxWidth};` : ""}
+        `;
+    }
+    
+    function render() {
+        // Don't render if not open
+        if (!this.state.isOpen) {
+            return "";
+        }
+        
+        return `
+            <div class="modal-backdrop" data-event="click" data-action="handleBackdropClick">
+                <div class="${this.getModalClasses()}" style="${this.getModalStyles()}">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">${this.state.title}</h5>
+                            ${this.state.showCloseButton ? `
+                                <button type="button" class="modal-close" data-event="click" data-action="close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            ` : ""}
+                        </div>
+                        <div class="modal-body">
+                            ${this.children}
+                        </div>
+                        <div class="modal-footer">
+                            <slot name="footer">
+                                <button type="button" class="btn btn-secondary" data-event="click" data-action="close">Close</button>
+                            </slot>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+}
+
+// Export the frame
+export ModalFrame;

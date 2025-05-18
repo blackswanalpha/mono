@@ -1,0 +1,478 @@
+//  __  __                   
+// |  \/  | ___  _ __   ___  
+// | |\/| |/ _ \| '_ \ / _ \ 
+// | |  | | (_) | | | | (_) |
+// |_|  |_|\___/|_| |_|\___/ 
+//                           
+// Kits Page Component
+
+component KitsPage {
+    state {
+        title: string = "Kit Management",
+        kits: array = [],
+        installedKits: array = [],
+        searchQuery: string = "",
+        searchResults: array = [],
+        selectedKit: object = null,
+        loading: boolean = false,
+        error: string = "",
+        success: string = ""
+    }
+    
+    function constructor() {
+        // Initialize the component
+        this.loadKits();
+    }
+    
+    function loadKits() {
+        // Set loading state
+        this.state.loading = true;
+        
+        // Fetch kits from API
+        if (switch.isClient()) {
+            fetch("/api/kits")
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === "success") {
+                        this.state.kits = data.data;
+                    } else {
+                        this.state.error = data.message || "Failed to load kits";
+                    }
+                    this.state.loading = false;
+                })
+                .catch(error => {
+                    this.state.error = error.message || "Failed to load kits";
+                    this.state.loading = false;
+                });
+        } else {
+            // Mock data for server-side rendering
+            this.state.kits = [
+                {
+                    name: "SwitchUIKit",
+                    version: "1.0.0",
+                    description: "UI Kit for Switch applications",
+                    author: "Switch Team",
+                    license: "MIT",
+                    dependencies: {
+                        "switch-core": "^1.0.0"
+                    },
+                    components: [
+                        "Button", "Card", "Alert", "Modal", "Tabs", "Dropdown", "Form"
+                    ],
+                    installed: true
+                },
+                {
+                    name: "SwitchFormKit",
+                    version: "1.0.0",
+                    description: "Form components for Switch applications",
+                    author: "Switch Team",
+                    license: "MIT",
+                    dependencies: {
+                        "switch-core": "^1.0.0",
+                        "switch-ui-kit": "^1.0.0"
+                    },
+                    components: [
+                        "Input", "Checkbox", "Radio", "Select", "Textarea", "DatePicker", "TimePicker"
+                    ],
+                    installed: true
+                },
+                {
+                    name: "SwitchDataKit",
+                    version: "1.0.0",
+                    description: "Data visualization components for Switch applications",
+                    author: "Switch Team",
+                    license: "MIT",
+                    dependencies: {
+                        "switch-core": "^1.0.0",
+                        "switch-ui-kit": "^1.0.0"
+                    },
+                    components: [
+                        "Table", "Chart", "Graph", "Map", "Timeline", "Calendar", "Dashboard"
+                    ],
+                    installed: true
+                }
+            ];
+            
+            this.state.installedKits = this.state.kits.filter(kit => kit.installed);
+            this.state.loading = false;
+        }
+    }
+    
+    function searchKits() {
+        // Set loading state
+        this.state.loading = true;
+        
+        // Clear previous results
+        this.state.searchResults = [];
+        
+        // Check if search query is empty
+        if (!this.state.searchQuery) {
+            this.state.loading = false;
+            return;
+        }
+        
+        // Fetch search results from API
+        if (switch.isClient()) {
+            fetch(`/api/kits/search?q=${encodeURIComponent(this.state.searchQuery)}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === "success") {
+                        this.state.searchResults = data.data;
+                    } else {
+                        this.state.error = data.message || "Failed to search kits";
+                    }
+                    this.state.loading = false;
+                })
+                .catch(error => {
+                    this.state.error = error.message || "Failed to search kits";
+                    this.state.loading = false;
+                });
+        } else {
+            // Mock data for server-side rendering
+            this.state.searchResults = this.state.kits.filter(kit => 
+                kit.name.includes(this.state.searchQuery) || 
+                kit.description.includes(this.state.searchQuery)
+            );
+            this.state.loading = false;
+        }
+    }
+    
+    function installKit(name, version) {
+        // Set loading state
+        this.state.loading = true;
+        
+        // Clear previous messages
+        this.state.error = "";
+        this.state.success = "";
+        
+        // Install kit
+        if (switch.isClient()) {
+            fetch("/api/kits/install", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    name: name,
+                    version: version
+                })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === "success") {
+                        this.state.success = data.message || `Kit ${name}${version ? '@' + version : ''} installed`;
+                        this.loadKits();
+                    } else {
+                        this.state.error = data.message || "Failed to install kit";
+                    }
+                    this.state.loading = false;
+                })
+                .catch(error => {
+                    this.state.error = error.message || "Failed to install kit";
+                    this.state.loading = false;
+                });
+        } else {
+            // Mock data for server-side rendering
+            this.state.success = `Kit ${name}${version ? '@' + version : ''} installed`;
+            this.state.loading = false;
+        }
+    }
+    
+    function uninstallKit(name) {
+        // Set loading state
+        this.state.loading = true;
+        
+        // Clear previous messages
+        this.state.error = "";
+        this.state.success = "";
+        
+        // Uninstall kit
+        if (switch.isClient()) {
+            fetch("/api/kits/uninstall", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    name: name
+                })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === "success") {
+                        this.state.success = data.message || `Kit ${name} uninstalled`;
+                        this.loadKits();
+                    } else {
+                        this.state.error = data.message || "Failed to uninstall kit";
+                    }
+                    this.state.loading = false;
+                })
+                .catch(error => {
+                    this.state.error = error.message || "Failed to uninstall kit";
+                    this.state.loading = false;
+                });
+        } else {
+            // Mock data for server-side rendering
+            this.state.success = `Kit ${name} uninstalled`;
+            this.state.loading = false;
+        }
+    }
+    
+    function selectKit(kit) {
+        this.state.selectedKit = kit;
+    }
+    
+    function handleSearchInput(event) {
+        this.state.searchQuery = event.target.value;
+    }
+    
+    function handleSearchSubmit(event) {
+        event.preventDefault();
+        this.searchKits();
+    }
+    
+    function render() {
+        // Register client-side event handlers
+        switch.clientEvent("click", "handleClick");
+        switch.clientEvent("input", "handleInput");
+        switch.clientEvent("submit", "handleSubmit");
+        
+        // Create the component
+        var kitsPage = switch.component("KitsPage", {
+            title: this.state.title,
+            kits: this.state.kits,
+            installedKits: this.state.installedKits,
+            searchQuery: this.state.searchQuery,
+            searchResults: this.state.searchResults,
+            selectedKit: this.state.selectedKit,
+            loading: this.state.loading,
+            error: this.state.error,
+            success: this.state.success
+        });
+        
+        // Return the HTML
+        return `
+            <div class="kits-page">
+                <h2 class="mb-4">${this.state.title}</h2>
+                
+                ${this.state.error ? `<div class="alert alert-danger">${this.state.error}</div>` : ''}
+                ${this.state.success ? `<div class="alert alert-success">${this.state.success}</div>` : ''}
+                
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h4 class="card-title">Installed Kits</h4>
+                            </div>
+                            <div class="card-body">
+                                ${this.state.loading ? 
+                                    '<div class="text-center"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div></div>' : 
+                                    this.renderInstalledKits()
+                                }
+                            </div>
+                        </div>
+                        
+                        <div class="card">
+                            <div class="card-header">
+                                <h4 class="card-title">Search Kits</h4>
+                            </div>
+                            <div class="card-body">
+                                <form data-event="submit" data-action="search">
+                                    <div class="input-group mb-3">
+                                        <input type="text" class="form-control" placeholder="Search kits..." value="${this.state.searchQuery}" data-event="input" data-action="search-input">
+                                        <button class="btn btn-primary" type="submit">Search</button>
+                                    </div>
+                                </form>
+                                
+                                ${this.state.searchResults.length > 0 ? 
+                                    this.renderSearchResults() : 
+                                    this.state.searchQuery ? 
+                                        '<p>No kits found.</p>' : 
+                                        '<p>Enter a search query to find kits.</p>'
+                                }
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <h4 class="card-title">Kit Details</h4>
+                            </div>
+                            <div class="card-body">
+                                ${this.state.selectedKit ? 
+                                    this.renderKitDetails() : 
+                                    '<p>Select a kit to view details.</p>'
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+    
+    function renderInstalledKits() {
+        if (this.state.installedKits.length === 0) {
+            return '<p>No kits installed.</p>';
+        }
+        
+        return `
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Version</th>
+                            <th>Description</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${this.state.installedKits.map(kit => `
+                            <tr>
+                                <td><a href="#" data-event="click" data-action="select-kit" data-kit="${kit.name}">${kit.name}</a></td>
+                                <td>${kit.version}</td>
+                                <td>${kit.description}</td>
+                                <td>
+                                    <button class="btn btn-sm btn-danger" data-event="click" data-action="uninstall-kit" data-kit="${kit.name}">Uninstall</button>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            </div>
+        `;
+    }
+    
+    function renderSearchResults() {
+        return `
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Version</th>
+                            <th>Description</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${this.state.searchResults.map(kit => `
+                            <tr>
+                                <td><a href="#" data-event="click" data-action="select-kit" data-kit="${kit.name}">${kit.name}</a></td>
+                                <td>${kit.version}</td>
+                                <td>${kit.description}</td>
+                                <td>
+                                    ${kit.installed ? 
+                                        '<span class="badge bg-success">Installed</span>' : 
+                                        `<button class="btn btn-sm btn-primary" data-event="click" data-action="install-kit" data-kit="${kit.name}" data-version="${kit.version}">Install</button>`
+                                    }
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            </div>
+        `;
+    }
+    
+    function renderKitDetails() {
+        var kit = this.state.selectedKit;
+        
+        return `
+            <h5>${kit.name}@${kit.version}</h5>
+            <p>${kit.description}</p>
+            
+            <div class="mb-3">
+                <strong>Author:</strong> ${kit.author}
+            </div>
+            
+            <div class="mb-3">
+                <strong>License:</strong> ${kit.license}
+            </div>
+            
+            <div class="mb-3">
+                <strong>Dependencies:</strong>
+                <ul>
+                    ${Object.entries(kit.dependencies || {}).map(([name, version]) => `
+                        <li>${name}@${version}</li>
+                    `).join('')}
+                </ul>
+            </div>
+            
+            <div class="mb-3">
+                <strong>Components:</strong>
+                <ul>
+                    ${kit.components.map(component => `
+                        <li>${component}</li>
+                    `).join('')}
+                </ul>
+            </div>
+            
+            <div class="mt-3">
+                ${kit.installed ? 
+                    `<button class="btn btn-danger" data-event="click" data-action="uninstall-kit" data-kit="${kit.name}">Uninstall</button>` : 
+                    `<button class="btn btn-primary" data-event="click" data-action="install-kit" data-kit="${kit.name}" data-version="${kit.version}">Install</button>`
+                }
+            </div>
+        `;
+    }
+    
+    function handleClick(event) {
+        // Check if this is a select kit action
+        if (event.target.dataset.action === "select-kit" || event.target.closest("[data-action='select-kit']")) {
+            event.preventDefault();
+            
+            // Get the kit name
+            var kitName = event.target.dataset.kit || event.target.closest("[data-action='select-kit']").dataset.kit;
+            
+            // Find the kit
+            var kit = this.state.kits.find(k => k.name === kitName) || 
+                      this.state.searchResults.find(k => k.name === kitName);
+            
+            // Select the kit
+            this.selectKit(kit);
+        }
+        
+        // Check if this is an install kit action
+        if (event.target.dataset.action === "install-kit" || event.target.closest("[data-action='install-kit']")) {
+            event.preventDefault();
+            
+            // Get the kit name and version
+            var kitName = event.target.dataset.kit || event.target.closest("[data-action='install-kit']").dataset.kit;
+            var kitVersion = event.target.dataset.version || event.target.closest("[data-action='install-kit']").dataset.version;
+            
+            // Install the kit
+            this.installKit(kitName, kitVersion);
+        }
+        
+        // Check if this is an uninstall kit action
+        if (event.target.dataset.action === "uninstall-kit" || event.target.closest("[data-action='uninstall-kit']")) {
+            event.preventDefault();
+            
+            // Get the kit name
+            var kitName = event.target.dataset.kit || event.target.closest("[data-action='uninstall-kit']").dataset.kit;
+            
+            // Uninstall the kit
+            this.uninstallKit(kitName);
+        }
+    }
+    
+    function handleInput(event) {
+        // Check if this is a search input action
+        if (event.target.dataset.action === "search-input") {
+            this.handleSearchInput(event);
+        }
+    }
+    
+    function handleSubmit(event) {
+        // Check if this is a search action
+        if (event.target.dataset.action === "search") {
+            this.handleSearchSubmit(event);
+        }
+    }
+}
+
+// Export the component
+export KitsPage;

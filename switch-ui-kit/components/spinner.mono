@@ -1,0 +1,85 @@
+//  __  __                   
+// |  \/  | ___  _ __   ___  
+// | |\/| |/ _ \| '_ \ / _ \ 
+// | |  | | (_) | | | | (_) |
+// |_|  |_|\___/|_| |_|\___/ 
+//                           
+// Spinner Component
+
+component Spinner {
+    props {
+        size: string = "md", // sm, md, lg
+        variant: string = "primary", // primary, secondary, success, danger, warning, info, light, dark
+        type: string = "border", // border, grow
+        fullscreen: boolean = false,
+        overlay: boolean = false,
+        text: string = "",
+        centered: boolean = false
+    }
+    
+    function constructor() {
+        // Initialize the component
+    }
+    
+    function getContainerClasses() {
+        var classes = [];
+        
+        if (this.props.fullscreen) {
+            classes.push("spinner-fullscreen");
+        }
+        
+        if (this.props.overlay) {
+            classes.push("spinner-overlay");
+        }
+        
+        if (this.props.centered) {
+            classes.push("spinner-centered");
+        }
+        
+        return classes.join(" ");
+    }
+    
+    function getSpinnerClasses() {
+        var classes = ["spinner"];
+        
+        // Add type class
+        classes.push("spinner-" + this.props.type);
+        
+        // Add size class
+        if (this.props.size !== "md") {
+            classes.push("spinner-" + this.props.size);
+        }
+        
+        // Add variant class
+        classes.push("text-" + this.props.variant);
+        
+        return classes.join(" ");
+    }
+    
+    function render() {
+        // Create the component
+        var spinner = switch.component("Spinner", this.props);
+        
+        // Determine the spinner HTML
+        var spinnerHtml = `<div class="${this.getSpinnerClasses()}" role="status"></div>`;
+        
+        // Add text if provided
+        if (this.props.text) {
+            spinnerHtml += `<span class="spinner-text">${this.props.text}</span>`;
+        }
+        
+        // Return the HTML
+        if (this.props.fullscreen || this.props.overlay || this.props.centered) {
+            return `
+                <div class="${this.getContainerClasses()}">
+                    ${spinnerHtml}
+                </div>
+            `;
+        }
+        
+        return spinnerHtml;
+    }
+}
+
+// Export the component
+export Spinner;

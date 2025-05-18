@@ -1,0 +1,101 @@
+//  __  __
+// |  \/  | ___  _ __   ___
+// | |\/| |/ _ \| '_ \ / _ \
+// | |  | | (_) | | | | (_) |
+// |_|  |_|\___/|_| |_|\___/
+//
+// Web Server Example - A simple HTTP server in Mono
+
+component WebServer {
+    state {
+        port: number = 8000;
+        host: string = "localhost";
+    }
+
+    function constructor(port: number, host: string) {
+        if (port) {
+            this.port = port;
+        }
+        if (host) {
+            this.host = host;
+        }
+    }
+
+    function start() {
+        print "Starting web server on " + this.host + ":" + this.port;
+
+        // Configure routes
+        http.get("/", "handleRoot");
+        http.get("/hello", "handleHello");
+        http.get("/users/:id", "handleUser");
+        http.post("/api/data", "handleData");
+
+        // Start the server
+        http.start();
+
+        print "Server is running. Press Ctrl+C to stop.";
+    }
+
+    function handleRoot(req, res) {
+        print "Handling request to /";
+        res.html("<html><body><h1>Welcome to Mono Web Server</h1><p>A simple HTTP server written in Mono</p></body></html>");
+    }
+
+    function handleHello(req, res) {
+        print "Handling request to /hello";
+
+        // Get the name from query parameters
+        var name = req.query.name ? req.query.name[0] : "World";
+
+        // Concatenate the strings separately
+        var greeting = "Hello, " + name + "!";
+
+        res.html("<html><body><h1>" + greeting + "</h1><p>Welcome to Mono Web Server</p></body></html>");
+    }
+
+    function handleUser(req, res) {
+        print "Handling request to /users/:id";
+
+        // Get the user ID from route parameters
+        var userId = req.params.id;
+
+        // Simulate a database lookup
+        var user = {
+            id: userId,
+            name: "User " + userId,
+            email: "user" + userId + "@example.com"
+        };
+
+        res.json(user);
+    }
+
+    function handleData(req, res) {
+        print "Handling POST request to /api/data";
+
+        // Get the request body
+        var data = JSON.parse(req.body);
+
+        // Process the data
+        data.processed = true;
+        data.timestamp = "2023-06-15T12:00:00Z";
+
+        // Send a response
+        res.json({
+            success: true,
+            message: "Data processed successfully",
+            data: data
+        });
+    }
+}
+
+component Main {
+    function start() {
+        print "=== Mono Web Server Example ===";
+
+        // Create a web server on port 8000
+        var server = new WebServer(8000, "localhost");
+
+        // Start the server
+        server.start();
+    }
+}

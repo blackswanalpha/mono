@@ -1,0 +1,180 @@
+#!/usr/bin/env python3
+"""
+Mono Switch Create - Generate new Mono Switch applications
+
+Usage:
+    mono-switch-create [options] <name>
+
+Options:
+    --template TEMPLATE    Template to use (default: app)
+    --directory DIR        Directory to create the application in (default: current directory)
+    --verbose              Show verbose output
+"""
+
+import os
+import sys
+import argparse
+import shutil
+import re
+from pathlib import Path
+
+# Add the parent directory to the path
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+
+def create_switch_app(name, template="app", directory=".", verbose=False):
+    """Create a new Switch application."""
+    # Get the absolute path of the directory
+    directory = os.path.abspath(directory)
+    
+    # Create the application directory
+    app_dir = os.path.join(directory, name)
+    
+    if os.path.exists(app_dir):
+        print(f"Error: Directory already exists: {app_dir}")
+        return False
+    
+    os.makedirs(app_dir, exist_ok=True)
+    
+    if verbose:
+        print(f"Creating application in {app_dir}")
+    
+    # Get the template directory
+    template_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "templates", "switch", template)
+    
+    if not os.path.isdir(template_dir):
+        print(f"Error: Template not found: {template}")
+        return False
+    
+    # Copy the template files
+    for root, dirs, files in os.walk(template_dir):
+        # Get the relative path from the template directory
+        rel_path = os.path.relpath(root, template_dir)
+        
+        # Create the corresponding directory in the application
+        if rel_path != ".":
+            os.makedirs(os.path.join(app_dir, rel_path), exist_ok=True)
+        
+        # Copy the files
+        for file in files:
+            src_path = os.path.join(root, file)
+            dst_path = os.path.join(app_dir, rel_path, file)
+            
+            # Read the file content
+            with open(src_path, "r") as f:
+                content = f.read()
+            
+            # Replace template variables
+            content = content.replace("{{APP_NAME}}", name)
+            content = content.replace("{{APP_NAME_LOWER}}", name.lower())
+            content = content.replace("{{APP_NAME_UPPER}}", name.upper())
+            content = content.replace("{{APP_NAME_TITLE}}", name.title())
+            
+            # Write the file
+            with open(dst_path, "w") as f:
+                f.write(content)
+    
+    # Create additional directories
+    os.makedirs(os.path.join(app_dir, "static"), exist_ok=True)
+    os.makedirs(os.path.join(app_dir, "static", "css"), exist_ok=True)
+    os.makedirs(os.path.join(app_dir, "static", "js"), exist_ok=True)
+    os.makedirs(os.path.join(app_dir, "static", "img"), exist_ok=True)
+    
+    # Create a basic CSS file
+    with open(os.path.join(app_dir, "static", "css", "app.css"), "w") as f:
+        f.write("""/* Application styles */
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f5f5f5;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 1rem;
+}
+
+header {
+    background-color: #333;
+    color: white;
+    padding: 1rem;
+}
+
+header h1 {
+    margin: 0;
+}
+
+nav {
+    display: flex;
+    gap: 1rem;
+}
+
+nav a {
+    color: white;
+    text-decoration: none;
+}
+
+nav a:hover {
+    text-decoration: underline;
+}
+
+main {
+    padding: 1rem;
+}
+
+footer {
+    background-color: #333;
+    color: white;
+    padding: 1rem;
+    text-align: center;
+}
+""")
+    
+    # Create a basic JavaScript file
+    with open(os.path.join(app_dir, "static", "js", "app.js"), "w") as f:
+        f.write("""// Application JavaScript
+console.log('Application loaded');
+
+// Initialize the application when the DOM is ready
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM ready');
+});
+""")
+    
+    if verbose:
+        print(f"Application created successfully: {app_dir}")
+    
+    return True
+
+def main():
+    """Generate a new Switch application."""
+    # Parse command-line arguments
+    parser = argparse.ArgumentParser(description='Generate new Mono Switch applications')
+    parser.add_argument('name', help='Application name')
+    parser.add_argument('--template', default='app', help='Template to use (default: app)')
+    parser.add_argument('--directory', default='.', help='Directory to create the application in (default: current directory)')
+    parser.add_argument('--verbose', action='store_true', help='Show verbose output')
+    args = parser.parse_args()
+    
+    # Create the application
+    success = create_switch_app(
+        args.name,
+        template=args.template,
+        directory=args.directory,
+        verbose=args.verbose
+    )
+    
+    if not success:
+        sys.exit(1)
+    
+    # Print instructions
+    print(f"\nApplication created successfully: {os.path.join(os.path.abspath(args.directory), args.name)}")
+    print("\nTo run the application:")
+    print(f"  cd {os.path.join(args.directory, args.name)}")
+    print("  mono-switch main.mono")
+    print("\nTo build the application for production:")
+    print("  mono-switch-build main.mono")
+
+if __name__ == '__main__':
+    main()

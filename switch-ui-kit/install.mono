@@ -1,0 +1,141 @@
+//  __  __                   
+// |  \/  | ___  _ __   ___  
+// | |\/| |/ _ \| '_ \ / _ \ 
+// | |  | | (_) | | | | (_) |
+// |_|  |_|\___/|_| |_|\___/ 
+//                           
+// Switch UI Kit Installer
+
+component Installer {
+    state {
+        targetDir: string = "",
+        installType: string = "full", // full, components, styles
+        components: array = [
+            "button",
+            "card",
+            "navbar",
+            "modal",
+            "tabs",
+            "alert",
+            "dropdown",
+            "table",
+            "form",
+            "tooltip",
+            "accordion",
+            "sidebar",
+            "footer"
+        ],
+        selectedComponents: array = []
+    }
+    
+    function start(args) {
+        print "Starting Switch UI Kit installer...";
+        
+        // Parse arguments
+        if (args.length < 1) {
+            this.showUsage();
+            return;
+        }
+        
+        this.state.targetDir = args[0];
+        
+        if (args.length > 1) {
+            this.state.installType = args[1];
+        }
+        
+        if (args.length > 2 && this.state.installType === "components") {
+            this.state.selectedComponents = args.slice(2);
+        } else {
+            this.state.selectedComponents = this.state.components;
+        }
+        
+        // Install the kit
+        this.install();
+    }
+    
+    function showUsage() {
+        print "Usage: mono switch-ui-kit/install.mono <target-dir> [install-type] [components...]";
+        print "";
+        print "Arguments:";
+        print "  target-dir    The directory to install the kit to";
+        print "  install-type  The type of installation (full, components, styles) [default: full]";
+        print "  components    The components to install (only used with install-type=components)";
+        print "";
+        print "Examples:";
+        print "  mono switch-ui-kit/install.mono my-app";
+        print "  mono switch-ui-kit/install.mono my-app components button card navbar";
+        print "  mono switch-ui-kit/install.mono my-app styles";
+    }
+    
+    function install() {
+        print `Installing Switch UI Kit to ${this.state.targetDir}...`;
+        
+        // Create directories
+        this.createDirectories();
+        
+        // Install components
+        if (this.state.installType === "full" || this.state.installType === "components") {
+            this.installComponents();
+        }
+        
+        // Install styles
+        if (this.state.installType === "full" || this.state.installType === "styles") {
+            this.installStyles();
+        }
+        
+        // Install kit manifest
+        if (this.state.installType === "full") {
+            this.installKitManifest();
+        }
+        
+        print "Installation complete!";
+    }
+    
+    function createDirectories() {
+        print "Creating directories...";
+        
+        // Create components directory
+        if (this.state.installType === "full" || this.state.installType === "components") {
+            fs.mkdirp(`${this.state.targetDir}/src/components/ui`);
+        }
+        
+        // Create styles directory
+        if (this.state.installType === "full" || this.state.installType === "styles") {
+            fs.mkdirp(`${this.state.targetDir}/src/static/css/ui`);
+        }
+        
+        // Create kit directory
+        if (this.state.installType === "full") {
+            fs.mkdirp(`${this.state.targetDir}/src/kits`);
+        }
+    }
+    
+    function installComponents() {
+        print "Installing components...";
+        
+        for (var i = 0; i < this.state.selectedComponents.length; i++) {
+            var component = this.state.selectedComponents[i];
+            print `  - Installing ${component} component...`;
+            
+            // Copy component file
+            fs.copy(`components/${component}.mono`, `${this.state.targetDir}/src/components/ui/${component}.mono`);
+        }
+    }
+    
+    function installStyles() {
+        print "Installing styles...";
+        
+        // Copy styles file
+        fs.copy("styles/ui-kit.css", `${this.state.targetDir}/src/static/css/ui/ui-kit.css`);
+    }
+    
+    function installKitManifest() {
+        print "Installing kit manifest...";
+        
+        // Copy kit manifest
+        fs.copy("kit.mono", `${this.state.targetDir}/src/kits/ui-kit.mono`);
+    }
+}
+
+// Export the installer
+export Installer;

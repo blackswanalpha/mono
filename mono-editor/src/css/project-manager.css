@@ -1,0 +1,375 @@
+/* Project Manager Styles for Mono Editor */
+
+.project-manager {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: var(--background-color);
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.project-manager-header {
+  padding: 15px;
+  border-bottom: 1px solid var(--border-color);
+  background-color: var(--panel-background);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.project-manager-header h2 {
+  margin: 0;
+  color: var(--foreground-color);
+  font-size: 1.5rem;
+}
+
+.project-manager-controls {
+  display: flex;
+  gap: 10px;
+}
+
+.new-project-btn, .import-project-btn {
+  padding: 8px 15px;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.new-project-btn {
+  background-color: var(--button-primary-background);
+  color: var(--button-primary-foreground);
+  border: none;
+}
+
+.new-project-btn:hover {
+  background-color: var(--button-primary-hover-background);
+}
+
+.import-project-btn {
+  background-color: var(--button-secondary-background);
+  color: var(--button-secondary-foreground);
+  border: 1px solid var(--border-color);
+}
+
+.import-project-btn:hover {
+  background-color: var(--button-secondary-hover-background);
+}
+
+.close-project-manager-btn {
+  background: none;
+  border: none;
+  color: var(--foreground-secondary);
+  font-size: 1.5rem;
+  cursor: pointer;
+  margin-left: 15px;
+}
+
+.close-project-manager-btn:hover {
+  color: var(--foreground-color);
+}
+
+.project-list {
+  flex: 1;
+  padding: 15px;
+  overflow-y: auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 15px;
+}
+
+.empty-projects {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  color: var(--foreground-secondary);
+  text-align: center;
+}
+
+.empty-projects p {
+  margin: 5px 0;
+}
+
+.empty-projects p:first-child {
+  font-size: 1.2rem;
+  margin-bottom: 10px;
+}
+
+.project-item {
+  background-color: var(--panel-background);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 15px;
+  display: flex;
+  gap: 15px;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.project-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.project-item.active {
+  border-color: var(--accent-color);
+  background-color: rgba(var(--accent-color-rgb), 0.05);
+}
+
+.project-icon {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.project-icon img {
+  max-width: 100%;
+  max-height: 100%;
+}
+
+.project-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  overflow: hidden;
+}
+
+.project-name {
+  margin: 0;
+  font-size: 1.1rem;
+  color: var(--foreground-color);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.project-path {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--foreground-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.project-meta {
+  margin-top: 5px;
+  font-size: 0.8rem;
+  color: var(--foreground-secondary);
+}
+
+.project-actions {
+  display: flex;
+  gap: 5px;
+  align-self: flex-start;
+}
+
+.project-open-btn, .project-settings-btn, .project-delete-btn {
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.project-open-btn {
+  background-color: var(--button-primary-background);
+  color: var(--button-primary-foreground);
+  border: none;
+}
+
+.project-open-btn:hover {
+  background-color: var(--button-primary-hover-background);
+}
+
+.project-settings-btn, .project-delete-btn {
+  background: none;
+  border: none;
+  font-size: 1rem;
+  padding: 5px;
+  border-radius: 50%;
+}
+
+.project-settings-btn:hover, .project-delete-btn:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Project Dialog */
+.project-dialog {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1100;
+}
+
+.project-dialog-content {
+  background-color: var(--panel-background);
+  border-radius: 8px;
+  width: 500px;
+  max-width: 90%;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+}
+
+.project-dialog-header {
+  padding: 15px;
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.project-dialog-header h3 {
+  margin: 0;
+  font-size: 1.2rem;
+  color: var(--foreground-color);
+}
+
+.project-dialog-close {
+  background: none;
+  border: none;
+  color: var(--foreground-secondary);
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+.project-dialog-close:hover {
+  color: var(--foreground-color);
+}
+
+.project-dialog-body {
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.project-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.project-form-group label {
+  font-size: 0.9rem;
+  color: var(--foreground-color);
+}
+
+.project-form-group input, .project-form-group select {
+  padding: 8px 12px;
+  border: 1px solid var(--border-color);
+  background-color: var(--input-background);
+  color: var(--input-foreground);
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+
+.project-location-input {
+  display: flex;
+  gap: 5px;
+}
+
+.project-location-input input {
+  flex: 1;
+}
+
+.project-location-input button {
+  padding: 8px 12px;
+  background-color: var(--button-background);
+  color: var(--button-foreground);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.project-location-input button:hover {
+  background-color: var(--button-hover-background);
+}
+
+.project-dialog-footer {
+  padding: 15px;
+  border-top: 1px solid var(--border-color);
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.project-dialog-cancel, .project-dialog-create {
+  padding: 8px 15px;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.project-dialog-cancel {
+  background-color: var(--button-background);
+  color: var(--button-foreground);
+  border: 1px solid var(--border-color);
+}
+
+.project-dialog-cancel:hover {
+  background-color: var(--button-hover-background);
+}
+
+.project-dialog-create {
+  background-color: var(--button-primary-background);
+  color: var(--button-primary-foreground);
+  border: none;
+}
+
+.project-dialog-create:hover {
+  background-color: var(--button-primary-hover-background);
+}
+
+/* Project Settings Dialog */
+.project-settings-dialog {
+  width: 600px;
+  max-width: 90%;
+}
+
+.project-settings-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.project-settings-tab {
+  padding: 10px 15px;
+  cursor: pointer;
+  color: var(--foreground-secondary);
+  border-bottom: 2px solid transparent;
+}
+
+.project-settings-tab.active {
+  color: var(--accent-color);
+  border-bottom-color: var(--accent-color);
+}
+
+.project-settings-tab:hover:not(.active) {
+  color: var(--foreground-color);
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.project-settings-panel {
+  padding: 15px;
+  display: none;
+}
+
+.project-settings-panel.active {
+  display: block;
+}

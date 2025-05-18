@@ -1,0 +1,206 @@
+//  __  __                   
+// |  \/  | ___  _ __   ___  
+// | |\/| |/ _ \| '_ \ / _ \ 
+// | |  | | (_) | | | | (_) |
+// |_|  |_|\___/|_| |_|\___/ 
+//                           
+// Tabbed Frame Component
+
+frame TabbedFrame {
+    state {
+        activeTab: string = "",
+        tabs: array = [],
+        position: string = "top", // top, bottom, left, right
+        style: string = "tabs", // tabs, pills, underline, buttons
+        size: string = "medium", // small, medium, large
+        justified: boolean = false,
+        fill: boolean = false,
+        vertical: boolean = false,
+        fade: boolean = true,
+        lazy: boolean = true,
+        swipeable: boolean = false,
+        draggable: boolean = false
+    }
+    
+    function frameWillLoad() {
+        console.log("TabbedFrame will load");
+        
+        // Set the first tab as active if none is specified
+        if (!this.state.activeTab && this.state.tabs.length > 0) {
+            this.state.activeTab = this.state.tabs[0].id;
+        }
+        
+        // Set vertical based on position
+        this.state.vertical = this.state.position === "left" || this.state.position === "right";
+    }
+    
+    function frameDidLoad() {
+        console.log("TabbedFrame did load");
+        
+        // Initialize swipe detection if enabled
+        if (this.state.swipeable) {
+            this.initSwipeDetection();
+        }
+        
+        // Initialize drag and drop if enabled
+        if (this.state.draggable) {
+            this.initDragAndDrop();
+        }
+        
+        // Trigger tab:loaded event
+        this.triggerEvent("tab:loaded", { activeTab: this.state.activeTab });
+    }
+    
+    function frameWillUnload() {
+        console.log("TabbedFrame will unload");
+        
+        // Clean up event listeners
+        if (this.state.swipeable) {
+            this.cleanupSwipeDetection();
+        }
+        
+        if (this.state.draggable) {
+            this.cleanupDragAndDrop();
+        }
+    }
+    
+    function setActiveTab(tabId) {
+        // Don't do anything if the tab is already active
+        if (this.state.activeTab === tabId) {
+            return;
+        }
+        
+        // Update the active tab
+        this.state.activeTab = tabId;
+        
+        // Trigger tab:change event
+        this.triggerEvent("tab:change", { activeTab: tabId });
+    }
+    
+    function initSwipeDetection() {
+        // Implementation for swipe detection
+        console.log("Initializing swipe detection");
+    }
+    
+    function cleanupSwipeDetection() {
+        // Cleanup for swipe detection
+        console.log("Cleaning up swipe detection");
+    }
+    
+    function initDragAndDrop() {
+        // Implementation for drag and drop
+        console.log("Initializing drag and drop");
+    }
+    
+    function cleanupDragAndDrop() {
+        // Cleanup for drag and drop
+        console.log("Cleaning up drag and drop");
+    }
+    
+    function getTabsClasses() {
+        let classes = "tabbed-frame";
+        
+        // Add position class
+        classes += ` tabs-${this.state.position}`;
+        
+        // Add style class
+        classes += ` tabs-style-${this.state.style}`;
+        
+        // Add size class
+        classes += ` tabs-${this.state.size}`;
+        
+        // Add justified class
+        if (this.state.justified) {
+            classes += " tabs-justified";
+        }
+        
+        // Add fill class
+        if (this.state.fill) {
+            classes += " tabs-fill";
+        }
+        
+        // Add vertical class
+        if (this.state.vertical) {
+            classes += " tabs-vertical";
+        }
+        
+        return classes;
+    }
+    
+    function renderTabNav() {
+        if (!this.state.tabs || this.state.tabs.length === 0) {
+            return `<div class="tabs-empty">No tabs defined</div>`;
+        }
+        
+        return `
+            <ul class="tabs-nav" role="tablist">
+                ${this.state.tabs.map(tab => `
+                    <li class="tab-item" role="presentation">
+                        <button class="tab-link ${this.state.activeTab === tab.id ? 'active' : ''}" 
+                                id="tab-${tab.id}" 
+                                data-event="click" 
+                                data-action="setActiveTab" 
+                                data-params="${tab.id}" 
+                                role="tab" 
+                                aria-controls="tabpanel-${tab.id}" 
+                                aria-selected="${this.state.activeTab === tab.id}">
+                            ${tab.icon ? `<i class="tab-icon ${tab.icon}"></i>` : ''}
+                            <span class="tab-label">${tab.label}</span>
+                            ${tab.badge ? `<span class="tab-badge">${tab.badge}</span>` : ''}
+                        </button>
+                    </li>
+                `).join('')}
+            </ul>
+        `;
+    }
+    
+    function renderTabContent() {
+        if (!this.state.tabs || this.state.tabs.length === 0) {
+            return "";
+        }
+        
+        return `
+            <div class="tab-content">
+                ${this.state.tabs.map(tab => {
+                    // If lazy loading is enabled, only render the active tab
+                    if (this.state.lazy && this.state.activeTab !== tab.id) {
+                        return `
+                            <div class="tab-pane" 
+                                 id="tabpanel-${tab.id}" 
+                                 role="tabpanel" 
+                                 aria-labelledby="tab-${tab.id}">
+                            </div>
+                        `;
+                    }
+                    
+                    return `
+                        <div class="tab-pane ${this.state.activeTab === tab.id ? 'active' : ''} ${this.state.fade ? 'fade' : ''} ${this.state.activeTab === tab.id && this.state.fade ? 'show' : ''}" 
+                             id="tabpanel-${tab.id}" 
+                             role="tabpanel" 
+                             aria-labelledby="tab-${tab.id}">
+                            <slot name="tab-${tab.id}">
+                                ${tab.content || ''}
+                            </slot>
+                        </div>
+                    `;
+                }).join('')}
+            </div>
+        `;
+    }
+    
+    function render() {
+        // Determine the order of nav and content based on position
+        let navFirst = this.state.position === "top" || this.state.position === "left";
+        
+        return `
+            <div class="${this.getTabsClasses()}" data-tabs-frame>
+                ${navFirst ? this.renderTabNav() : ''}
+                ${this.renderTabContent()}
+                ${!navFirst ? this.renderTabNav() : ''}
+            </div>
+        `;
+    }
+}
+
+// Export the frame
+export TabbedFrame;

@@ -1,0 +1,560 @@
+//  __  __
+// |  \/  | ___  _ __   ___
+// | |\/| |/ _ \| '_ \ / _ \
+// | |  | | (_) | | | | (_) |
+// |_|  |_|\___/|_| |_|\___/
+//
+// Advanced Features Demo Page
+
+// Import layouts
+{{ '@/layouts/dashboard-layout.mono' }}
+{{ '@/layouts/documentation-layout.mono' }}
+{{ '@/layouts/blog-layout.mono' }}
+
+// Import frames
+{{ '@/frames/modal-frame.mono' }}
+{{ '@/frames/sidebar-frame.mono' }}
+{{ '@/frames/tabbed-frame.mono' }}
+
+// Import components
+{{ '@/components/layout.mono' }}
+
+component AdvancedPage {
+    props {
+        currentPage: string = "advanced"
+    }
+
+    state {
+        activeDemo: string = "layouts",
+        activeLayout: string = "dashboard",
+        activeTab: string = "overview",
+        modalOpen: boolean = false,
+        sidebarItems: array = [
+            {
+                id: "layouts",
+                label: "Layouts",
+                icon: "bi bi-grid-3x3-gap"
+            },
+            {
+                id: "frames",
+                label: "Frames",
+                icon: "bi bi-window"
+            },
+            {
+                id: "ssr",
+                label: "SSR & Hydration",
+                icon: "bi bi-server"
+            }
+        ],
+        layoutItems: array = [
+            {
+                id: "dashboard",
+                label: "Dashboard Layout",
+                icon: "bi bi-grid"
+            },
+            {
+                id: "documentation",
+                label: "Documentation Layout",
+                icon: "bi bi-file-text"
+            },
+            {
+                id: "blog",
+                label: "Blog Layout",
+                icon: "bi bi-journal-richtext"
+            }
+        ],
+        frameItems: array = [
+            {
+                id: "modal",
+                label: "Modal Frame",
+                icon: "bi bi-window-stack"
+            },
+            {
+                id: "sidebar",
+                label: "Sidebar Frame",
+                icon: "bi bi-layout-sidebar"
+            },
+            {
+                id: "tabbed",
+                label: "Tabbed Frame",
+                icon: "bi bi-layout-three-columns"
+            }
+        ],
+        tabs: array = [
+            {
+                id: "overview",
+                label: "Overview",
+                icon: "bi bi-info-circle"
+            },
+            {
+                id: "code",
+                label: "Code Example",
+                icon: "bi bi-code-slash"
+            },
+            {
+                id: "demo",
+                label: "Live Demo",
+                icon: "bi bi-play-circle"
+            }
+        ]
+    }
+
+    function constructor() {
+        // Initialize the component
+        console.log("AdvancedPage initialized");
+    }
+
+    function setActiveDemo(demo) {
+        this.state.activeDemo = demo;
+    }
+
+    function setActiveLayout(layout) {
+        this.state.activeLayout = layout;
+    }
+
+    function setActiveTab(tab) {
+        this.state.activeTab = tab;
+    }
+
+    function openModal() {
+        this.state.modalOpen = true;
+    }
+
+    function closeModal() {
+        this.state.modalOpen = false;
+    }
+
+    function renderLayoutItems() {
+        var html = '';
+
+        for (var i = 0; i < this.state.layoutItems.length; i++) {
+            var item = this.state.layoutItems[i];
+            var activeClass = this.state.activeLayout === item.id ? 'active' : '';
+
+            html += `
+                <li class="${activeClass}">
+                    <a href="#" data-event="click" data-action="setActiveLayout" data-params="${item.id}">
+                        <i class="${item.icon}"></i>
+                        <span>${item.label}</span>
+                    </a>
+                </li>
+            `;
+        }
+
+        return html;
+    }
+
+    function renderLayoutContent() {
+        var content = "";
+
+        switch (this.state.activeLayout) {
+            case "dashboard":
+                content = `
+                    <div class="dashboard-demo">
+                        <div class="dashboard-header">
+                            <h1>Dashboard Layout</h1>
+                            <p>A responsive dashboard layout with sidebar, header, and content areas.</p>
+                        </div>
+
+                        <div class="dashboard-grid">
+                            <div class="dashboard-card">
+                                <div class="card-header">
+                                    <h3>Features</h3>
+                                </div>
+                                <div class="card-body">
+                                    <ul>
+                                        <li>Responsive grid system</li>
+                                        <li>Collapsible sidebar</li>
+                                        <li>Dark mode support</li>
+                                        <li>Card components</li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <div class="dashboard-card">
+                                <div class="card-header">
+                                    <h3>Usage</h3>
+                                </div>
+                                <div class="card-body">
+                                    <p>Perfect for admin interfaces, data visualization, and control panels.</p>
+                                    <button class="btn btn-primary" data-event="click" data-action="openModal">View Example</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                break;
+
+            case "documentation":
+                content = `
+                    <div class="documentation-demo">
+                        <div class="documentation-header">
+                            <h1>Documentation Layout</h1>
+                            <p>A layout designed for documentation sites with sidebar navigation and table of contents.</p>
+                        </div>
+
+                        <div class="documentation-content">
+                            <h2>Features</h2>
+                            <ul>
+                                <li>Navigation sidebar</li>
+                                <li>Table of contents</li>
+                                <li>Content area with max width</li>
+                                <li>Code blocks and note blocks</li>
+                                <li>Print mode</li>
+                            </ul>
+
+                            <div class="code-block">
+                                <pre><code>// Import the layout
+{{ '@/layouts/documentation-layout.mono' }}
+
+// Use the layout
+var layout = SwitchEnhanced.layout.create({
+    name: "DocumentationLayout"
+});</code></pre>
+                            </div>
+
+                            <div class="note">
+                                <strong>Note:</strong> This layout is perfect for documentation sites, tutorials, and knowledge bases.
+                            </div>
+                        </div>
+                    </div>
+                `;
+                break;
+
+            case "blog":
+                content = `
+                    <div class="blog-demo">
+                        <div class="blog-header">
+                            <h1>Blog Layout</h1>
+                            <p>A layout designed for blog sites with featured images and sidebar.</p>
+                        </div>
+
+                        <div class="blog-post">
+                            <h2>Features</h2>
+                            <div class="post-meta">
+                                <span class="post-date">May 15, 2023</span>
+                                <span class="post-author">by Switch Team</span>
+                            </div>
+
+                            <p>The Blog Layout provides a clean, readable design for content-focused websites:</p>
+
+                            <ul>
+                                <li>Hero section with featured image</li>
+                                <li>Content area with optimal reading width</li>
+                                <li>Sidebar for related content</li>
+                                <li>Post metadata and tags</li>
+                                <li>Comments section</li>
+                            </ul>
+
+                            <div class="post-tags">
+                                <span class="tag">Layout</span>
+                                <span class="tag">Blog</span>
+                                <span class="tag">Content</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                break;
+
+            default:
+                content = `<div>Select a layout to view</div>`;
+        }
+
+        return content;
+    }
+
+    function renderLayoutsDemo() {
+        return `
+            <div class="layouts-demo">
+                <div class="demo-sidebar">
+                    <h3>Layouts</h3>
+                    <ul class="demo-nav">
+                        ${this.renderLayoutItems()}
+                    </ul>
+                </div>
+
+                <div class="demo-content">
+                    ${this.renderLayoutContent()}
+                </div>
+            </div>
+        `;
+    }
+
+    function renderFrameItems() {
+        var html = '';
+
+        for (var i = 0; i < this.state.frameItems.length; i++) {
+            var item = this.state.frameItems[i];
+            var activeClass = this.state.activeTab === item.id ? 'active' : '';
+
+            html += `
+                <li class="${activeClass}">
+                    <a href="#" data-event="click" data-action="setActiveTab" data-params="${item.id}">
+                        <i class="${item.icon}"></i>
+                        <span>${item.label}</span>
+                    </a>
+                </li>
+            `;
+        }
+
+        return html;
+    }
+
+    function renderFrameContent() {
+        var content = "";
+
+        switch (this.state.activeTab) {
+            case "modal":
+                content = `
+                    <div class="modal-demo">
+                        <h2>Modal Frame</h2>
+                        <p>A dialog box that appears on top of the current page.</p>
+
+                        <div class="demo-actions">
+                            <button class="btn btn-primary" data-event="click" data-action="openModal">Open Modal</button>
+                        </div>
+                    </div>
+                `;
+                break;
+
+            case "sidebar":
+                content = `
+                    <div class="sidebar-demo">
+                        <h2>Sidebar Frame</h2>
+                        <p>A collapsible side navigation panel.</p>
+
+                        <div class="demo-preview">
+                            <div class="sidebar-preview">
+                                <div class="sidebar-header">
+                                    <div class="sidebar-title">Navigation</div>
+                                    <button class="sidebar-toggle">
+                                        <i class="bi bi-chevron-left"></i>
+                                    </button>
+                                </div>
+
+                                <ul class="sidebar-nav">
+                                    <li class="sidebar-item active">
+                                        <a href="#" class="sidebar-link">
+                                            <i class="sidebar-icon bi bi-house"></i>
+                                            <span class="sidebar-label">Home</span>
+                                        </a>
+                                    </li>
+                                    <li class="sidebar-item">
+                                        <a href="#" class="sidebar-link">
+                                            <i class="sidebar-icon bi bi-gear"></i>
+                                            <span class="sidebar-label">Settings</span>
+                                        </a>
+                                    </li>
+                                    <li class="sidebar-item">
+                                        <a href="#" class="sidebar-link">
+                                            <i class="sidebar-icon bi bi-person"></i>
+                                            <span class="sidebar-label">Profile</span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                break;
+
+            case "tabbed":
+                content = `
+                    <div class="tabbed-demo">
+                        <h2>Tabbed Frame</h2>
+                        <p>A tabbed interface for organizing content.</p>
+
+                        <div class="demo-preview">
+                            <div class="tabs-preview">
+                                <ul class="tabs-nav" role="tablist">
+                                    <li class="tab-item" role="presentation">
+                                        <button class="tab-link active" id="tab-home">
+                                            <i class="tab-icon bi bi-house"></i>
+                                            <span class="tab-label">Home</span>
+                                        </button>
+                                    </li>
+                                    <li class="tab-item" role="presentation">
+                                        <button class="tab-link" id="tab-profile">
+                                            <i class="tab-icon bi bi-person"></i>
+                                            <span class="tab-label">Profile</span>
+                                        </button>
+                                    </li>
+                                    <li class="tab-item" role="presentation">
+                                        <button class="tab-link" id="tab-settings">
+                                            <i class="tab-icon bi bi-gear"></i>
+                                            <span class="tab-label">Settings</span>
+                                        </button>
+                                    </li>
+                                </ul>
+
+                                <div class="tab-content">
+                                    <div class="tab-pane active" id="tabpanel-home">
+                                        <p>Home tab content</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                break;
+
+            default:
+                content = `<div>Select a frame to view</div>`;
+        }
+
+        return content;
+    }
+
+    function renderFramesDemo() {
+        return `
+            <div class="frames-demo">
+                <div class="demo-sidebar">
+                    <h3>Frames</h3>
+                    <ul class="demo-nav">
+                        ${this.renderFrameItems()}
+                    </ul>
+                </div>
+
+                <div class="demo-content">
+                    ${this.renderFrameContent()}
+                </div>
+            </div>
+        `;
+    }
+
+    function renderSSRDemo() {
+        return `
+            <div class="ssr-demo">
+                <h2>Enhanced Server-Side Rendering</h2>
+                <p>The Switch framework now includes advanced server-side rendering capabilities that improve performance, user experience, and developer productivity.</p>
+
+                <div class="demo-features">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="bi bi-lightning-charge"></i>
+                        </div>
+                        <h3>Progressive Hydration</h3>
+                        <p>Hydrate components in order of importance, ensuring that critical UI elements become interactive first.</p>
+                        <pre><code>component.set_hydration_strategy("eager");</code></pre>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="bi bi-filter-square"></i>
+                        </div>
+                        <h3>Selective Hydration</h3>
+                        <p>Choose which components to hydrate, reducing the JavaScript needed for initial interactivity.</p>
+                        <pre><code>renderer.enable_selective_hydration(true, ["header", "nav"]);</code></pre>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="bi bi-hourglass-split"></i>
+                        </div>
+                        <h3>Lazy Hydration</h3>
+                        <p>Defer the hydration of non-critical components until they're needed.</p>
+                        <pre><code>component.set_hydration_strategy("visible");</code></pre>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="bi bi-water"></i>
+                        </div>
+                        <h3>Streaming SSR</h3>
+                        <p>Send parts of the page as they're rendered, improving perceived performance.</p>
+                        <pre><code>renderer.enable_streaming(true);</code></pre>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    function renderActiveDemo() {
+        var html = '';
+
+        switch (this.state.activeDemo) {
+            case "layouts":
+                html = this.renderLayoutsDemo();
+                break;
+            case "frames":
+                html = this.renderFramesDemo();
+                break;
+            case "ssr":
+                html = this.renderSSRDemo();
+                break;
+            default:
+                html = this.renderLayoutsDemo();
+        }
+
+        return html;
+    }
+
+    function renderSidebarItems() {
+        var html = '';
+
+        for (var i = 0; i < this.state.sidebarItems.length; i++) {
+            var item = this.state.sidebarItems[i];
+            var activeClass = this.state.activeDemo === item.id ? 'active' : '';
+
+            html += `
+                <li class="${activeClass}">
+                    <a href="#" data-event="click" data-action="setActiveDemo" data-params="${item.id}">
+                        <i class="${item.icon}"></i>
+                        <span>${item.label}</span>
+                    </a>
+                </li>
+            `;
+        }
+
+        return html;
+    }
+
+    function render() {
+        // Return the HTML directly to match the regex pattern in index.html
+        return `
+            <div class="advanced-page">
+                <div class="page-header">
+                    <h1>Advanced Features Demo</h1>
+                    <p>Explore the new features of the Switch framework including layouts, frames, and enhanced SSR.</p>
+                </div>
+
+                <div class="demo-container">
+                    <div class="sidebar-container">
+                        <div class="demo-sidebar">
+                            <h3>Advanced Features</h3>
+                            <ul class="demo-nav">
+                                ${this.renderSidebarItems()}
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="main-content">
+                        ${this.renderActiveDemo()}
+                    </div>
+                </div>
+
+                <div class="modal-container">
+                    <div class="modal-frame">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Layout Example</h5>
+                                <button type="button" class="modal-close" data-event="click" data-action="closeModal">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <p>This is a modal dialog example.</p>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-event="click" data-action="closeModal">Close</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+}
+
+// Export the component
+export AdvancedPage;

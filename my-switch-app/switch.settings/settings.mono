@@ -1,0 +1,79 @@
+//  __  __                   
+// |  \/  | ___  _ __   ___  
+// | |\/| |/ _ \| '_ \ / _ \ 
+// | |  | | (_) | | | | (_) |
+// |_|  |_|\___/|_| |_|\___/ 
+//                           
+// Switch Settings
+
+// Import required modules
+import "core.mono"
+import "route.mono"
+import "views.mono"
+
+// Application settings
+settings {
+    // Server settings
+    server {
+        port 8000
+        host "localhost"
+        workers 1
+        debug true
+    }
+    
+    // Application settings
+    app {
+        name "my-switch-app"
+        version "1.0.0"
+        description "A Switch application"
+    }
+    
+    // Environment settings
+    env {
+        development {
+            debug true
+            hmr true
+            ssr true
+        }
+        production {
+            debug false
+            hmr false
+            ssr true
+        }
+    }
+    
+    // Static file settings
+    static {
+        path "src/static"
+        url "/static"
+    }
+    
+    // Template settings
+    templates {
+        path "src/templates"
+        engine "switch"
+    }
+    
+    // Package settings
+    packages {
+        path "switch.settings/pkgs"
+        registry "https://registry.switchframework.org"
+    }
+    
+    // Kit settings
+    kits {
+        path "switch.settings/kits"
+        registry "https://registry.switchframework.org/kits"
+    }
+    
+    // Build settings
+    build {
+        output "build"
+        minify true
+        bundle true
+        sourcemap true
+        tree_shake true
+        code_splitting true
+        differential_loading true
+    }
+}

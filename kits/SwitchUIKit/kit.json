@@ -1,0 +1,95 @@
+{
+  "name": "SwitchUIKit",
+  "version": "1.0.0",
+  "description": "A collection of UI components for the Switch framework",
+  "components": {
+    "Button": {
+      "name": "Button",
+      "source_path": "components/button.js",
+      "description": "A customizable button component"
+    },
+    "Card": {
+      "name": "Card",
+      "source_path": "components/card.js",
+      "description": "A card component with header, body, and footer"
+    },
+    "Modal": {
+      "name": "Modal",
+      "source_path": "components/modal.js",
+      "description": "A modal dialog component"
+    },
+    "Tabs": {
+      "name": "Tabs",
+      "source_path": "components/tabs.js",
+      "description": "A tabbed interface component"
+    },
+    "Alert": {
+      "name": "Alert",
+      "source_path": "components/alert.js",
+      "description": "An alert component for notifications"
+    },
+    "Dropdown": {
+      "name": "Dropdown",
+      "source_path": "components/dropdown.js",
+      "description": "A dropdown menu component"
+    },
+    "Table": {
+      "name": "Table",
+      "source_path": "components/table.js",
+      "description": "A table component with sorting, filtering, and pagination"
+    },
+    "Form": {
+      "name": "Form",
+      "source_path": "components/form.js",
+      "description": "A form component with validation"
+    },
+    "Tooltip": {
+      "name": "Tooltip",
+      "source_path": "components/tooltip.js",
+      "description": "A tooltip component for displaying additional information"
+    },
+    "Accordion": {
+      "name": "Accordion",
+      "source_path": "components/accordion.js",
+      "description": "An accordion component for collapsible content"
+    },
+    "Pagination": {
+      "name": "Pagination",
+      "source_path": "components/pagination.js",
+      "description": "A pagination component for navigating through pages"
+    },
+    "Progress": {
+      "name": "Progress",
+      "source_path": "components/progress.js",
+      "description": "A progress bar component"
+    },
+    "Spinner": {
+      "name": "Spinner",
+      "source_path": "components/spinner.js",
+      "description": "A loading spinner component"
+    },
+    "Badge": {
+      "name": "Badge",
+      "source_path": "components/badge.js",
+      "description": "A badge component for displaying counts or status"
+    },
+    "Avatar": {
+      "name": "Avatar",
+      "source_path": "components/avatar.js",
+      "description": "An avatar component for displaying user images"
+    }
+  },
+  "tools": {
+    "generate": {
+      "name": "generate",
+      "command": "mono-switch-cli component $1 --template=ui",
+      "description": "Generate a new UI component"
+    },
+    "lint": {
+      "name": "lint",
+      "command": "mono-tools lint $1 --config=ui",
+      "description": "Lint a UI component"
+    }
+  },
+  "dependencies": {}
+}

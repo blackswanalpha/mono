@@ -1,0 +1,327 @@
+//  __  __                   
+// |  \/  | ___  _ __   ___  
+// | |\/| |/ _ \| '_ \ / _ \ 
+// | |  | | (_) | | | | (_) |
+// |_|  |_|\___/|_| |_|\___/ 
+//                           
+// Advanced SSR Example Page
+
+// Import layouts
+{{ '@/layouts/dashboard-layout.mono' }}
+{{ '@/layouts/documentation-layout.mono' }}
+{{ '@/layouts/blog-layout.mono' }}
+
+// Import frames
+{{ '@/frames/modal-frame.mono' }}
+{{ '@/frames/sidebar-frame.mono' }}
+{{ '@/frames/tabbed-frame.mono' }}
+
+// Import components
+{{ '@/components/layout.mono' }}
+
+component AdvancedSSRPage {
+    props {
+        currentPage: string = "advanced-ssr"
+    }
+    
+    state {
+        activeLayout: string = "dashboard",
+        activeTab: string = "overview",
+        sidebarItems: array = [
+            {
+                id: "dashboard",
+                label: "Dashboard Layout",
+                icon: "bi bi-grid"
+            },
+            {
+                id: "documentation",
+                label: "Documentation Layout",
+                icon: "bi bi-file-text"
+            },
+            {
+                id: "blog",
+                label: "Blog Layout",
+                icon: "bi bi-journal-richtext"
+            }
+        ],
+        tabs: array = [
+            {
+                id: "overview",
+                label: "Overview",
+                icon: "bi bi-info-circle"
+            },
+            {
+                id: "ssr",
+                label: "SSR Features",
+                icon: "bi bi-server"
+            },
+            {
+                id: "layouts",
+                label: "Layouts",
+                icon: "bi bi-layout-split"
+            },
+            {
+                id: "frames",
+                label: "Frames",
+                icon: "bi bi-window"
+            }
+        ],
+        modalOpen: boolean = false
+    }
+    
+    function constructor() {
+        // Initialize the component
+        console.log("AdvancedSSRPage initialized");
+    }
+    
+    function setActiveLayout(layout) {
+        this.state.activeLayout = layout;
+    }
+    
+    function setActiveTab(tab) {
+        this.state.activeTab = tab;
+    }
+    
+    function openModal() {
+        this.state.modalOpen = true;
+    }
+    
+    function closeModal() {
+        this.state.modalOpen = false;
+    }
+    
+    function renderDashboardLayout() {
+        return `
+            <div class="dashboard-demo">
+                <div class="dashboard-header">
+                    <h1>Dashboard Layout</h1>
+                    <p>A responsive dashboard layout with sidebar, header, and content areas.</p>
+                </div>
+                
+                <div class="dashboard-grid">
+                    <div class="dashboard-card">
+                        <div class="card-header">
+                            <h3>Server-Side Rendering</h3>
+                        </div>
+                        <div class="card-body">
+                            <p>This component demonstrates enhanced server-side rendering with selective hydration.</p>
+                            <button class="btn btn-primary" data-event="click" data-action="openModal">Open Modal</button>
+                        </div>
+                    </div>
+                    
+                    <div class="dashboard-card">
+                        <div class="card-header">
+                            <h3>Layouts</h3>
+                        </div>
+                        <div class="card-body">
+                            <p>Switch between different layout types using the sidebar navigation.</p>
+                            <ul>
+                                <li>Dashboard Layout</li>
+                                <li>Documentation Layout</li>
+                                <li>Blog Layout</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="dashboard-card">
+                        <div class="card-header">
+                            <h3>Frames</h3>
+                        </div>
+                        <div class="card-body">
+                            <p>This example uses several frame types:</p>
+                            <ul>
+                                <li>Sidebar Frame</li>
+                                <li>Modal Frame</li>
+                                <li>Tabbed Frame</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+    
+    function renderDocumentationLayout() {
+        return `
+            <div class="documentation-demo">
+                <div class="documentation-header">
+                    <h1>Documentation Layout</h1>
+                    <p>A layout designed for documentation sites with sidebar navigation and table of contents.</p>
+                </div>
+                
+                <div class="documentation-content">
+                    <h2>Enhanced SSR Features</h2>
+                    <p>The Switch framework now supports advanced server-side rendering features:</p>
+                    
+                    <ul>
+                        <li><strong>Progressive Hydration:</strong> Hydrate components in order of importance</li>
+                        <li><strong>Selective Hydration:</strong> Only hydrate specific components</li>
+                        <li><strong>Lazy Hydration:</strong> Hydrate components when they become visible or on interaction</li>
+                        <li><strong>Streaming Hydration:</strong> Hydrate components as they arrive from the server</li>
+                    </ul>
+                    
+                    <div class="code-block">
+                        <pre><code>// Enable selective hydration
+renderer.enable_selective_hydration(true, ["critical-component", "user-profile"]);
+
+// Enable streaming
+renderer.enable_streaming(true);
+
+// Enable caching
+renderer.enable_caching(true, 60);</code></pre>
+                    </div>
+                    
+                    <div class="note">
+                        <strong>Note:</strong> These features can significantly improve performance for complex applications.
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+    
+    function renderBlogLayout() {
+        return `
+            <div class="blog-demo">
+                <div class="blog-header">
+                    <h1>Blog Layout</h1>
+                    <p>A layout designed for blog sites with featured images and sidebar.</p>
+                </div>
+                
+                <div class="blog-post">
+                    <h2>Enhancing Your Switch Applications</h2>
+                    <div class="post-meta">
+                        <span class="post-date">May 15, 2023</span>
+                        <span class="post-author">by Switch Team</span>
+                    </div>
+                    
+                    <p>The latest updates to the Switch framework bring powerful new features for building modern web applications.</p>
+                    
+                    <h3>New Layout System</h3>
+                    <p>The new layout system provides a flexible way to structure your applications with responsive designs.</p>
+                    
+                    <h3>Frame Components</h3>
+                    <p>Frames provide isolated component containers with their own lifecycle hooks and state management.</p>
+                    
+                    <h3>Enhanced SSR</h3>
+                    <p>Server-side rendering has been improved with progressive hydration and streaming support.</p>
+                    
+                    <div class="post-tags">
+                        <span class="tag">Switch</span>
+                        <span class="tag">Layouts</span>
+                        <span class="tag">Frames</span>
+                        <span class="tag">SSR</span>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+    
+    function renderActiveLayout() {
+        switch (this.state.activeLayout) {
+            case "dashboard":
+                return this.renderDashboardLayout();
+            case "documentation":
+                return this.renderDocumentationLayout();
+            case "blog":
+                return this.renderBlogLayout();
+            default:
+                return this.renderDashboardLayout();
+        }
+    }
+    
+    function render() {
+        // Create the enhanced component with SSR support
+        var advancedSSR = SwitchEnhanced.component.create({
+            name: "AdvancedSSRPage",
+            props: this.props,
+            hydrationStrategy: "eager", // Use eager hydration for this component
+            critical: true // Mark as critical for SSR
+        });
+        
+        // Create the sidebar frame
+        var sidebar = SwitchEnhanced.frame.create({
+            name: "SidebarFrame",
+            state: {
+                title: "Layouts",
+                items: this.state.sidebarItems,
+                activeItem: this.state.activeLayout
+            }
+        });
+        
+        // Create the tabbed frame
+        var tabs = SwitchEnhanced.frame.create({
+            name: "TabbedFrame",
+            state: {
+                tabs: this.state.tabs,
+                activeTab: this.state.activeTab
+            }
+        });
+        
+        // Create the modal frame
+        var modal = SwitchEnhanced.frame.create({
+            name: "ModalFrame",
+            state: {
+                title: "Enhanced SSR Features",
+                isOpen: this.state.modalOpen
+            }
+        });
+        
+        // Create the layout based on the active layout
+        var layout;
+        switch (this.state.activeLayout) {
+            case "dashboard":
+                layout = SwitchEnhanced.layout.create({
+                    name: "DashboardLayout"
+                });
+                break;
+            case "documentation":
+                layout = SwitchEnhanced.layout.create({
+                    name: "DocumentationLayout"
+                });
+                break;
+            case "blog":
+                layout = SwitchEnhanced.layout.create({
+                    name: "BlogLayout"
+                });
+                break;
+            default:
+                layout = SwitchEnhanced.layout.create({
+                    name: "DashboardLayout"
+                });
+        }
+        
+        // Apply the layout to the component
+        advancedSSR.setLayout(layout);
+        
+        // Add frames to the component
+        advancedSSR.addFrame(sidebar);
+        advancedSSR.addFrame(tabs);
+        advancedSSR.addFrame(modal);
+        
+        // Return the HTML
+        return `
+            <div class="advanced-ssr-page">
+                <div class="sidebar-container" data-frame="SidebarFrame">
+                    ${sidebar.render()}
+                </div>
+                
+                <div class="main-content">
+                    <div class="tabs-container" data-frame="TabbedFrame">
+                        ${tabs.render()}
+                    </div>
+                    
+                    <div class="layout-container" data-layout="${this.state.activeLayout}Layout">
+                        ${this.renderActiveLayout()}
+                    </div>
+                </div>
+                
+                <div class="modal-container" data-frame="ModalFrame">
+                    ${modal.render()}
+                </div>
+            </div>
+        `;
+    }
+}
+
+// Export the component
+export AdvancedSSRPage;

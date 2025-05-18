@@ -1,0 +1,131 @@
+//  __  __                   
+// |  \/  | ___  _ __   ___  
+// | |\/| |/ _ \| '_ \ / _ \ 
+// | |  | | (_) | | | | (_) |
+// |_|  |_|\___/|_| |_|\___/ 
+//                           
+// {{MODULE_NAME}} Store Module
+
+// This file defines the {{MODULE_NAME}} store module.
+
+// {{MODULE_NAME}} module configuration
+var {{MODULE_NAME}}Module = {
+    // Module state
+    state: {
+        // Add your state properties here
+        items: [],
+        loading: false,
+        error: null
+    },
+    
+    // Mutations (synchronous state changes)
+    mutations: {
+        // Add your mutations here
+        setItems(state, items) {
+            state.items = items;
+        },
+        addItem(state, item) {
+            state.items.push(item);
+        },
+        updateItem(state, { id, updates }) {
+            const index = state.items.findIndex(item => item.id === id);
+            if (index !== -1) {
+                state.items[index] = { ...state.items[index], ...updates };
+            }
+        },
+        removeItem(state, id) {
+            state.items = state.items.filter(item => item.id !== id);
+        },
+        setLoading(state, loading) {
+            state.loading = loading;
+        },
+        setError(state, error) {
+            state.error = error;
+        },
+        clearError(state) {
+            state.error = null;
+        }
+    },
+    
+    // Actions (asynchronous operations)
+    actions: {
+        // Add your actions here
+        fetchItems(context) {
+            context.commit('setLoading', true);
+            context.commit('clearError');
+            
+            // Simulate API call
+            setTimeout(() => {
+                // Simulate successful response
+                const items = [
+                    { id: 1, name: 'Item 1' },
+                    { id: 2, name: 'Item 2' },
+                    { id: 3, name: 'Item 3' }
+                ];
+                
+                context.commit('setItems', items);
+                context.commit('setLoading', false);
+            }, 1000);
+        },
+        
+        addItem(context, item) {
+            context.commit('setLoading', true);
+            context.commit('clearError');
+            
+            // Simulate API call
+            setTimeout(() => {
+                // Simulate successful response
+                const newItem = {
+                    id: Date.now(),
+                    ...item
+                };
+                
+                context.commit('addItem', newItem);
+                context.commit('setLoading', false);
+            }, 500);
+        },
+        
+        updateItem(context, { id, updates }) {
+            context.commit('setLoading', true);
+            context.commit('clearError');
+            
+            // Simulate API call
+            setTimeout(() => {
+                // Simulate successful response
+                context.commit('updateItem', { id, updates });
+                context.commit('setLoading', false);
+            }, 500);
+        },
+        
+        removeItem(context, id) {
+            context.commit('setLoading', true);
+            context.commit('clearError');
+            
+            // Simulate API call
+            setTimeout(() => {
+                // Simulate successful response
+                context.commit('removeItem', id);
+                context.commit('setLoading', false);
+            }, 500);
+        }
+    },
+    
+    // Getters (computed properties)
+    getters: {
+        // Add your getters here
+        itemCount(state) {
+            return state.items.length;
+        },
+        
+        getItemById: (state) => (id) => {
+            return state.items.find(item => item.id === id);
+        }
+    }
+};
+
+// Export the module
+// To use this module, add it to the store configuration in store/index.mono:
+//
+// modules: {
+//     {{MODULE_NAME}}: {{MODULE_NAME}}Module
+// }

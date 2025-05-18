@@ -1,0 +1,201 @@
+//  __  __                   
+// |  \/  | ___  _ __   ___  
+// | |\/| |/ _ \| '_ \ / _ \ 
+// | |  | | (_) | | | | (_) |
+// |_|  |_|\___/|_| |_|\___/ 
+//                           
+// Analytics Page
+
+component AnalyticsPage {
+    state {
+        trafficData: object = {
+            labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+            datasets: [
+                {
+                    label: "Direct",
+                    data: [65, 59, 80, 81, 56, 55],
+                    backgroundColor: "rgba(75, 192, 192, 0.5)"
+                },
+                {
+                    label: "Organic Search",
+                    data: [28, 48, 40, 19, 86, 27],
+                    backgroundColor: "rgba(54, 162, 235, 0.5)"
+                },
+                {
+                    label: "Referral",
+                    data: [17, 28, 22, 14, 32, 19],
+                    backgroundColor: "rgba(255, 99, 132, 0.5)"
+                },
+                {
+                    label: "Social",
+                    data: [10, 15, 8, 12, 22, 14],
+                    backgroundColor: "rgba(255, 205, 86, 0.5)"
+                }
+            ]
+        },
+        deviceData: object = {
+            labels: ["Desktop", "Mobile", "Tablet"],
+            datasets: [
+                {
+                    data: [65, 30, 5],
+                    backgroundColor: [
+                        "rgba(54, 162, 235, 0.5)",
+                        "rgba(75, 192, 192, 0.5)",
+                        "rgba(255, 99, 132, 0.5)"
+                    ],
+                    borderColor: [
+                        "rgba(54, 162, 235, 1)",
+                        "rgba(75, 192, 192, 1)",
+                        "rgba(255, 99, 132, 1)"
+                    ],
+                    borderWidth: 1
+                }
+            ]
+        },
+        topPages: array = [
+            {
+                id: 1,
+                path: "/",
+                title: "Home",
+                views: 12345,
+                uniqueViews: 8765,
+                avgTimeOnPage: "2:15"
+            },
+            {
+                id: 2,
+                path: "/products",
+                title: "Products",
+                views: 8765,
+                uniqueViews: 5432,
+                avgTimeOnPage: "3:10"
+            },
+            {
+                id: 3,
+                path: "/about",
+                title: "About Us",
+                views: 5432,
+                uniqueViews: 3210,
+                avgTimeOnPage: "1:45"
+            },
+            {
+                id: 4,
+                path: "/contact",
+                title: "Contact",
+                views: 3210,
+                uniqueViews: 2109,
+                avgTimeOnPage: "1:30"
+            },
+            {
+                id: 5,
+                path: "/blog",
+                title: "Blog",
+                views: 2109,
+                uniqueViews: 1543,
+                avgTimeOnPage: "4:20"
+            }
+        ],
+        loading: boolean = false
+    }
+    
+    function constructor() {
+        // Initialize the component
+    }
+    
+    function render() {
+        // Create the component
+        var analyticsPage = switch.component("AnalyticsPage", {
+            trafficData: this.state.trafficData,
+            deviceData: this.state.deviceData,
+            topPages: this.state.topPages,
+            loading: this.state.loading
+        });
+        
+        // Create the traffic chart
+        var trafficChart = new Chart({
+            title: "Traffic Sources",
+            type: "bar",
+            data: this.state.trafficData,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: "top"
+                    }
+                },
+                scales: {
+                    x: {
+                        stacked: true
+                    },
+                    y: {
+                        stacked: true
+                    }
+                }
+            },
+            loading: this.state.loading
+        });
+        
+        // Create the device chart
+        var deviceChart = new Chart({
+            title: "Device Distribution",
+            type: "doughnut",
+            data: this.state.deviceData,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: "right"
+                    }
+                }
+            },
+            loading: this.state.loading
+        });
+        
+        // Create the top pages table
+        var topPagesTable = new Table({
+            title: "Top Pages",
+            columns: [
+                { key: "path", label: "Path" },
+                { key: "title", label: "Title" },
+                { key: "views", label: "Views", format: (value) => value.toLocaleString() },
+                { key: "uniqueViews", label: "Unique Views", format: (value) => value.toLocaleString() },
+                { key: "avgTimeOnPage", label: "Avg. Time on Page" }
+            ],
+            data: this.state.topPages,
+            loading: this.state.loading,
+            pagination: {
+                currentPage: 1,
+                totalPages: Math.ceil(this.state.topPages.length / 10),
+                pageSize: 10
+            },
+            sortColumn: "views",
+            sortDirection: "desc"
+        });
+        
+        // Return the HTML
+        return `
+            <div class="analytics-page">
+                <div class="container-fluid">
+                    <div class="row mb-4">
+                        <div class="col-lg-8 mb-4 mb-lg-0">
+                            ${trafficChart.render()}
+                        </div>
+                        <div class="col-lg-4">
+                            ${deviceChart.render()}
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-12">
+                            ${topPagesTable.render()}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+}
+
+// Export the component
+export AnalyticsPage;

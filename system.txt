@@ -1,0 +1,121 @@
+# Spark Editor System Architecture
+
+## Core Architecture
+- Built with PyQt6 for cross-platform GUI
+- Modular design with clear separation of concerns
+- Event-driven architecture for responsive UI
+- Model-View-Controller (MVC) pattern for UI components
+- Signal-slot mechanism for component communication
+- Plugin-based architecture for extensibility
+- Singleton pattern for global services (ErrorManager, ThemeManager)
+- Factory pattern for creating UI components
+- Observer pattern for event handling
+
+## Main Components
+1. **SparkEditor (main.py)**: Main application window and entry point
+2. **CodeEditor (editor.py)**: Core text editing component
+3. **TerminalWidget (terminal.py)**: Integrated terminal
+4. **ProjectBrowserWidget (browser.py)**: File and project navigation
+5. **QuickActionPanel (actions.py)**: Quick access to common actions
+6. **AIAssistantWidget (assistant.py)**: AI-powered coding assistance
+7. **ThemeManager (theme.py)**: Theme management and application
+8. **ErrorManager (error_manager.py)**: Error handling and recovery
+9. **PluginManager (plugin_system.py)**: Plugin discovery and management
+10. **CodeIntelligenceManager (code_intelligence.py)**: Code analysis and intelligence
+
+## Code Intelligence System
+- **MonoCodeAnalyzer**: Analyzes Mono code to extract symbols and detect errors
+- **MonoSymbol**: Represents a symbol in Mono code (variable, function, component)
+- **CodeCompletionModel**: Model for code completion suggestions
+- **DiagnosticsModel**: Model for code diagnostics (errors and warnings)
+- **OptimizedMonoCodeAnalyzer**: Enhanced analyzer with incremental analysis and caching
+- **CodeBlock**: Represents a block of code with its hash and symbols for incremental analysis
+- **AnalysisCache**: Cache for code analysis results to improve performance
+
+## Code Completion System
+- **CompletionList**: Widget for displaying code completion suggestions
+- **CompletionListWidget**: Base list widget for displaying suggestions
+- **CompletionItemDelegate**: Custom delegate for rendering completion items
+- **CompletionWidget**: Widget for displaying detailed completion information
+- Fuzzy matching algorithm for flexible symbol matching
+- Scoring system for ranking completion suggestions
+- Event filtering for keyboard navigation and focus management
+- Automatic positioning near the cursor
+- Automatic filtering as you type
+
+## Error Management System
+- **ErrorManager**: Singleton for handling errors throughout the application
+- **ErrorType**: Enumeration of error types (GENERAL, TYPING, PLUGIN, etc.)
+- **ErrorContext**: Data class for storing error information
+- **handle_errors**: Decorator for wrapping methods with error handling
+- **detect_error_type**: Function for determining the type of an error
+- Error handlers for different error types
+- Recovery strategies for different error types
+- Error history tracking for debugging
+- Diagnostic dialog for viewing and managing errors
+
+## Theme System
+- **ThemeManager**: Singleton for managing and applying themes
+- **Theme**: Base class for defining theme properties
+- **DarkTheme**, **LightTheme**, **NordTheme**: Concrete theme implementations
+- Theme application to all UI components
+- Syntax highlighting customization based on theme
+- Dynamic theme switching without restart
+
+## Plugin System
+- **PluginManager**: Singleton for managing plugins
+- **PluginInterface**: Base interface for all plugins
+- **PluginMetadata**: Data class for storing plugin information
+- **PluginMarketplace**: Interface to the plugin marketplace
+- Plugin discovery and loading mechanism
+- Plugin enabling/disabling
+- Plugin settings management
+- Plugin marketplace integration
+
+## File System
+- File opening, saving, and closing
+- File change detection
+- Backup creation
+- File encoding support
+- File type detection
+- Tab management
+- Recent files list
+
+## Event Handling
+- Signal-slot connections for component communication
+- Event filters for intercepting Qt events
+- Custom events for application-specific actions
+- Keyboard shortcut management
+- Mouse event handling
+- Focus management
+
+## Performance Optimizations
+- Incremental code analysis to avoid re-analyzing entire files
+- Symbol caching for faster lookups
+- Lazy loading of UI components
+- Background processing for intensive tasks
+- Memory usage optimization
+- Startup time optimization
+- Diffing algorithm for detecting code changes
+
+## Error Handling and Recovery
+- Exception handling throughout the codebase
+- Error logging and reporting
+- Error recovery strategies
+- Graceful degradation when features fail
+- User feedback for errors
+- Crash prevention mechanisms
+
+## Threading Model
+- Main UI thread for responsive interface
+- Background threads for intensive operations
+- Thread-safe data structures for shared state
+- Signal-slot mechanism for thread communication
+- QTimer for delayed operations
+
+## Security Considerations
+- Plugin sandboxing
+- Input validation
+- Secure file handling
+- Protection against malicious plugins
+- Secure communication with external services

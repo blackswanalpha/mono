@@ -1,0 +1,25 @@
+{
+  "name": "{{APP_NAME}}",
+  "version": "1.0.0",
+  "description": "A Switch application",
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "switch-core": "^1.0.0",
+    "switch-ui-kit": "^1.0.0"
+  },
+  "devDependencies": {
+    "switch-dev-server": "^1.0.0"
+  },
+  "scripts": {
+    "start": "switch run app --reload",
+    "build": "switch build app --minify --bundle",
+    "deploy": "switch deploy app"
+  },
+  "settings": {
+    "port": 8000,
+    "host": "localhost",
+    "ssr": true,
+    "hmr": true
+  }
+}

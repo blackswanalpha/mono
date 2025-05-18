@@ -1,0 +1,24 @@
+//  __  __
+// |  \/  | ___  _ __   ___
+// | |\/| |/ _ \| '_ \ / _ \
+// | |  | | (_) | | | | (_) |
+// |_|  |_|\___/|_| |_|\___/
+//
+// my-switch-app - Entry Point
+
+// Import the main application component
+import "app.mono"
+
+// Start the application
+function main() {
+    print "Starting my-switch-app...";
+    
+    // Create the main component
+    var main = new Main();
+    
+    // Start the application
+    main.start();
+}
+
+// Call the main function
+main();

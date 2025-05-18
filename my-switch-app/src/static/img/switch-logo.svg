@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    .logo-text { font-family: 'Arial', sans-serif; font-weight: bold; }
+    .primary { fill: #6200ea; }
+    .secondary { fill: #00b0ff; }
+    .accent { fill: #00e5ff; }
+    
+    @media (prefers-color-scheme: dark) {
+      .primary { fill: #bb86fc; }
+      .secondary { fill: #03dac6; }
+      .accent { fill: #cf6679; }
+    }
+    
+    .switch-toggle {
+      transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+    }
+    
+    .logo-container:hover .switch-toggle {
+      transform: translateX(30px);
+    }
+    
+    .logo-glow {
+      filter: drop-shadow(0 0 8px rgba(98, 0, 234, 0.5));
+    }
+    
+    .dark-mode .logo-glow {
+      filter: drop-shadow(0 0 8px rgba(187, 134, 252, 0.5));
+    }
+  </style>
+  
+  <g class="logo-container">
+    <!-- Switch background -->
+    <rect x="40" y="80" width="120" height="50" rx="25" fill="#e0e0e0" class="switch-background" />
+    
+    <!-- Switch toggle -->
+    <circle cx="65" cy="105" r="20" class="primary switch-toggle logo-glow" />
+    
+    <!-- Code brackets -->
+    <path d="M30,60 L10,100 L30,140" stroke="#424242" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" fill="none" />
+    <path d="M170,60 L190,100 L170,140" stroke="#424242" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" fill="none" />
+    
+    <!-- Mono text -->
+    <text x="100" y="170" text-anchor="middle" class="logo-text" font-size="24" fill="#424242">SWITCH</text>
+    
+    <!-- Decorative elements -->
+    <circle cx="100" cy="30" r="10" class="secondary logo-glow" />
+    <circle cx="70" cy="40" r="6" class="accent" />
+    <circle cx="130" cy="40" r="6" class="accent" />
+  </g>
+</svg>

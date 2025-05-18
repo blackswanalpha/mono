@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mono Editor</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/themes.css">
+  <link rel="stylesheet" href="css/explorer.css">
+  <link rel="stylesheet" href="css/editor.css">
+  <link rel="stylesheet" href="css/terminal.css">
+  <link rel="stylesheet" href="css/statusbar.css">
+  <link rel="stylesheet" href="css/dialog.css">
+  <link rel="stylesheet" href="css/splash.css">
+  <link rel="stylesheet" href="css/ai-assistant.css">
+  <link rel="stylesheet" href="css/enhanced-ai-assistant.css">
+  <link rel="stylesheet" href="css/settings.css">
+  <link rel="stylesheet" href="css/debugger.css">
+  <link rel="stylesheet" href="css/package-manager.css">
+  <link rel="stylesheet" href="css/plugin-system.css">
+  <link rel="stylesheet" href="css/project-manager.css">
+  <link rel="stylesheet" href="css/theme-editor.css">
+  <link rel="stylesheet" href="css/scrolling.css">
+  <link rel="stylesheet" href="css/snippet-manager.css">
+  <link rel="stylesheet" href="css/performance.css">
+  <!-- Load Bootstrap CSS with fallback -->
+  <link rel="stylesheet" href="../node_modules/bootstrap/dist/css/bootstrap.min.css" onerror="this.onerror=null;this.href='https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css';">
+  <link rel="stylesheet" href="css/bootstrap-custom.css">
+  <!-- Monaco Editor CSS will be loaded dynamically by monaco-loader.js -->
+  <!-- Fallback Monaco CSS in case dynamic loading fails -->
+  <link rel="stylesheet" data-name="vs/editor/editor.main" href="../node_modules/monaco-editor/min/vs/editor/editor.main.css" onerror="this.onerror=null;this.href='https://cdn.jsdelivr.net/npm/monaco-editor@0.40.0/min/vs/editor/editor.main.css';">
+  <!-- Load XTerm.js -->
+  <link rel="stylesheet" href="../node_modules/xterm/css/xterm.css" onerror="this.onerror=null;this.href='https://cdn.jsdelivr.net/npm/xterm@5.2.1/css/xterm.css';">
+</head>
+<body class="theme-dark">
+  <div class="app-container">
+    <!-- Sidebar with file explorer -->
+    <div class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="logo">
+          <img src="../assets/icons/mono-logo.svg" alt="Mono Logo">
+          <span>Mono Editor</span>
+        </div>
+        <div class="sidebar-actions">
+          <button id="new-file-btn" title="New File">
+            <i class="icon icon-new-file"></i>
+          </button>
+          <button id="open-file-btn" title="Open File">
+            <i class="icon icon-open-file"></i>
+          </button>
+          <button id="open-folder-btn" title="Open Folder">
+            <i class="icon icon-open-folder"></i>
+          </button>
+        </div>
+      </div>
+      <div class="explorer-container">
+        <div class="explorer-header">
+          <span>EXPLORER</span>
+          <button id="collapse-all-btn" title="Collapse All">
+            <i class="icon icon-collapse-all"></i>
+          </button>
+        </div>
+        <div class="file-explorer" id="file-explorer">
+          <!-- File tree will be populated here -->
+          <div class="empty-explorer">
+            <p>No folder opened</p>
+            <button id="open-folder-empty-btn">Open Folder</button>
+            <div style="margin-top: 20px;">
+              <button id="test-api-btn" style="background-color: #007acc;">Test API</button>
+              <div id="api-test-result" style="margin-top: 10px; font-size: 12px;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main content area -->
+    <div class="main-content">
+      <!-- Editor and terminal container -->
+      <div class="editor-terminal-container">
+      <!-- Editor tabs -->
+      <div class="editor-tabs" id="editor-tabs">
+        <!-- Tabs will be added here -->
+        <div class="welcome-tab active" data-tab-id="welcome">
+          <span>Welcome</span>
+        </div>
+      </div>
+
+      <!-- Editor container -->
+      <div class="editor-container">
+        <!-- Welcome screen -->
+        <div class="editor-pane active" id="welcome-pane">
+          <div class="welcome-screen">
+            <div class="welcome-header">
+              <img src="../assets/icons/mono-logo.svg" alt="Mono Logo" class="welcome-logo">
+              <h1>Welcome to Mono Editor</h1>
+              <p>A modern editor for the Mono language</p>
+            </div>
+            <div class="welcome-actions">
+              <div class="action-group">
+                <h2>Start</h2>
+                <button id="welcome-new-file">New File</button>
+                <button id="welcome-open-file">Open File</button>
+                <button id="welcome-open-folder">Open Folder</button>
+              </div>
+              <div class="action-group">
+                <h2>Recent</h2>
+                <div id="recent-files">
+                  <!-- Recent files will be populated here -->
+                  <p class="no-recent">No recent files</p>
+                </div>
+              </div>
+              <div class="action-group">
+                <h2>Help</h2>
+                <button id="welcome-docs">Documentation</button>
+                <button id="welcome-samples">Sample Projects</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Monaco editor instances will be added here -->
+      </div>
+
+
+
+      <!-- Terminal resize handle -->
+      <div class="terminal-resize-handle" id="terminal-resize-handle"></div>
+
+      <!-- Terminal and Debug panel -->
+      <div class="terminal-container" id="terminal-container">
+        <div class="terminal-header">
+          <div class="terminal-view-tabs">
+            <div class="terminal-view-tab active" data-view="terminal">TERMINAL</div>
+            <div class="terminal-view-tab" data-view="debug">DEBUG</div>
+          </div>
+          <div class="terminal-actions">
+            <!-- Terminal actions -->
+            <div class="terminal-view-actions" data-view="terminal">
+              <button id="new-terminal-btn" title="New Terminal">
+                <i class="icon icon-new-terminal"></i>
+              </button>
+              <button id="clear-terminal-btn" title="Clear Terminal">
+                <i class="icon icon-clear"></i>
+              </button>
+              <button id="scroll-lock-btn" title="Scroll Lock" class="toggle-btn">
+                <i class="icon icon-scroll-lock"></i>
+              </button>
+            </div>
+            <!-- Debug actions -->
+            <div class="terminal-view-actions hidden" data-view="debug">
+              <button id="start-debug-btn" title="Start Debugging" class="debug-action-btn">
+                <i class="icon icon-debug-start"></i>
+              </button>
+              <button id="stop-debug-btn" title="Stop Debugging" class="debug-action-btn" disabled>
+                <i class="icon icon-debug-stop"></i>
+              </button>
+              <button id="continue-debug-btn" title="Continue" class="debug-action-btn" disabled>
+                <i class="icon icon-debug-continue"></i>
+              </button>
+              <button id="step-over-btn" title="Step Over" class="debug-action-btn" disabled>
+                <i class="icon icon-debug-step-over"></i>
+              </button>
+              <button id="step-into-btn" title="Step Into" class="debug-action-btn" disabled>
+                <i class="icon icon-debug-step-into"></i>
+              </button>
+              <button id="step-out-btn" title="Step Out" class="debug-action-btn" disabled>
+                <i class="icon icon-debug-step-out"></i>
+              </button>
+            </div>
+            <!-- Common actions -->
+            <button id="close-terminal-btn" title="Close Panel">
+              <i class="icon icon-close"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Terminal View -->
+        <div class="terminal-view active" data-view="terminal">
+          <div class="terminal-tabs" id="terminal-tabs">
+            <!-- Terminal tabs will be added here -->
+          </div>
+          <div class="terminal-panes" id="terminal-panes">
+            <!-- Terminal panes will be added here -->
+          </div>
+        </div>
+
+        <!-- Debug View -->
+        <div class="terminal-view" data-view="debug">
+          <div class="debug-sidebar">
+            <div class="debug-tabs">
+              <div class="debug-tab active" data-panel="variables">Variables</div>
+              <div class="debug-tab" data-panel="call-stack">Call Stack</div>
+              <div class="debug-tab" data-panel="breakpoints">Breakpoints</div>
+            </div>
+            <div class="debug-panels">
+              <div class="debug-panel active" id="debug-variables" data-panel="variables">
+                <!-- Variables will be displayed here -->
+              </div>
+              <div class="debug-panel" id="debug-call-stack" data-panel="call-stack">
+                <!-- Call stack will be displayed here -->
+              </div>
+              <div class="debug-panel" id="debug-breakpoints" data-panel="breakpoints">
+                <!-- Breakpoints will be displayed here -->
+              </div>
+            </div>
+          </div>
+          <div class="debug-console-container">
+            <div class="debug-console" id="debug-console">
+              <!-- Debug console output will be displayed here -->
+              <div class="debug-console-entry info">Debug console initialized.</div>
+              <div class="debug-console-entry info">Press F5 to start debugging.</div>
+            </div>
+            <div class="debug-console-input-container">
+              <textarea id="debug-console-input" class="debug-console-input" placeholder="Evaluate expression..."></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Status bar -->
+      <div class="status-bar">
+        <div class="status-left">
+          <span id="status-file-type">Mono</span>
+          <span id="status-file-encoding">UTF-8</span>
+          <span id="status-file-eol">LF</span>
+        </div>
+        <div class="status-right">
+          <span id="status-cursor-position">Ln 1, Col 1</span>
+          <span id="status-indentation">Spaces: 2</span>
+          <span id="status-theme">Dark</span>
+          <button id="toggle-devtools-btn" title="Toggle Developer Tools (F12)">
+            <i class="icon icon-debug">🔍</i>
+          </button>
+          <button id="toggle-ai-btn" title="Toggle AI Assistant">
+            <i class="icon icon-ai">AI</i>
+          </button>
+        </div>
+      </div>
+      </div>
+
+      <!-- AI Assistant panel -->
+      <div class="ai-assistant-container hidden" id="ai-assistant-container">
+        <div class="ai-assistant-header">
+          <div class="ai-assistant-title">Mono AI Assistant</div>
+          <div class="ai-assistant-actions">
+            <button id="close-ai-btn" title="Close AI Assistant">
+              <i class="icon icon-close">×</i>
+            </button>
+          </div>
+        </div>
+        <div class="ai-chat-container" id="ai-chat-container">
+          <!-- Chat messages will be added here -->
+        </div>
+        <div class="ai-input-container" id="ai-input-container">
+          <textarea id="ai-input-field" class="ai-input-field" placeholder="Ask me about Mono..."></textarea>
+          <button id="ai-send-button" class="ai-send-button">Send</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dialogs -->
+  <div class="dialog-overlay" id="dialog-overlay">
+    <div class="dialog" id="about-dialog">
+      <div class="dialog-header">
+        <h2>About Mono Editor</h2>
+        <button class="dialog-close-btn">×</button>
+      </div>
+      <div class="dialog-content">
+        <div class="about-logo">
+          <img src="../assets/icons/mono-logo.svg" alt="Mono Logo">
+        </div>
+        <h3>Mono Editor</h3>
+        <p>Version 1.0.0</p>
+        <p>A modern editor for the Mono language</p>
+        <p>Built with Electron and Monaco Editor</p>
+        <p>© 2023 Mono Team</p>
+      </div>
+      <div class="dialog-footer">
+        <button class="dialog-btn dialog-btn-primary">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Settings panel -->
+  <div class="settings-overlay" id="settings-overlay">
+    <div class="settings-container" id="settings-container">
+      <div class="settings-header">
+        <div class="settings-title">Settings</div>
+        <div class="settings-actions">
+          <button id="reset-settings-btn" class="secondary">Reset</button>
+          <button id="save-settings-btn" class="primary">Save</button>
+          <button id="close-settings-btn" class="secondary">Close</button>
+        </div>
+      </div>
+      <div class="settings-content">
+        <div class="settings-sidebar">
+          <div class="settings-tabs" id="settings-tabs">
+            <!-- Tabs will be added here -->
+          </div>
+        </div>
+        <div class="settings-main">
+          <div id="settings-content">
+            <!-- Settings panels will be added here -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Error Modal -->
+  <div class="modal fade" id="error-modal" tabindex="-1" role="dialog" aria-labelledby="error-modal-title" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header bg-danger text-white">
+          <h5 class="modal-title" id="error-modal-title">Error</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body" id="error-modal-body">
+          An error has occurred.
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-primary" id="error-modal-details-btn">Show Details</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Error Details Modal -->
+  <div class="modal fade" id="error-details-modal" tabindex="-1" role="dialog" aria-labelledby="error-details-modal-title" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+      <div class="modal-content">
+        <div class="modal-header bg-secondary text-white">
+          <h5 class="modal-title" id="error-details-modal-title">Error Details</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <pre id="error-details-content" class="bg-light p-3" style="max-height: 400px; overflow-y: auto;"></pre>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-primary" id="error-details-copy-btn">Copy to Clipboard</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <!-- jQuery and Bootstrap with fallbacks -->
+  <script>
+    // Check if jQuery is loaded from node_modules
+    window.addEventListener('error', function(e) {
+      if (e.target.src && e.target.src.includes('jquery.min.js')) {
+        console.error('Failed to load jQuery from node_modules, loading from CDN');
+        var script = document.createElement('script');
+        script.src = 'https://code.jquery.com/jquery-3.7.1.min.js';
+        script.integrity = 'sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=';
+        script.crossOrigin = 'anonymous';
+        document.head.appendChild(script);
+        e.preventDefault();
+      }
+      if (e.target.src && (e.target.src.includes('popper.min.js') || e.target.src.includes('popperjs'))) {
+        console.error('Failed to load Popper.js, loading from CDN');
+        var script = document.createElement('script');
+        script.src = 'https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js';
+        script.integrity = 'sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r';
+        script.crossOrigin = 'anonymous';
+        document.head.appendChild(script);
+        e.preventDefault();
+      }
+      if (e.target.src && e.target.src.includes('bootstrap.min.js')) {
+        console.error('Failed to load Bootstrap from node_modules, loading from CDN');
+        var script = document.createElement('script');
+        script.src = 'https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js';
+        script.integrity = 'sha384-BBtl+eGJRgqQAUMxJ7pMwbEyER4l1g+O15P+16Ep7Q9Q+zqX6gSbd85u4mG4QzX+';
+        script.crossOrigin = 'anonymous';
+        document.head.appendChild(script);
+        e.preventDefault();
+      }
+    }, true);
+  </script>
+  <script src="../node_modules/jquery/dist/jquery.min.js"></script>
+  <!-- Use CDN for Popper.js core instead of the outdated popper.js package -->
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
+  <script src="../node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
+
+  <!-- Performance monitoring - load this first -->
+  <script src="js/performance-monitor.js"></script>
+
+  <!-- Error handling system - load early -->
+  <script src="js/error-handler.js"></script>
+
+  <!-- Module shim for browser compatibility -->
+  <script src="js/module-shim.js"></script>
+
+  <!-- Monaco Editor - Custom Loader -->
+  <script src="js/monaco-loader.js"></script>
+
+  <!-- XTerm.js -->
+  <script src="../node_modules/xterm/lib/xterm.js"></script>
+  <script src="../node_modules/xterm-addon-fit/lib/xterm-addon-fit.js"></script>
+
+  <!-- API Test script - load this early to ensure it's available -->
+  <script src="js/api-test.js"></script>
+
+  <!-- jQuery utilities - load before other application scripts -->
+  <script src="js/jquery-utils.js"></script>
+
+  <!-- Application scripts -->
+  <script src="js/themes.js"></script>
+  <script src="js/explorer.js"></script>
+  <script src="js/editor.js"></script>
+  <script src="js/terminal-view.js"></script>
+  <script src="js/terminal.js"></script>
+  <script src="js/mono-language.js"></script>
+  <script src="js/diagnostic-highlighter.js"></script>
+  <script src="js/splash.js"></script>
+  <script src="js/ai-assistant.js"></script>
+  <script src="js/enhanced-ai-assistant.js"></script>
+  <script src="js/settings.js"></script>
+  <script src="js/debugger.js"></script>
+  <script src="js/package-manager.js"></script>
+  <script src="js/package-ui.js"></script>
+  <script src="js/plugin-system.js"></script>
+  <script src="js/plugin-marketplace.js"></script>
+  <script src="js/project-manager.js"></script>
+  <script src="js/theme-editor.js"></script>
+  <script src="js/scrolling.js"></script>
+  <script src="js/file-operations.js"></script>
+  <script src="js/snippet-manager.js"></script>
+  <script src="js/devtools.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,95 @@
+//  __  __                   
+// |  \/  | ___  _ __   ___  
+// | |\/| |/ _ \| '_ \ / _ \ 
+// | |  | | (_) | | | | (_) |
+// |_|  |_|\___/|_| |_|\___/ 
+//                           
+// Card Component
+
+component Card {
+    state {
+        title: string = "",
+        subtitle: string = "",
+        icon: string = "",
+        iconColor: string = "primary",
+        value: string = "",
+        change: number = 0,
+        loading: boolean = false
+    }
+    
+    function constructor(props) {
+        // Initialize the component with props
+        if (props) {
+            if (props.title) {
+                this.state.title = props.title;
+            }
+            
+            if (props.subtitle) {
+                this.state.subtitle = props.subtitle;
+            }
+            
+            if (props.icon) {
+                this.state.icon = props.icon;
+            }
+            
+            if (props.iconColor) {
+                this.state.iconColor = props.iconColor;
+            }
+            
+            if (props.value) {
+                this.state.value = props.value;
+            }
+            
+            if (props.change !== undefined) {
+                this.state.change = props.change;
+            }
+            
+            if (props.loading !== undefined) {
+                this.state.loading = props.loading;
+            }
+        }
+    }
+    
+    function render() {
+        // Create the component
+        var card = switch.component("Card", {
+            title: this.state.title,
+            subtitle: this.state.subtitle,
+            icon: this.state.icon,
+            iconColor: this.state.iconColor,
+            value: this.state.value,
+            change: this.state.change,
+            loading: this.state.loading
+        });
+        
+        // Return the HTML
+        return `
+            <div class="card stat-card">
+                <div class="card-body">
+                    ${this.state.loading ? 
+                        '<div class="card-loading"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div></div>' : 
+                        `<div class="card-content">
+                            <div class="card-icon text-${this.state.iconColor}">
+                                <i class="bi ${this.state.icon}"></i>
+                            </div>
+                            <div class="card-details">
+                                <h5 class="card-title">${this.state.title}</h5>
+                                <p class="card-subtitle">${this.state.subtitle}</p>
+                                <div class="card-value">${this.state.value}</div>
+                                ${this.state.change !== 0 ? 
+                                    `<div class="card-change ${this.state.change > 0 ? 'text-success' : 'text-danger'}">
+                                        <i class="bi ${this.state.change > 0 ? 'bi-arrow-up' : 'bi-arrow-down'}"></i>
+                                        ${Math.abs(this.state.change)}%
+                                    </div>` : 
+                                    ''}
+                            </div>
+                        </div>`
+                    }
+                </div>
+            </div>
+        `;
+    }
+}
+
+// Export the component
+export Card;

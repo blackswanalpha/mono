@@ -1,0 +1,671 @@
+//  __  __                   
+// |  \/  | ___  _ __   ___  
+// | |\/| |/ _ \| '_ \ / _ \ 
+// | |  | | (_) | | | | (_) |
+// |_|  |_|\___/|_| |_|\___/ 
+//                           
+// Switch Introduction Example
+
+component Main {
+    function start() {
+        print "=== Switch Introduction Example ===";
+        
+        // Configure routes
+        http.get("/", "handleRoot");
+        http.get("/static/(.*)", "handleStatic");
+        
+        // Start the server
+        http.start();
+    }
+    
+    function handleRoot(req, res) {
+        print "Handling request to /";
+        
+        // Create the introduction page
+        var intro = new IntroductionPage();
+        
+        // Render the page
+        var html = switch.render(
+            "Introduction to Switch-Mono Language", 
+            [
+                "https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js",
+                "https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js",
+                "https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js",
+                "/static/js/app.js"
+            ], 
+            [
+                "https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css",
+                "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css",
+                "https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-okaidia.min.css",
+                "/static/css/app.css"
+            ]
+        );
+        
+        // Send the response
+        res.html(html);
+    }
+    
+    function handleStatic(req, res, params) {
+        print "Handling request to /static/", params[0];
+        
+        // Get the file path
+        var filePath = params[0];
+        
+        // Check if the file exists
+        if (filePath === "js/app.js") {
+            res.header("Content-Type", "application/javascript");
+            res.text(`
+                // App JavaScript
+                console.log('Switch Introduction Example loaded');
+                
+                // Initialize the application when the DOM is ready
+                document.addEventListener('DOMContentLoaded', function() {
+                    console.log('DOM ready');
+                    
+                    // Initialize code highlighting
+                    if (window.Prism) {
+                        Prism.highlightAll();
+                    }
+                });
+            `);
+            return;
+        } else if (filePath === "css/app.css") {
+            res.header("Content-Type", "text/css");
+            res.text(`
+                /* App styles */
+                body {
+                    padding-top: 2rem;
+                    padding-bottom: 2rem;
+                }
+                
+                .header {
+                    margin-bottom: 2rem;
+                    border-bottom: 1px solid #e5e5e5;
+                    padding-bottom: 1rem;
+                }
+                
+                .section {
+                    margin-bottom: 3rem;
+                }
+                
+                .code-example {
+                    margin-bottom: 1.5rem;
+                }
+                
+                .component-example {
+                    border: 1px solid #e5e5e5;
+                    border-radius: 0.25rem;
+                    padding: 1rem;
+                    margin-bottom: 1rem;
+                }
+                
+                .component-code {
+                    margin-top: 1rem;
+                }
+                
+                .toc {
+                    position: sticky;
+                    top: 2rem;
+                }
+                
+                .toc-list {
+                    list-style: none;
+                    padding-left: 0;
+                }
+                
+                .toc-item {
+                    margin-bottom: 0.5rem;
+                }
+                
+                .toc-link {
+                    text-decoration: none;
+                }
+                
+                .toc-link:hover {
+                    text-decoration: underline;
+                }
+            `);
+            return;
+        }
+        
+        // File not found
+        res.status(404);
+        res.text("File not found");
+    }
+}
+
+component IntroductionPage {
+    function render() {
+        // Create the component
+        var intro = switch.component("IntroductionPage", {});
+        
+        // Return the HTML
+        return `
+            <div class="container">
+                <div class="header">
+                    <h1>Introduction to Switch-Mono Language</h1>
+                    <p class="lead">A comprehensive guide to the Switch-Mono language and framework.</p>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="toc">
+                            <h5>Table of Contents</h5>
+                            <ul class="toc-list">
+                                <li class="toc-item"><a href="#introduction" class="toc-link">Introduction</a></li>
+                                <li class="toc-item"><a href="#components" class="toc-link">Components</a></li>
+                                <li class="toc-item"><a href="#state" class="toc-link">State Management</a></li>
+                                <li class="toc-item"><a href="#events" class="toc-link">Event Handling</a></li>
+                                <li class="toc-item"><a href="#packages" class="toc-link">Packages</a></li>
+                                <li class="toc-item"><a href="#kits" class="toc-link">UI Kits</a></li>
+                                <li class="toc-item"><a href="#routing" class="toc-link">Routing</a></li>
+                                <li class="toc-item"><a href="#ssr" class="toc-link">Server-Side Rendering</a></li>
+                                <li class="toc-item"><a href="#examples" class="toc-link">Examples</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-9">
+                        ${this.renderIntroduction()}
+                        ${this.renderComponents()}
+                        ${this.renderState()}
+                        ${this.renderEvents()}
+                        ${this.renderPackages()}
+                        ${this.renderKits()}
+                        ${this.renderRouting()}
+                        ${this.renderSSR()}
+                        ${this.renderExamples()}
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+    
+    function renderIntroduction() {
+        return `
+            <div id="introduction" class="section">
+                <h2>Introduction</h2>
+                <p>Switch-Mono is a modern web framework for building interactive applications. It combines the power of the Mono language with the flexibility of the Switch framework to provide a seamless development experience.</p>
+                
+                <div class="code-example">
+                    <h5>Hello World Example</h5>
+                    <pre><code class="language-javascript">component HelloWorld {
+    state {
+        message: string = "Hello, World!"
+    }
+    
+    function render() {
+        return \`
+            <div>
+                <h1>\${this.state.message}</h1>
+                <p>Welcome to Switch-Mono!</p>
+            </div>
+        \`;
+    }
+}</code></pre>
+                </div>
+            </div>
+        `;
+    }
+    
+    function renderComponents() {
+        return `
+            <div id="components" class="section">
+                <h2>Components</h2>
+                <p>Components are the building blocks of Switch applications. They encapsulate state and behavior, and can be composed to create complex UIs.</p>
+                
+                <div class="code-example">
+                    <h5>Basic Component</h5>
+                    <pre><code class="language-javascript">component Button {
+    state {
+        text: string = "Click Me",
+        variant: string = "primary"
+    }
+    
+    function constructor(props) {
+        if (props) {
+            if (props.text) {
+                this.state.text = props.text;
+            }
+            
+            if (props.variant) {
+                this.state.variant = props.variant;
+            }
+        }
+    }
+    
+    function render() {
+        return \`
+            <button class="btn btn-\${this.state.variant}">
+                \${this.state.text}
+            </button>
+        \`;
+    }
+}</code></pre>
+                </div>
+                
+                <div class="component-example">
+                    <h5>Component Example</h5>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-primary">Primary</button>
+                        <button class="btn btn-secondary">Secondary</button>
+                        <button class="btn btn-success">Success</button>
+                        <button class="btn btn-danger">Danger</button>
+                    </div>
+                    
+                    <div class="component-code">
+                        <pre><code class="language-javascript">// Usage
+var primaryButton = new Button({ text: "Primary", variant: "primary" });
+var secondaryButton = new Button({ text: "Secondary", variant: "secondary" });
+var successButton = new Button({ text: "Success", variant: "success" });
+var dangerButton = new Button({ text: "Danger", variant: "danger" });
+
+// Render
+primaryButton.render();
+secondaryButton.render();
+successButton.render();
+dangerButton.render();</code></pre>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+    
+    function renderState() {
+        return `
+            <div id="state" class="section">
+                <h2>State Management</h2>
+                <p>State management is a core concept in Switch. Components can have their own state, which can be updated to trigger re-renders.</p>
+                
+                <div class="code-example">
+                    <h5>State Example</h5>
+                    <pre><code class="language-javascript">component Counter {
+    state {
+        count: number = 0
+    }
+    
+    function increment() {
+        this.state.count += 1;
+    }
+    
+    function decrement() {
+        this.state.count -= 1;
+    }
+    
+    function render() {
+        // Register event handlers
+        switch.clientEvent("click", "handleClick");
+        
+        return \`
+            <div class="counter">
+                <h3>Counter: \${this.state.count}</h3>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-primary" data-action="increment" data-event="click">Increment</button>
+                    <button class="btn btn-danger" data-action="decrement" data-event="click">Decrement</button>
+                </div>
+            </div>
+        \`;
+    }
+    
+    function handleClick(event) {
+        if (event.target.dataset.action === "increment") {
+            this.increment();
+        } else if (event.target.dataset.action === "decrement") {
+            this.decrement();
+        }
+    }
+}</code></pre>
+                </div>
+            </div>
+        `;
+    }
+    
+    function renderEvents() {
+        return `
+            <div id="events" class="section">
+                <h2>Event Handling</h2>
+                <p>Switch provides a simple way to handle events in components. You can register event handlers and respond to user interactions.</p>
+                
+                <div class="code-example">
+                    <h5>Event Handling Example</h5>
+                    <pre><code class="language-javascript">component Form {
+    state {
+        name: string = "",
+        email: string = "",
+        message: string = ""
+    }
+    
+    function handleSubmit(event) {
+        event.preventDefault();
+        
+        // Process form data
+        console.log("Form submitted:", {
+            name: this.state.name,
+            email: this.state.email,
+            message: this.state.message
+        });
+        
+        // Reset form
+        this.state.name = "";
+        this.state.email = "";
+        this.state.message = "";
+    }
+    
+    function handleInput(event) {
+        const field = event.target.name;
+        const value = event.target.value;
+        
+        this.state[field] = value;
+    }
+    
+    function render() {
+        // Register event handlers
+        switch.clientEvent("submit", "handleSubmit");
+        switch.clientEvent("input", "handleInput");
+        
+        return \`
+            <form data-event="submit">
+                <div class="mb-3">
+                    <label for="name" class="form-label">Name</label>
+                    <input type="text" class="form-control" id="name" name="name" value="\${this.state.name}" data-event="input">
+                </div>
+                
+                <div class="mb-3">
+                    <label for="email" class="form-label">Email</label>
+                    <input type="email" class="form-control" id="email" name="email" value="\${this.state.email}" data-event="input">
+                </div>
+                
+                <div class="mb-3">
+                    <label for="message" class="form-label">Message</label>
+                    <textarea class="form-control" id="message" name="message" rows="3" data-event="input">\${this.state.message}</textarea>
+                </div>
+                
+                <button type="submit" class="btn btn-primary">Submit</button>
+            </form>
+        \`;
+    }
+}</code></pre>
+                </div>
+            </div>
+        `;
+    }
+    
+    function renderPackages() {
+        return `
+            <div id="packages" class="section">
+                <h2>Packages</h2>
+                <p>Packages are individual units of reusable code or libraries. They are managed via a package manager and focus on solving narrow technical problems.</p>
+                
+                <div class="code-example">
+                    <h5>Package Example</h5>
+                    <pre><code class="language-javascript">package http-client {
+    version "1.0.0"
+    description "HTTP client for Switch applications"
+    author "Switch Team"
+    license "MIT"
+    
+    // Dependencies
+    depends {
+        switch-core version "^1.0.0"
+    }
+    
+    // Exports
+    export {
+        HttpClient
+        HttpResponse
+        HttpRequest
+    }
+    
+    // Implementation
+    class HttpClient {
+        function get(url) {
+            // Implementation
+        }
+        
+        function post(url, data) {
+            // Implementation
+        }
+        
+        function put(url, data) {
+            // Implementation
+        }
+        
+        function delete(url) {
+            // Implementation
+        }
+    }
+}</code></pre>
+                </div>
+                
+                <div class="code-example">
+                    <h5>Using Packages</h5>
+                    <pre><code class="language-javascript">// Import the package
+import "http-client.pkg"
+
+component ApiClient {
+    state {
+        client: object = new HttpClient(),
+        data: array = [],
+        loading: boolean = false,
+        error: string = ""
+    }
+    
+    function fetchData() {
+        this.state.loading = true;
+        this.state.error = "";
+        
+        this.state.client.get("/api/data")
+            .then(response => {
+                this.state.data = response.data;
+                this.state.loading = false;
+            })
+            .catch(error => {
+                this.state.error = error.message;
+                this.state.loading = false;
+            });
+    }
+}</code></pre>
+                </div>
+            </div>
+        `;
+    }
+    
+    function renderKits() {
+        return `
+            <div id="kits" class="section">
+                <h2>UI Kits</h2>
+                <p>UI Kits are collections of reusable UI components that follow a consistent design system. They help you build beautiful and consistent user interfaces.</p>
+                
+                <div class="code-example">
+                    <h5>UI Kit Example</h5>
+                    <pre><code class="language-javascript">kit SwitchUIKit {
+    version "1.0.0"
+    description "UI Kit for Switch applications"
+    author "Switch Team"
+    license "MIT"
+    
+    // Dependencies
+    depends {
+        switch-core version "^1.0.0"
+    }
+    
+    // Components
+    components {
+        Button
+        Card
+        Alert
+        Modal
+        Tabs
+        Dropdown
+        Form
+    }
+    
+    // Styles
+    styles {
+        "switch-ui-kit.css"
+    }
+    
+    // Scripts
+    scripts {
+        "switch-ui-kit.js"
+    }
+}</code></pre>
+                </div>
+                
+                <div class="code-example">
+                    <h5>Using UI Kits</h5>
+                    <pre><code class="language-javascript">// Import the UI Kit
+import kit SwitchUIKit
+
+component App {
+    function render() {
+        // Create UI Kit components
+        var button = new SwitchUIKit.Button({
+            text: "Click Me",
+            variant: "primary"
+        });
+        
+        var card = new SwitchUIKit.Card({
+            title: "Card Title",
+            content: "Card content goes here."
+        });
+        
+        var alert = new SwitchUIKit.Alert({
+            type: "success",
+            message: "Operation completed successfully!"
+        });
+        
+        // Render the components
+        return \`
+            <div>
+                \${button.render()}
+                \${card.render()}
+                \${alert.render()}
+            </div>
+        \`;
+    }
+}</code></pre>
+                </div>
+            </div>
+        `;
+    }
+    
+    function renderRouting() {
+        return `
+            <div id="routing" class="section">
+                <h2>Routing</h2>
+                <p>Switch provides a simple routing system for building single-page applications. You can define routes and render different components based on the current URL.</p>
+                
+                <div class="code-example">
+                    <h5>Routing Example</h5>
+                    <pre><code class="language-javascript">// Define routes
+routes {
+    // Home page
+    get "/" {
+        render "home" {
+            title "Home Page"
+            scripts ["/static/js/app.js"]
+            styles ["/static/css/app.css"]
+        }
+    }
+    
+    // About page
+    get "/about" {
+        render "about" {
+            title "About Page"
+            scripts ["/static/js/app.js"]
+            styles ["/static/css/app.css"]
+        }
+    }
+    
+    // API routes
+    group "/api" {
+        // Get data
+        get "/data" {
+            json {
+                status "success"
+                data [
+                    { id: 1, name: "Item 1" },
+                    { id: 2, name: "Item 2" },
+                    { id: 3, name: "Item 3" }
+                ]
+            }
+        }
+    }
+}</code></pre>
+                </div>
+            </div>
+        `;
+    }
+    
+    function renderSSR() {
+        return `
+            <div id="ssr" class="section">
+                <h2>Server-Side Rendering</h2>
+                <p>Switch supports server-side rendering (SSR) for improved performance and SEO. You can render components on the server and hydrate them on the client.</p>
+                
+                <div class="code-example">
+                    <h5>SSR Example</h5>
+                    <pre><code class="language-javascript">// Server-side rendering
+function handleRoot(req, res) {
+    // Create the app
+    var app = new App({
+        currentPage: "home"
+    });
+    
+    // Render the app
+    var html = switch.render("Home Page", ["/static/js/app.js"], ["/static/css/app.css"]);
+    
+    // Send the response
+    res.html(html);
+}</code></pre>
+                </div>
+            </div>
+        `;
+    }
+    
+    function renderExamples() {
+        return `
+            <div id="examples" class="section">
+                <h2>Examples</h2>
+                <p>Here are some examples of Switch UI components:</p>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title">Card Component</h5>
+                            </div>
+                            <div class="card-body">
+                                <p>This is a card component from the Switch UI Kit.</p>
+                                <button class="btn btn-primary">Action</button>
+                            </div>
+                            <div class="card-footer">
+                                <small class="text-muted">Last updated 3 mins ago</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6 mb-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title">Alert Component</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="alert alert-success">
+                                    <i class="bi bi-check-circle-fill me-2"></i>
+                                    Operation completed successfully!
+                                </div>
+                                
+                                <div class="alert alert-danger">
+                                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                                    An error occurred. Please try again.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+}

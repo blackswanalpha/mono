@@ -1,0 +1,281 @@
+#!/usr/bin/env python3
+"""
+Switch - Command-line tool for the Switch framework
+
+Usage:
+    switch <command> [options] [arguments]
+
+Commands:
+    run         Run a Switch application
+    build       Build a Switch application for production
+    create      Create a new Switch application
+    deploy      Deploy a Switch application
+    component   Generate a new component
+    page        Generate a new page
+    store       Generate a store module
+    pkg         Manage packages
+    kit         Manage kits
+    help        Show help information
+
+Run 'switch help <command>' for more information on a specific command.
+"""
+
+import os
+import sys
+import argparse
+import subprocess
+from pathlib import Path
+
+# Add the parent directory to the path
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+
+# Import the Switch modules
+from lib.switch_cli import (
+    run_command,
+    build_command,
+    create_command,
+    deploy_command,
+    component_command,
+    page_command,
+    store_command
+)
+
+def show_help(command=None):
+    """Show help information."""
+    if command is None:
+        print(__doc__)
+        return
+    
+    # Show help for a specific command
+    if command == "run":
+        print("""
+Switch Run - Run a Switch application
+
+Usage:
+    switch run [options] <app>
+    switch run dev <app>
+    switch run prod <app>
+
+Arguments:
+    app               Application name or file to run
+
+Options:
+    --port PORT       Port to run the server on (default: 8000)
+    --host HOST       Host to run the server on (default: localhost)
+    --ssr             Enable server-side rendering
+    --hmr             Enable hot module replacement
+    --reload          Enable live reloading
+    --workers N       Number of worker processes (default: 1)
+    --debug           Enable debug mode
+    --no-kits         Disable kit integration
+    --env FILE        Environment file to use (default: .env)
+
+Shortcuts:
+    dev               Shortcut for --hmr --reload --debug
+    prod              Shortcut for --prod
+""")
+    elif command == "build":
+        print("""
+Switch Build - Build a Switch application for production
+
+Usage:
+    switch build [options] <app>
+
+Arguments:
+    app               Application name or file to build
+
+Options:
+    --output DIR      Output directory (default: dist)
+    --minify          Minify the output
+    --sourcemaps      Generate source maps
+    --no-kits         Disable kit integration
+    --verbose         Show verbose output
+""")
+    elif command == "create":
+        print("""
+Switch Create - Create a new Switch application
+
+Usage:
+    switch create [options] <name>
+
+Arguments:
+    name              Application name
+
+Options:
+    --template NAME   Template to use (default: app)
+                      Available templates: app, dashboard
+    --directory DIR   Directory to create the application in (default: current directory)
+    --dev             Create a development-ready application with additional tools
+    --verbose         Show verbose output
+""")
+    elif command == "deploy":
+        print("""
+Switch Deploy - Deploy a Switch application
+
+Usage:
+    switch deploy [options] <directory>
+
+Arguments:
+    directory         Directory containing the Switch application
+
+Options:
+    --platform NAME   Platform to deploy to (default: vercel)
+                      Available platforms: vercel, netlify, aws
+    --name NAME       Project name (default: directory name)
+    --prod            Deploy to production
+    --no-build        Skip the build step
+    --no-deploy       Prepare for deployment but don't deploy
+""")
+    elif command == "component":
+        print("""
+Switch Component - Generate a new component
+
+Usage:
+    switch component [options] <name>
+
+Arguments:
+    name              Component name
+
+Options:
+    --directory DIR   Directory to create the component in (default: src/components)
+    --force           Overwrite existing files
+""")
+    elif command == "page":
+        print("""
+Switch Page - Generate a new page
+
+Usage:
+    switch page [options] <name>
+
+Arguments:
+    name              Page name
+
+Options:
+    --directory DIR   Directory to create the page in (default: src/pages)
+    --force           Overwrite existing files
+""")
+    elif command == "store":
+        print("""
+Switch Store - Generate a store module
+
+Usage:
+    switch store [options] <name>
+
+Arguments:
+    name              Store module name
+
+Options:
+    --directory DIR   Directory to create the store module in (default: src/store)
+    --force           Overwrite existing files
+""")
+    elif command == "pkg":
+        print("""
+Switch Package - Manage packages
+
+Usage:
+    switch pkg <command> [options] [arguments]
+
+Commands:
+    install     Install a package
+    uninstall   Uninstall a package
+    list        List installed packages
+    search      Search for packages
+    publish     Publish a package
+    update      Update packages
+
+Run 'switch pkg help <command>' for more information on a specific command.
+""")
+    elif command == "kit":
+        print("""
+Switch Kit - Manage kits
+
+Usage:
+    switch kit <command> [options] [arguments]
+
+Commands:
+    install     Install a kit
+    uninstall   Uninstall a kit
+    list        List installed kits
+    search      Search for kits
+    publish     Publish a kit
+    update      Update kits
+
+Run 'switch kit help <command>' for more information on a specific command.
+""")
+    else:
+        print(f"Unknown command: {command}")
+        print("Run 'switch help' for a list of commands.")
+
+def run_app(args):
+    """Run a Switch application."""
+    # Check if the first argument is "dev" or "prod"
+    mode = None
+    if args and args[0] in ["dev", "prod"]:
+        mode = args.pop(0)
+    
+    # Create a new argument list
+    new_args = []
+    
+    # Add the mode options
+    if mode == "dev":
+        new_args.extend(["--hmr", "--reload", "--debug"])
+    elif mode == "prod":
+        new_args.append("--prod")
+    
+    # Add the remaining arguments
+    new_args.extend(args)
+    
+    # Run the command
+    return run_command(new_args)
+
+def main():
+    """Main entry point."""
+    # Parse command-line arguments
+    parser = argparse.ArgumentParser(description="Switch CLI", add_help=False)
+    parser.add_argument("command", nargs="?", help="Command to run")
+    parser.add_argument("args", nargs=argparse.REMAINDER, help="Command arguments")
+    
+    args = parser.parse_args()
+    
+    # Show help if no command is provided
+    if not args.command or args.command == "help":
+        if args.args:
+            show_help(args.args[0])
+        else:
+            show_help()
+        return 0
+    
+    # Handle different commands
+    try:
+        if args.command == "run":
+            return run_app(args.args)
+        elif args.command == "build":
+            return build_command(args.args)
+        elif args.command == "create":
+            return create_command(args.args)
+        elif args.command == "deploy":
+            return deploy_command(args.args)
+        elif args.command == "component":
+            return component_command(args.args)
+        elif args.command == "page":
+            return page_command(args.args)
+        elif args.command == "store":
+            return store_command(args.args)
+        elif args.command == "pkg":
+            # TODO: Implement package commands
+            print("Package management is not yet implemented")
+            return 1
+        elif args.command == "kit":
+            # TODO: Implement kit commands
+            print("Kit management is not yet implemented")
+            return 1
+        else:
+            print(f"Unknown command: {args.command}")
+            print("Run 'switch help' for a list of commands.")
+            return 1
+    except Exception as e:
+        print(f"Error: {str(e)}")
+        return 1
+
+if __name__ == "__main__":
+    sys.exit(main())

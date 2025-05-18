@@ -1,0 +1,17 @@
+{
+  "port": 5555,
+  "host": "localhost",
+  "debug": false,
+  "reload": false,
+  "hmr": false,
+  "ssr": false,
+  "hydrate": false,
+  "appName": "my-switch-app",
+  "rootDir": "/home/hp/Documents/augment-projects/mono/my-switch-app",
+  "srcDir": "/home/hp/Documents/augment-projects/mono/my-switch-app/src",
+  "componentsDir": "/home/hp/Documents/augment-projects/mono/my-switch-app/src/components",
+  "pagesDir": "/home/hp/Documents/augment-projects/mono/my-switch-app/src/pages",
+  "staticDir": "/home/hp/Documents/augment-projects/mono/my-switch-app/src/static",
+  "layoutsDir": "/home/hp/Documents/augment-projects/mono/my-switch-app/src/layouts",
+  "framesDir": "/home/hp/Documents/augment-projects/mono/my-switch-app/src/frames"
+}

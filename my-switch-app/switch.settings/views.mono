@@ -1,0 +1,46 @@
+//  __  __                   
+// |  \/  | ___  _ __   ___  
+// | |\/| |/ _ \| '_ \ / _ \ 
+// | |  | | (_) | | | | (_) |
+// |_|  |_|\___/|_| |_|\___/ 
+//                           
+// Switch Views
+
+// Define views
+views {
+    // Home view
+    view "home" {
+        component "App" {
+            props {
+                currentPage "home"
+            }
+        }
+    }
+    
+    // About view
+    view "about" {
+        component "App" {
+            props {
+                currentPage "about"
+            }
+        }
+    }
+    
+    // Package management view
+    view "packages" {
+        component "App" {
+            props {
+                currentPage "packages"
+            }
+        }
+    }
+    
+    // Kit management view
+    view "kits" {
+        component "App" {
+            props {
+                currentPage "kits"
+            }
+        }
+    }
+}

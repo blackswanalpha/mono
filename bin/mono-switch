@@ -1,0 +1,79 @@
+#!/usr/bin/env python3
+"""
+Mono Switch - Run Mono applications with the Switch frontend framework
+
+Usage:
+    mono-switch [options] <file>
+
+Options:
+    --ssr       Enable server-side rendering
+    --hmr       Enable hot module replacement
+    --dev       Enable development mode (equivalent to --hmr)
+    --prod      Enable production mode (disables development features)
+    --no-kits   Disable kit integration
+    --debug     Enable debug mode (shows detailed error messages)
+"""
+
+import os
+import sys
+import argparse
+from pathlib import Path
+
+# Add the parent directory to the path
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+
+# Import the Switch interpreter
+from lib.switch_interpreter import SwitchInterpreter
+
+def main():
+    """Run a Mono application with the Switch frontend framework."""
+    # Parse command-line arguments
+    parser = argparse.ArgumentParser(description='Run Mono applications with the Switch frontend framework')
+    parser.add_argument('file', help='Mono script file to run')
+    parser.add_argument('--ssr', action='store_true', help='Enable server-side rendering')
+    parser.add_argument('--hmr', action='store_true', help='Enable hot module replacement')
+    parser.add_argument('--dev', action='store_true', help='Enable development mode (equivalent to --hmr)')
+    parser.add_argument('--prod', action='store_true', help='Enable production mode (disables development features)')
+    parser.add_argument('--no-kits', action='store_true', help='Disable kit integration')
+    parser.add_argument('--debug', action='store_true', help='Enable debug mode (shows detailed error messages)')
+    args = parser.parse_args()
+
+    # Check if the file exists
+    if not os.path.exists(args.file):
+        print(f"Error: File not found: {args.file}")
+        sys.exit(1)
+
+    # Determine mode
+    use_ssr = args.ssr
+    use_hmr = args.hmr or args.dev
+    use_kits = not args.no_kits
+    debug = args.debug or args.dev
+
+    # Production mode disables development features
+    if args.prod:
+        use_hmr = False
+        debug = False
+
+    # Create the Switch interpreter
+    interpreter = SwitchInterpreter(use_ssr=use_ssr, use_hmr=use_hmr, use_kits=use_kits, debug=debug)
+
+    # Parse the file
+    try:
+        interpreter.parse_file(args.file)
+
+        # Run the interpreter
+        interpreter.run()
+    except Exception as e:
+        if debug:
+            # Print detailed error information in debug mode
+            import traceback
+            print(f"Error: {str(e)}")
+            print(traceback.format_exc())
+        else:
+            # Print simple error message in production mode
+            print(f"Error: {str(e)}")
+            print("Run with --debug for more information.")
+        sys.exit(1)
+
+if __name__ == '__main__':
+    main()

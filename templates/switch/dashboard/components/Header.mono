@@ -1,0 +1,114 @@
+//  __  __                   
+// |  \/  | ___  _ __   ___  
+// | |\/| |/ _ \| '_ \ / _ \ 
+// | |  | | (_) | | | | (_) |
+// |_|  |_|\___/|_| |_|\___/ 
+//                           
+// Header Component
+
+component Header {
+    state {
+        title: string = "{{APP_NAME}}",
+        user: object = {
+            name: "Admin User",
+            email: "admin@example.com",
+            avatar: "/static/img/avatar.png"
+        },
+        sidebarCollapsed: boolean = false,
+        darkMode: boolean = false,
+        dropdownOpen: boolean = false
+    }
+    
+    function constructor(props) {
+        // Initialize the component with props
+        if (props) {
+            if (props.title) {
+                this.state.title = props.title;
+            }
+            
+            if (props.user) {
+                this.state.user = props.user;
+            }
+            
+            if (props.sidebarCollapsed !== undefined) {
+                this.state.sidebarCollapsed = props.sidebarCollapsed;
+            }
+            
+            if (props.darkMode !== undefined) {
+                this.state.darkMode = props.darkMode;
+            }
+        }
+    }
+    
+    function toggleDropdown() {
+        this.state.dropdownOpen = !this.state.dropdownOpen;
+    }
+    
+    function render() {
+        // Register client-side event handlers
+        switch.clientEvent("click", "handleClick");
+        
+        // Create the component
+        var header = switch.component("Header", {
+            title: this.state.title,
+            user: this.state.user,
+            sidebarCollapsed: this.state.sidebarCollapsed,
+            darkMode: this.state.darkMode,
+            dropdownOpen: this.state.dropdownOpen
+        });
+        
+        // Return the HTML
+        return `
+            <header class="header">
+                <div class="container-fluid">
+                    <div class="header-content">
+                        <div class="header-left">
+                            <h1 class="header-title">${this.state.title}</h1>
+                        </div>
+                        
+                        <div class="header-right">
+                            <div class="header-actions">
+                                <button class="btn btn-icon" data-action="toggle-dark-mode" data-event="click">
+                                    <i class="bi ${this.state.darkMode ? 'bi-sun' : 'bi-moon'}"></i>
+                                </button>
+                                
+                                <div class="dropdown ${this.state.dropdownOpen ? 'show' : ''}">
+                                    <button class="btn dropdown-toggle" data-action="toggle-dropdown" data-event="click">
+                                        <img src="${this.state.user.avatar}" alt="${this.state.user.name}" class="avatar">
+                                        <span class="user-name">${this.state.user.name}</span>
+                                    </button>
+                                    
+                                    <div class="dropdown-menu ${this.state.dropdownOpen ? 'show' : ''}">
+                                        <div class="dropdown-header">
+                                            <strong>${this.state.user.name}</strong>
+                                            <p>${this.state.user.email}</p>
+                                        </div>
+                                        <div class="dropdown-divider"></div>
+                                        <a href="/settings" class="dropdown-item" data-page="settings" data-event="click">
+                                            <i class="bi bi-gear"></i> Settings
+                                        </a>
+                                        <a href="/logout" class="dropdown-item">
+                                            <i class="bi bi-box-arrow-right"></i> Logout
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+        `;
+    }
+    
+    function handleClick(event) {
+        // Check if this is a dropdown toggle
+        if (event.target.dataset.action === "toggle-dropdown" || 
+            event.target.closest("[data-action='toggle-dropdown']")) {
+            event.preventDefault();
+            this.toggleDropdown();
+        }
+    }
+}
+
+// Export the component
+export Header;

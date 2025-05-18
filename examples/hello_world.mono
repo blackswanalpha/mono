@@ -1,0 +1,29 @@
+//  __  __
+// |  \/  | ___  _ __   ___
+// | |\/| |/ _ \| '_ \ / _ \
+// | |  | | (_) | | | | (_) |
+// |_|  |_|\___/|_| |_|\___/
+//
+// Hello World Example
+
+component Main {
+    function start() {
+        print "Starting Hello World Web Server...";
+
+        // Configure routes
+        http.get("/", "handleRoot");
+
+        // Start the server
+        http.start();
+    }
+
+    function handleRoot(req, res) {
+        print "Handling request to /";
+
+        // Set the content type
+        res.header("Content-Type", "text/html");
+
+        // Send a simple HTML response
+        res.text("<!DOCTYPE html><html><head><title>Hello World</title></head><body><h1>Hello, World!</h1><p>Welcome to the Switch Framework!</p></body></html>");
+    }
+}

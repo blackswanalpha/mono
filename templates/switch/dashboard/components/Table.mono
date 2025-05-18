@@ -1,0 +1,242 @@
+//  __  __                   
+// |  \/  | ___  _ __   ___  
+// | |\/| |/ _ \| '_ \ / _ \ 
+// | |  | | (_) | | | | (_) |
+// |_|  |_|\___/|_| |_|\___/ 
+//                           
+// Table Component
+
+component Table {
+    state {
+        title: string = "",
+        columns: array = [],
+        data: array = [],
+        loading: boolean = false,
+        pagination: object = {
+            currentPage: 1,
+            totalPages: 1,
+            pageSize: 10
+        },
+        sortColumn: string = "",
+        sortDirection: string = "asc"
+    }
+    
+    function constructor(props) {
+        // Initialize the component with props
+        if (props) {
+            if (props.title) {
+                this.state.title = props.title;
+            }
+            
+            if (props.columns) {
+                this.state.columns = props.columns;
+            }
+            
+            if (props.data) {
+                this.state.data = props.data;
+            }
+            
+            if (props.loading !== undefined) {
+                this.state.loading = props.loading;
+            }
+            
+            if (props.pagination) {
+                this.state.pagination = props.pagination;
+            }
+            
+            if (props.sortColumn) {
+                this.state.sortColumn = props.sortColumn;
+            }
+            
+            if (props.sortDirection) {
+                this.state.sortDirection = props.sortDirection;
+            }
+        }
+    }
+    
+    function sort(column) {
+        if (this.state.sortColumn === column) {
+            // Toggle sort direction
+            this.state.sortDirection = this.state.sortDirection === "asc" ? "desc" : "asc";
+        } else {
+            // Set new sort column
+            this.state.sortColumn = column;
+            this.state.sortDirection = "asc";
+        }
+        
+        // Sort the data
+        this.sortData();
+    }
+    
+    function sortData() {
+        if (!this.state.sortColumn) {
+            return;
+        }
+        
+        // Sort the data
+        this.state.data.sort((a, b) => {
+            var aValue = a[this.state.sortColumn];
+            var bValue = b[this.state.sortColumn];
+            
+            if (aValue < bValue) {
+                return this.state.sortDirection === "asc" ? -1 : 1;
+            }
+            
+            if (aValue > bValue) {
+                return this.state.sortDirection === "asc" ? 1 : -1;
+            }
+            
+            return 0;
+        });
+    }
+    
+    function changePage(page) {
+        if (page < 1 || page > this.state.pagination.totalPages) {
+            return;
+        }
+        
+        this.state.pagination.currentPage = page;
+    }
+    
+    function render() {
+        // Register client-side event handlers
+        switch.clientEvent("click", "handleClick");
+        
+        // Create the component
+        var table = switch.component("Table", {
+            title: this.state.title,
+            columns: this.state.columns,
+            data: this.state.data,
+            loading: this.state.loading,
+            pagination: this.state.pagination,
+            sortColumn: this.state.sortColumn,
+            sortDirection: this.state.sortDirection
+        });
+        
+        // Calculate pagination
+        var startIndex = (this.state.pagination.currentPage - 1) * this.state.pagination.pageSize;
+        var endIndex = startIndex + this.state.pagination.pageSize;
+        var paginatedData = this.state.data.slice(startIndex, endIndex);
+        
+        // Return the HTML
+        return `
+            <div class="card table-card">
+                <div class="card-header">
+                    <h5 class="card-title">${this.state.title}</h5>
+                </div>
+                <div class="card-body">
+                    ${this.state.loading ? 
+                        '<div class="table-loading"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div></div>' : 
+                        `<div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        ${this.state.columns.map(column => `
+                                            <th scope="col" data-sort="${column.key}" data-event="click" class="${this.state.sortColumn === column.key ? 'sorted ' + this.state.sortDirection : ''}">
+                                                ${column.label}
+                                                ${this.state.sortColumn === column.key ? 
+                                                    `<i class="bi bi-arrow-${this.state.sortDirection === 'asc' ? 'up' : 'down'}"></i>` : 
+                                                    '<i class="bi bi-arrow-down opacity-0"></i>'}
+                                            </th>
+                                        `).join('')}
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${paginatedData.length > 0 ? 
+                                        paginatedData.map(row => `
+                                            <tr>
+                                                ${this.state.columns.map(column => `
+                                                    <td>${this.renderCell(row, column)}</td>
+                                                `).join('')}
+                                            </tr>
+                                        `).join('') : 
+                                        `<tr>
+                                            <td colspan="${this.state.columns.length}" class="text-center">No data available</td>
+                                        </tr>`
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        ${this.state.pagination.totalPages > 1 ? 
+                            `<div class="pagination-container">
+                                <nav aria-label="Table pagination">
+                                    <ul class="pagination">
+                                        <li class="page-item ${this.state.pagination.currentPage === 1 ? 'disabled' : ''}">
+                                            <a class="page-link" href="#" data-page="${this.state.pagination.currentPage - 1}" data-event="click">
+                                                <i class="bi bi-chevron-left"></i>
+                                            </a>
+                                        </li>
+                                        
+                                        ${this.renderPaginationItems()}
+                                        
+                                        <li class="page-item ${this.state.pagination.currentPage === this.state.pagination.totalPages ? 'disabled' : ''}">
+                                            <a class="page-link" href="#" data-page="${this.state.pagination.currentPage + 1}" data-event="click">
+                                                <i class="bi bi-chevron-right"></i>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </nav>
+                            </div>` : 
+                            ''
+                        }`
+                    }
+                </div>
+            </div>
+        `;
+    }
+    
+    function renderCell(row, column) {
+        var value = row[column.key];
+        
+        if (column.format) {
+            return column.format(value, row);
+        }
+        
+        return value;
+    }
+    
+    function renderPaginationItems() {
+        var items = [];
+        var totalPages = this.state.pagination.totalPages;
+        var currentPage = this.state.pagination.currentPage;
+        
+        // Determine which pages to show
+        var startPage = Math.max(1, currentPage - 2);
+        var endPage = Math.min(totalPages, startPage + 4);
+        
+        if (endPage - startPage < 4) {
+            startPage = Math.max(1, endPage - 4);
+        }
+        
+        // Add pagination items
+        for (var i = startPage; i <= endPage; i++) {
+            items.push(`
+                <li class="page-item ${i === currentPage ? 'active' : ''}">
+                    <a class="page-link" href="#" data-page="${i}" data-event="click">${i}</a>
+                </li>
+            `);
+        }
+        
+        return items.join('');
+    }
+    
+    function handleClick(event) {
+        // Check if this is a sort header
+        if (event.target.dataset.sort || event.target.closest("[data-sort]")) {
+            event.preventDefault();
+            var column = event.target.dataset.sort || event.target.closest("[data-sort]").dataset.sort;
+            this.sort(column);
+        }
+        
+        // Check if this is a pagination link
+        if (event.target.dataset.page || event.target.closest("[data-page]")) {
+            event.preventDefault();
+            var page = parseInt(event.target.dataset.page || event.target.closest("[data-page]").dataset.page);
+            this.changePage(page);
+        }
+    }
+}
+
+// Export the component
+export Table;

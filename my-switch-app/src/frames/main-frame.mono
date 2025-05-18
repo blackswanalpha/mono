@@ -1,0 +1,74 @@
+//  __  __                   
+// |  \/  | ___  _ __   ___  
+// | |\/| |/ _ \| '_ \ / _ \ 
+// | |  | | (_) | | | | (_) |
+// |_|  |_|\___/|_| |_|\___/ 
+//                           
+// Main Frame Component
+
+frame MainFrame {
+    state {
+        title: string = "Main Application Frame",
+        theme: string = "light"
+    }
+    
+    function frameWillLoad() {
+        console.log("MainFrame will load");
+        
+        // Check if dark mode is enabled
+        this.state.theme = localStorage.getItem("darkMode") === "true" ? "dark" : "light";
+        
+        // Apply theme to body
+        if (this.state.theme === "dark") {
+            document.body.classList.add("dark-mode");
+        } else {
+            document.body.classList.remove("dark-mode");
+        }
+    }
+    
+    function frameDidLoad() {
+        console.log("MainFrame did load");
+    }
+    
+    function frameWillUnload() {
+        console.log("MainFrame will unload");
+    }
+    
+    function frameDidUnload() {
+        console.log("MainFrame did unload");
+    }
+    
+    function toggleTheme() {
+        // Toggle theme
+        this.state.theme = this.state.theme === "light" ? "dark" : "light";
+        
+        // Update localStorage
+        localStorage.setItem("darkMode", this.state.theme === "dark");
+        
+        // Apply theme to body
+        if (this.state.theme === "dark") {
+            document.body.classList.add("dark-mode");
+        } else {
+            document.body.classList.remove("dark-mode");
+        }
+    }
+    
+    function render() {
+        return `
+            <div class="main-frame ${this.state.theme === 'dark' ? 'dark-mode' : ''}">
+                <div class="frame-header">
+                    <h1>${this.state.title}</h1>
+                    <button class="theme-toggle" data-event="click" data-action="toggleTheme">
+                        <i class="bi bi-${this.state.theme === 'dark' ? 'sun' : 'moon'}"></i>
+                    </button>
+                </div>
+                <div class="frame-content">
+                    ${this.children}
+                </div>
+            </div>
+        `;
+    }
+}
+
+// Export the frame
+export MainFrame;

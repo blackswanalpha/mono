@@ -1,0 +1,428 @@
+//  __  __
+// |  \/  | ___  _ __   ___
+// | |\/| |/ _ \| '_ \ / _ \
+// | |  | | (_) | | | | (_) |
+// |_|  |_|\___/|_| |_|\___/
+//
+// my-switch-app - Main Application Component
+
+// Import pages
+import "src/pages/home.mono"
+import "src/pages/about.mono"
+import "src/pages/packages.mono"
+import "src/pages/kits.mono"
+import "src/pages/fallback-home.mono"
+
+// Import the switch renderer
+import "src/lib/switch-renderer.mono"
+
+component Main {
+    function start() {
+        print "Starting my-switch-app...";
+
+        // Configure routes
+        http.get("/", "handleRoot");
+        http.get("/about", "handleAbout");
+        http.get("/packages", "handlePackages");
+        http.get("/kits", "handleKits");
+        http.get("/static/(.*)", "handleStatic");
+
+        // Start the server
+        http.start();
+    }
+
+    function handleRoot(req, res) {
+        print "Handling request to /";
+
+        // Create the app
+        var app = new App({
+            currentPage: "home"
+        });
+
+        // Store the current component for server-side rendering
+        global._currentComponent = app;
+
+        // Render the app
+        var html = switch.render(
+            "my-switch-app - Home",
+            ["/static/js/app.js"],
+            ["/static/css/app.css"]
+        );
+
+        // Send the response
+        res.html(html);
+    }
+
+    function handleAbout(req, res) {
+        print "Handling request to /about";
+
+        // Create the app
+        var app = new App({
+            currentPage: "about"
+        });
+
+        // Store the current component for server-side rendering
+        global._currentComponent = app;
+
+        // Render the app
+        var html = switch.render(
+            "my-switch-app - About",
+            ["/static/js/app.js"],
+            ["/static/css/app.css"]
+        );
+
+        // Send the response
+        res.html(html);
+    }
+
+    function handlePackages(req, res) {
+        print "Handling request to /packages";
+
+        // Create the app
+        var app = new App({
+            currentPage: "packages"
+        });
+
+        // Store the current component for server-side rendering
+        global._currentComponent = app;
+
+        // Render the app
+        var html = switch.render(
+            "my-switch-app - Packages",
+            ["/static/js/app.js"],
+            ["/static/css/app.css"]
+        );
+
+        // Send the response
+        res.html(html);
+    }
+
+    function handleKits(req, res) {
+        print "Handling request to /kits";
+
+        // Create the app
+        var app = new App({
+            currentPage: "kits"
+        });
+
+        // Store the current component for server-side rendering
+        global._currentComponent = app;
+
+        // Render the app
+        var html = switch.render(
+            "my-switch-app - Kits",
+            ["/static/js/app.js"],
+            ["/static/css/app.css"]
+        );
+
+        // Send the response
+        res.html(html);
+    }
+
+    function handleStatic(req, res, params) {
+        print "Handling request to /static/", params[0];
+
+        // Get the file path
+        var filePath = params[0];
+
+        // Determine the content type
+        var contentType = "application/octet-stream";
+
+        if (filePath.endsWith(".css")) {
+            contentType = "text/css";
+        } else if (filePath.endsWith(".js")) {
+            contentType = "application/javascript";
+        } else if (filePath.endsWith(".html")) {
+            contentType = "text/html";
+        } else if (filePath.endsWith(".json")) {
+            contentType = "application/json";
+        } else if (filePath.endsWith(".png")) {
+            contentType = "image/png";
+        } else if (filePath.endsWith(".jpg") || filePath.endsWith(".jpeg")) {
+            contentType = "image/jpeg";
+        } else if (filePath.endsWith(".gif")) {
+            contentType = "image/gif";
+        } else if (filePath.endsWith(".svg")) {
+            contentType = "image/svg+xml";
+        }
+
+        // Check if the file exists
+        var fullPath = "src/static/" + filePath;
+        if (!fs.exists(fullPath)) {
+            print "File not found:", fullPath;
+            res.status(404).text("File not found: " + filePath);
+            return;
+        }
+
+        // Read the file
+        var content = fs.readFile(fullPath);
+
+        // Send the response
+        res.header("Content-Type", contentType);
+        res.binary(content);
+    }
+}
+
+component App {
+    state {
+        title: string = "my-switch-app",
+        currentPage: string = "home",
+        darkMode: boolean = false,
+        sidebarCollapsed: boolean = false
+    }
+
+    function constructor(props) {
+        // Initialize with props if provided
+        if (props) {
+            if (props.currentPage) {
+                this.state.currentPage = props.currentPage;
+            }
+        }
+
+        // Initialize the application
+        this.loadUserPreferences();
+    }
+
+    function loadUserPreferences() {
+        // Load user preferences from localStorage
+        if (switch.isClient()) {
+            var darkMode = localStorage.getItem("darkMode") === "true";
+            var sidebarCollapsed = localStorage.getItem("sidebarCollapsed") === "true";
+
+            // Apply preferences
+            this.state.darkMode = darkMode;
+            this.state.sidebarCollapsed = sidebarCollapsed;
+
+            if (darkMode) {
+                document.body.classList.add("dark-mode");
+            }
+
+            if (sidebarCollapsed) {
+                document.body.classList.add("sidebar-collapsed");
+            }
+        }
+    }
+
+    function toggleDarkMode() {
+        this.state.darkMode = !this.state.darkMode;
+
+        if (switch.isClient()) {
+            if (this.state.darkMode) {
+                document.body.classList.add("dark-mode");
+            } else {
+                document.body.classList.remove("dark-mode");
+            }
+
+            localStorage.setItem("darkMode", this.state.darkMode);
+        }
+    }
+
+    function toggleSidebar() {
+        this.state.sidebarCollapsed = !this.state.sidebarCollapsed;
+
+        if (switch.isClient()) {
+            if (this.state.sidebarCollapsed) {
+                document.body.classList.add("sidebar-collapsed");
+            } else {
+                document.body.classList.remove("sidebar-collapsed");
+            }
+
+            localStorage.setItem("sidebarCollapsed", this.state.sidebarCollapsed);
+        }
+    }
+
+    function setCurrentPage(page: string) {
+        this.state.currentPage = page;
+    }
+
+    function renderPage() {
+        print "Rendering page:", this.state.currentPage;
+
+        try {
+            if (this.state.currentPage === "home") {
+                print "Creating HomePage instance";
+                try {
+                    var home = new HomePage();
+                    print "HomePage created, calling render()";
+                    var html = home.render();
+                    print "HomePage render() returned HTML of length:", html.length;
+                    return html;
+                } catch (e) {
+                    print "Error creating HomePage, using fallback:", e;
+                    var fallbackHome = new FallbackHomePage();
+                    return fallbackHome.render();
+                }
+            } else if (this.state.currentPage === "about") {
+                var about = new AboutPage();
+                return about.render();
+            } else if (this.state.currentPage === "packages") {
+                var packages = new PackagesPage();
+                return packages.render();
+            } else if (this.state.currentPage === "kits") {
+                var kits = new KitsPage();
+                return kits.render();
+            } else {
+                return "<div>Page not found</div>";
+            }
+        } catch (e) {
+            print "Error rendering page:", e;
+            return "<div class='error'>Error rendering page: " + e + "</div>";
+        }
+    }
+
+    function render() {
+        // Register client-side event handlers
+        switch.clientEvent("click", "handleClick");
+
+        // Create the component
+        var app = switch.component("App", {
+            title: this.state.title,
+            currentPage: this.state.currentPage,
+            darkMode: this.state.darkMode,
+            sidebarCollapsed: this.state.sidebarCollapsed
+        });
+
+        // Return the HTML
+        return `
+            <div class="app ${this.state.darkMode ? 'dark-mode' : ''} ${this.state.sidebarCollapsed ? 'sidebar-collapsed' : ''}">
+                <div class="sidebar ${this.state.sidebarCollapsed ? 'collapsed' : ''}">
+                    <div class="sidebar-header">
+                        <a href="/" class="logo" data-event="click" data-action="navigate" data-page="home">
+                            ${this.state.sidebarCollapsed ? 'MSA' : 'my-switch-app'}
+                        </a>
+                    </div>
+
+                    <div class="sidebar-content">
+                        <nav class="sidebar-nav">
+                            <div class="nav-item ${this.state.currentPage === 'home' ? 'active' : ''}">
+                                <a class="nav-link" href="/" data-event="click" data-action="navigate" data-page="home">
+                                    <i class="bi bi-house"></i>
+                                    <span>Home</span>
+                                </a>
+                            </div>
+
+                            <div class="nav-item ${this.state.currentPage === 'about' ? 'active' : ''}">
+                                <a class="nav-link" href="/about" data-event="click" data-action="navigate" data-page="about">
+                                    <i class="bi bi-info-circle"></i>
+                                    <span>About</span>
+                                </a>
+                            </div>
+
+                            <div class="nav-item ${this.state.currentPage === 'packages' ? 'active' : ''}">
+                                <a class="nav-link" href="/packages" data-event="click" data-action="navigate" data-page="packages">
+                                    <i class="bi bi-box"></i>
+                                    <span>Packages</span>
+                                </a>
+                            </div>
+
+                            <div class="nav-item ${this.state.currentPage === 'kits' ? 'active' : ''}">
+                                <a class="nav-link" href="/kits" data-event="click" data-action="navigate" data-page="kits">
+                                    <i class="bi bi-grid"></i>
+                                    <span>Kits</span>
+                                </a>
+                            </div>
+                        </nav>
+                    </div>
+
+                    <div class="sidebar-footer">
+                        <button class="btn-toggle" data-event="click" data-action="toggle-sidebar">
+                            <i class="bi ${this.state.sidebarCollapsed ? 'bi-chevron-right' : 'bi-chevron-left'}"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="main-content">
+                    <header class="header">
+                        <div class="header-content">
+                            <h1 class="header-title">${this.state.title}</h1>
+
+                            <div class="header-actions">
+                                <button class="btn-icon" data-event="click" data-action="toggle-dark-mode">
+                                    <i class="bi ${this.state.darkMode ? 'bi-sun' : 'bi-moon'}"></i>
+                                </button>
+
+                                <div class="dropdown">
+                                    <button class="dropdown-toggle" data-event="click" data-action="toggle-dropdown">
+                                        <img src="/static/img/avatar.svg" alt="User" class="avatar">
+                                        <span class="user-name">Admin</span>
+                                    </button>
+
+                                    <div class="dropdown-menu">
+                                        <div class="dropdown-header">Admin</div>
+                                        <div class="dropdown-divider"></div>
+                                        <a href="/profile" class="dropdown-item">Profile</a>
+                                        <a href="/settings" class="dropdown-item">Settings</a>
+                                        <div class="dropdown-divider"></div>
+                                        <a href="/logout" class="dropdown-item">Logout</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </header>
+
+                    <main class="content">
+                        ${this.renderPage()}
+                    </main>
+
+                    <footer class="footer">
+                        <p>&copy; ${new Date().getFullYear()} my-switch-app. All rights reserved.</p>
+                    </footer>
+                </div>
+            </div>
+        `;
+    }
+
+    function handleClick(event) {
+        // Check if this is a navigation link
+        if (event.target.dataset.action === "navigate" || event.target.closest("[data-action='navigate']")) {
+            // Prevent the default link behavior
+            event.preventDefault();
+
+            // Get the target element
+            var target = event.target.dataset.action === "navigate" ? event.target : event.target.closest("[data-action='navigate']");
+
+            // Get the page
+            var page = target.dataset.page;
+
+            // Update the current page
+            this.setCurrentPage(page);
+
+            // Update the URL
+            if (page === "home") {
+                history.pushState({}, "", "/");
+            } else {
+                history.pushState({}, "", "/" + page);
+            }
+        }
+
+        // Check if this is a dark mode toggle
+        if (event.target.dataset.action === "toggle-dark-mode" || event.target.closest("[data-action='toggle-dark-mode']")) {
+            this.toggleDarkMode();
+        }
+
+        // Check if this is a sidebar toggle
+        if (event.target.dataset.action === "toggle-sidebar" || event.target.closest("[data-action='toggle-sidebar']")) {
+            this.toggleSidebar();
+        }
+
+        // Check if this is a dropdown toggle
+        if (event.target.dataset.action === "toggle-dropdown" || event.target.closest("[data-action='toggle-dropdown']")) {
+            // Get the dropdown
+            var dropdown = event.target.closest(".dropdown");
+
+            // Toggle the dropdown
+            dropdown.classList.toggle("show");
+
+            // Get the dropdown menu
+            var menu = dropdown.querySelector(".dropdown-menu");
+
+            // Toggle the menu
+            if (menu) {
+                menu.classList.toggle("show");
+            }
+        }
+    }
+}
+
+// Export the component
+export App;

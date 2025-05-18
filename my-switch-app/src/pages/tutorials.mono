@@ -1,0 +1,250 @@
+//  __  __
+// |  \/  | ___  _ __   ___
+// | |\/| |/ _ \| '_ \ / _ \
+// | |  | | (_) | | | | (_) |
+// |_|  |_|\___/|_| |_|\___/
+//
+// Tutorials Page Component
+
+component TutorialsPage {
+    state {
+        title: string = "Tutorials",
+        tutorials: array = [
+            {
+                id: 1,
+                title: "Getting Started with Switch",
+                description: "Learn how to create your first Switch application.",
+                level: "Beginner",
+                duration: "15 minutes",
+                image: "/static/img/tutorials/getting-started.jpg",
+                tags: ["switch", "beginner", "setup"]
+            },
+            {
+                id: 2,
+                title: "Creating Components",
+                description: "Learn how to create reusable components in Switch.",
+                level: "Beginner",
+                duration: "20 minutes",
+                image: "/static/img/tutorials/components.jpg",
+                tags: ["switch", "components", "reusability"]
+            },
+            {
+                id: 3,
+                title: "State Management",
+                description: "Learn how to manage state in your Switch application.",
+                level: "Intermediate",
+                duration: "25 minutes",
+                image: "/static/img/tutorials/state-management.jpg",
+                tags: ["switch", "state", "management"]
+            },
+            {
+                id: 4,
+                title: "Routing",
+                description: "Learn how to implement routing in your Switch application.",
+                level: "Intermediate",
+                duration: "30 minutes",
+                image: "/static/img/tutorials/routing.jpg",
+                tags: ["switch", "routing", "navigation"]
+            },
+            {
+                id: 5,
+                title: "Working with APIs",
+                description: "Learn how to fetch data from APIs in your Switch application.",
+                level: "Intermediate",
+                duration: "35 minutes",
+                image: "/static/img/tutorials/apis.jpg",
+                tags: ["switch", "api", "fetch", "data"]
+            },
+            {
+                id: 6,
+                title: "Building a Complete Application",
+                description: "Build a complete application with Switch from scratch.",
+                level: "Advanced",
+                duration: "60 minutes",
+                image: "/static/img/tutorials/complete-app.jpg",
+                tags: ["switch", "application", "project"]
+            }
+        ],
+        filters: {
+            level: "All",
+            duration: "All",
+            search: ""
+        },
+        levels: array = ["All", "Beginner", "Intermediate", "Advanced"],
+        durations: array = ["All", "< 20 minutes", "20-30 minutes", "> 30 minutes"]
+    }
+
+    function constructor() {
+        // Initialize the component
+    }
+
+    function filterTutorials() {
+        var filtered = this.state.tutorials;
+
+        // Filter by level
+        if (this.state.filters.level !== "All") {
+            filtered = filtered.filter(function(tutorial) {
+                return tutorial.level === this.state.filters.level;
+            }.bind(this));
+        }
+
+        // Filter by duration
+        if (this.state.filters.duration !== "All") {
+            filtered = filtered.filter(function(tutorial) {
+                var duration = parseInt(tutorial.duration);
+
+                if (this.state.filters.duration === "< 20 minutes") {
+                    return duration < 20;
+                } else if (this.state.filters.duration === "20-30 minutes") {
+                    return duration >= 20 && duration <= 30;
+                } else if (this.state.filters.duration === "> 30 minutes") {
+                    return duration > 30;
+                }
+
+                return true;
+            }.bind(this));
+        }
+
+        // Filter by search
+        if (this.state.filters.search) {
+            var search = this.state.filters.search.toLowerCase();
+
+            filtered = filtered.filter(function(tutorial) {
+                return tutorial.title.toLowerCase().includes(search) ||
+                       tutorial.description.toLowerCase().includes(search) ||
+                       tutorial.tags.some(function(tag) {
+                           return tag.toLowerCase().includes(search);
+                       });
+            });
+        }
+
+        return filtered;
+    }
+
+    function handleLevelChange(event) {
+        this.state.filters.level = event.target.value;
+    }
+
+    function handleDurationChange(event) {
+        this.state.filters.duration = event.target.value;
+    }
+
+    function handleSearchChange(event) {
+        this.state.filters.search = event.target.value;
+    }
+
+    function renderFilters() {
+        var levelOptions = "";
+        for (var i = 0; i < this.state.levels.length; i++) {
+            var level = this.state.levels[i];
+            levelOptions += `<option value="${level}">${level}</option>`;
+        }
+
+        var durationOptions = "";
+        for (var i = 0; i < this.state.durations.length; i++) {
+            var duration = this.state.durations[i];
+            durationOptions += `<option value="${duration}">${duration}</option>`;
+        }
+
+        return `
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Filter Tutorials</h5>
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label for="level-filter" class="form-label">Level</label>
+                            <select class="form-select" id="level-filter" onchange="handleLevelChange(event)">
+                                ${levelOptions}
+                            </select>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="duration-filter" class="form-label">Duration</label>
+                            <select class="form-select" id="duration-filter" onchange="handleDurationChange(event)">
+                                ${durationOptions}
+                            </select>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="search-filter" class="form-label">Search</label>
+                            <input type="text" class="form-control" id="search-filter" placeholder="Search tutorials..." onkeyup="handleSearchChange(event)">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    function renderTutorials() {
+        var tutorials = this.filterTutorials();
+        var html = "";
+
+        if (tutorials.length === 0) {
+            return `
+                <div class="alert alert-info">
+                    No tutorials found matching your filters.
+                </div>
+            `;
+        }
+
+        for (var i = 0; i < tutorials.length; i++) {
+            var tutorial = tutorials[i];
+            var tags = "";
+
+            for (var j = 0; j < tutorial.tags.length; j++) {
+                var tag = tutorial.tags[j];
+                tags += `<span class="badge bg-secondary me-1">${tag}</span>`;
+            }
+
+            html += `
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card h-100 tutorial-card">
+                        <img src="${tutorial.image}" class="card-img-top" alt="${tutorial.title}">
+                        <div class="card-body">
+                            <h5 class="card-title">${tutorial.title}</h5>
+                            <p class="card-text">${tutorial.description}</p>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="badge bg-primary">${tutorial.level}</span>
+                                <span class="badge bg-info">${tutorial.duration}</span>
+                            </div>
+                            <div class="mb-3">
+                                ${tags}
+                            </div>
+                            <a href="/tutorial/${tutorial.id}" class="btn btn-primary">Start Tutorial</a>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        return `
+            <div class="row">
+                ${html}
+            </div>
+        `;
+    }
+
+    function render() {
+        // Create the component
+        var tutorialsPage = switch.component("TutorialsPage", {
+            title: this.state.title
+        });
+
+        // Use the base layout
+        // {{ '@/pages/base.html' }}
+
+        // Return the HTML
+        return `
+            <div class="tutorials-page">
+                <div class="mb-4">
+                    <h2 class="mb-3">${this.state.title}</h2>
+                    <p class="lead">Learn how to build applications with the Switch framework through our comprehensive tutorials.</p>
+                </div>
+
+                ${this.renderFilters()}
+                ${this.renderTutorials()}
+            </div>
+        `;
+    }
+}
+
+// Export the component
+export TutorialsPage;

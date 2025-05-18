@@ -1,0 +1,806 @@
+//  __  __                   
+// |  \/  | ___  _ __   ___  
+// | |\/| |/ _ \| '_ \ / _ \ 
+// | |  | | (_) | | | | (_) |
+// |_|  |_|\___/|_| |_|\___/ 
+//                           
+// Switch Dashboard Example - A more complex application using the Switch framework
+
+component NavBar {
+    state {
+        title: string = "Switch Dashboard",
+        links: any[] = []
+    }
+    
+    function constructor(title: string, links: any[] = null) {
+        if (title) {
+            this.state.title = title;
+        }
+        
+        if (links) {
+            this.state.links = links;
+        } else {
+            // Default links
+            this.state.links = [
+                { text: "Dashboard", url: "/", active: true },
+                { text: "Analytics", url: "/analytics", active: false },
+                { text: "Settings", url: "/settings", active: false }
+            ];
+        }
+    }
+    
+    function setActiveLink(url: string) {
+        for (var i = 0; i < this.state.links.length; i++) {
+            this.state.links[i].active = (this.state.links[i].url === url);
+        }
+    }
+    
+    function render() {
+        // Use the Switch framework to render the component
+        switch.clientEvent("click", "handleNavigation");
+        
+        // Create a Switch component
+        var navbar = switch.component("NavBar", {
+            title: this.state.title,
+            links: this.state.links
+        });
+        
+        // Generate the links HTML
+        var linksHtml = "";
+        for (var i = 0; i < this.state.links.length; i++) {
+            var link = this.state.links[i];
+            linksHtml += `
+                <li class="switch-nav-item ${link.active ? 'switch-active' : ''}">
+                    <a class="switch-nav-link" href="${link.url}" data-event="click" data-url="${link.url}">
+                        ${link.text}
+                    </a>
+                </li>
+            `;
+        }
+        
+        // Return the HTML
+        return `
+            <nav class="switch-navbar">
+                <div class="switch-navbar-brand">
+                    <a href="/" class="switch-navbar-logo">${this.state.title}</a>
+                </div>
+                <ul class="switch-navbar-nav">
+                    ${linksHtml}
+                </ul>
+            </nav>
+        `;
+    }
+    
+    function handleNavigation(event) {
+        event.preventDefault();
+        var url = event.target.dataset.url;
+        if (url) {
+            this.setActiveLink(url);
+            // Use the Switch router to navigate
+            Switch.router.navigate(url);
+        }
+    }
+}
+
+component DashboardCard {
+    state {
+        title: string = "",
+        value: string = "",
+        icon: string = "",
+        color: string = "primary"
+    }
+    
+    function constructor(title: string, value: string, icon: string = "", color: string = "primary") {
+        this.state.title = title;
+        this.state.value = value;
+        this.state.icon = icon;
+        this.state.color = color;
+    }
+    
+    function render() {
+        // Create a Switch component
+        var card = switch.component("DashboardCard", {
+            title: this.state.title,
+            value: this.state.value,
+            icon: this.state.icon,
+            color: this.state.color
+        });
+        
+        // Return the HTML
+        return `
+            <div class="switch-card switch-dashboard-card switch-card-${this.state.color}">
+                <div class="switch-card-body">
+                    <div class="switch-dashboard-card-icon">
+                        <i class="switch-icon ${this.state.icon}"></i>
+                    </div>
+                    <div class="switch-dashboard-card-content">
+                        <h3 class="switch-dashboard-card-title">${this.state.title}</h3>
+                        <p class="switch-dashboard-card-value">${this.state.value}</p>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+}
+
+component DataTable {
+    state {
+        columns: any[] = [],
+        data: any[] = [],
+        pageSize: number = 10,
+        currentPage: number = 1
+    }
+    
+    function constructor(columns: any[], data: any[], pageSize: number = 10) {
+        this.state.columns = columns;
+        this.state.data = data;
+        this.state.pageSize = pageSize;
+    }
+    
+    function setPage(page: number) {
+        this.state.currentPage = page;
+    }
+    
+    function getTotalPages() {
+        return Math.ceil(this.state.data.length / this.state.pageSize);
+    }
+    
+    function getCurrentPageData() {
+        var start = (this.state.currentPage - 1) * this.state.pageSize;
+        var end = start + this.state.pageSize;
+        return this.state.data.slice(start, end);
+    }
+    
+    function render() {
+        // Use the Switch framework to render the component
+        switch.clientEvent("click", "handlePageChange");
+        
+        // Create a Switch component
+        var table = switch.component("DataTable", {
+            columns: this.state.columns,
+            data: this.state.data,
+            pageSize: this.state.pageSize,
+            currentPage: this.state.currentPage
+        });
+        
+        // Generate the header HTML
+        var headerHtml = "";
+        for (var i = 0; i < this.state.columns.length; i++) {
+            headerHtml += `<th>${this.state.columns[i].label}</th>`;
+        }
+        
+        // Generate the rows HTML
+        var rowsHtml = "";
+        var pageData = this.getCurrentPageData();
+        for (var i = 0; i < pageData.length; i++) {
+            var row = pageData[i];
+            var cellsHtml = "";
+            for (var j = 0; j < this.state.columns.length; j++) {
+                var column = this.state.columns[j];
+                cellsHtml += `<td>${row[column.key]}</td>`;
+            }
+            rowsHtml += `<tr>${cellsHtml}</tr>`;
+        }
+        
+        // Generate the pagination HTML
+        var paginationHtml = "";
+        var totalPages = this.getTotalPages();
+        for (var i = 1; i <= totalPages; i++) {
+            paginationHtml += `
+                <button class="switch-pagination-button ${i === this.state.currentPage ? 'switch-active' : ''}"
+                        data-event="click" data-page="${i}">
+                    ${i}
+                </button>
+            `;
+        }
+        
+        // Return the HTML
+        return `
+            <div class="switch-data-table-container">
+                <table class="switch-data-table">
+                    <thead>
+                        <tr>${headerHtml}</tr>
+                    </thead>
+                    <tbody>
+                        ${rowsHtml}
+                    </tbody>
+                </table>
+                <div class="switch-pagination">
+                    ${paginationHtml}
+                </div>
+            </div>
+        `;
+    }
+    
+    function handlePageChange(event) {
+        var page = parseInt(event.target.dataset.page);
+        if (!isNaN(page)) {
+            this.setPage(page);
+        }
+    }
+}
+
+component Dashboard {
+    state {
+        cards: any[] = [],
+        table: any = null
+    }
+    
+    function constructor() {
+        // Create dashboard cards
+        this.state.cards = [
+            new DashboardCard("Users", "1,234", "switch-icon-users", "primary"),
+            new DashboardCard("Revenue", "$12,345", "switch-icon-money", "success"),
+            new DashboardCard("Orders", "567", "switch-icon-cart", "info"),
+            new DashboardCard("Visitors", "8,901", "switch-icon-chart", "warning")
+        ];
+        
+        // Create data table
+        var columns = [
+            { key: "id", label: "ID" },
+            { key: "name", label: "Name" },
+            { key: "email", label: "Email" },
+            { key: "status", label: "Status" }
+        ];
+        
+        var data = [];
+        for (var i = 1; i <= 25; i++) {
+            data.push({
+                id: i,
+                name: "User " + i,
+                email: "user" + i + "@example.com",
+                status: i % 3 === 0 ? "Inactive" : "Active"
+            });
+        }
+        
+        this.state.table = new DataTable(columns, data, 5);
+    }
+    
+    function render() {
+        // Create a Switch component
+        var dashboard = switch.component("Dashboard", {
+            title: "Dashboard"
+        });
+        
+        // Generate the cards HTML
+        var cardsHtml = "";
+        for (var i = 0; i < this.state.cards.length; i++) {
+            cardsHtml += this.state.cards[i].render();
+        }
+        
+        // Return the HTML
+        return `
+            <div class="switch-dashboard">
+                <h1 class="switch-dashboard-title">Dashboard</h1>
+                <div class="switch-dashboard-cards">
+                    ${cardsHtml}
+                </div>
+                <div class="switch-dashboard-table switch-mt-4">
+                    <h2 class="switch-dashboard-subtitle">Recent Users</h2>
+                    ${this.state.table.render()}
+                </div>
+            </div>
+        `;
+    }
+}
+
+component Analytics {
+    state {
+        data: any[] = []
+    }
+    
+    function constructor() {
+        // Sample data for analytics
+        this.state.data = [
+            { month: "Jan", value: 65 },
+            { month: "Feb", value: 59 },
+            { month: "Mar", value: 80 },
+            { month: "Apr", value: 81 },
+            { month: "May", value: 56 },
+            { month: "Jun", value: 55 },
+            { month: "Jul", value: 40 }
+        ];
+    }
+    
+    function render() {
+        // Create a Switch component
+        var analytics = switch.component("Analytics", {
+            title: "Analytics",
+            data: this.state.data
+        });
+        
+        // Return the HTML
+        return `
+            <div class="switch-analytics">
+                <h1 class="switch-analytics-title">Analytics</h1>
+                <div class="switch-analytics-chart">
+                    <canvas id="analytics-chart"></canvas>
+                </div>
+                <script>
+                    // This script will be executed on the client-side
+                    document.addEventListener('DOMContentLoaded', function() {
+                        var ctx = document.getElementById('analytics-chart').getContext('2d');
+                        var data = ${JSON.stringify(this.state.data)};
+                        
+                        // Create a simple bar chart
+                        var chart = new Chart(ctx, {
+                            type: 'bar',
+                            data: {
+                                labels: data.map(function(item) { return item.month; }),
+                                datasets: [{
+                                    label: 'Monthly Values',
+                                    data: data.map(function(item) { return item.value; }),
+                                    backgroundColor: 'rgba(0, 123, 255, 0.5)',
+                                    borderColor: 'rgba(0, 123, 255, 1)',
+                                    borderWidth: 1
+                                }]
+                            },
+                            options: {
+                                scales: {
+                                    y: {
+                                        beginAtZero: true
+                                    }
+                                }
+                            }
+                        });
+                    });
+                </script>
+            </div>
+        `;
+    }
+}
+
+component Settings {
+    state {
+        settings: any = {}
+    }
+    
+    function constructor() {
+        // Default settings
+        this.state.settings = {
+            theme: "light",
+            notifications: true,
+            language: "en"
+        };
+    }
+    
+    function updateSetting(key: string, value: any) {
+        this.state.settings[key] = value;
+    }
+    
+    function render() {
+        // Use the Switch framework to render the component
+        switch.clientEvent("change", "handleSettingChange");
+        switch.clientEvent("click", "handleSave");
+        
+        // Create a Switch component
+        var settings = switch.component("Settings", {
+            title: "Settings",
+            settings: this.state.settings
+        });
+        
+        // Return the HTML
+        return `
+            <div class="switch-settings">
+                <h1 class="switch-settings-title">Settings</h1>
+                <form class="switch-settings-form">
+                    <div class="switch-form-group">
+                        <label for="theme">Theme</label>
+                        <select class="switch-form-control" id="theme" name="theme" data-event="change">
+                            <option value="light" ${this.state.settings.theme === "light" ? "selected" : ""}>Light</option>
+                            <option value="dark" ${this.state.settings.theme === "dark" ? "selected" : ""}>Dark</option>
+                        </select>
+                    </div>
+                    <div class="switch-form-group">
+                        <label for="notifications">Notifications</label>
+                        <input type="checkbox" class="switch-form-check-input" id="notifications" name="notifications"
+                               ${this.state.settings.notifications ? "checked" : ""} data-event="change">
+                    </div>
+                    <div class="switch-form-group">
+                        <label for="language">Language</label>
+                        <select class="switch-form-control" id="language" name="language" data-event="change">
+                            <option value="en" ${this.state.settings.language === "en" ? "selected" : ""}>English</option>
+                            <option value="fr" ${this.state.settings.language === "fr" ? "selected" : ""}>French</option>
+                            <option value="es" ${this.state.settings.language === "es" ? "selected" : ""}>Spanish</option>
+                        </select>
+                    </div>
+                    <button type="button" class="switch-button switch-button-primary" data-event="click" data-action="save">
+                        Save Settings
+                    </button>
+                </form>
+            </div>
+        `;
+    }
+    
+    function handleSettingChange(event) {
+        var name = event.target.name;
+        var value = event.target.type === "checkbox" ? event.target.checked : event.target.value;
+        this.updateSetting(name, value);
+    }
+    
+    function handleSave(event) {
+        if (event.target.dataset.action === "save") {
+            // Save settings to server
+            switch.serverEvent("saveSettings", "handleSaveSettings");
+        }
+    }
+    
+    function handleSaveSettings(data) {
+        // This method will be called on the server-side
+        print "Saving settings: " + JSON.stringify(this.state.settings);
+        return {
+            success: true,
+            message: "Settings saved successfully"
+        };
+    }
+}
+
+component SwitchDashboardApp {
+    state {
+        navbar: any = null,
+        currentPage: string = "dashboard"
+    }
+    
+    function constructor() {
+        this.state.navbar = new NavBar("Switch Dashboard");
+    }
+    
+    function setCurrentPage(page: string) {
+        this.state.currentPage = page;
+        this.state.navbar.setActiveLink("/" + (page === "dashboard" ? "" : page));
+    }
+    
+    function renderPage() {
+        if (this.state.currentPage === "dashboard") {
+            var dashboard = new Dashboard();
+            return dashboard.render();
+        } else if (this.state.currentPage === "analytics") {
+            var analytics = new Analytics();
+            return analytics.render();
+        } else if (this.state.currentPage === "settings") {
+            var settings = new Settings();
+            return settings.render();
+        } else {
+            return "<div>Page not found</div>";
+        }
+    }
+    
+    function render() {
+        // Create a Switch component
+        var app = switch.component("SwitchDashboardApp", {
+            title: "Switch Dashboard"
+        });
+        
+        // Return the HTML
+        return `
+            <div class="switch-app">
+                ${this.state.navbar.render()}
+                <div class="switch-container">
+                    ${this.renderPage()}
+                </div>
+            </div>
+        `;
+    }
+}
+
+component Main {
+    function start() {
+        print "=== Switch Dashboard Example ===";
+        
+        // Create the app
+        var app = new SwitchDashboardApp();
+        
+        // Render the app
+        var html = switch.render(
+            "Switch Dashboard", 
+            [
+                "https://cdn.jsdelivr.net/npm/chart.js",
+                "/dashboard.js"
+            ], 
+            ["/dashboard.css"]
+        );
+        
+        // Configure routes
+        http.get("/", "handleRoot");
+        http.get("/analytics", "handleAnalytics");
+        http.get("/settings", "handleSettings");
+        http.get("/api/switch/event", "handleEvent");
+        http.get("/dashboard.js", "handleDashboardJs");
+        http.get("/dashboard.css", "handleDashboardCss");
+        
+        // Start the server
+        http.start();
+    }
+    
+    function handleRoot(req, res) {
+        print "Handling request to /";
+        
+        // Create the app
+        var app = new SwitchDashboardApp();
+        app.setCurrentPage("dashboard");
+        
+        // Render the app
+        var html = switch.render(
+            "Switch Dashboard", 
+            [
+                "https://cdn.jsdelivr.net/npm/chart.js",
+                "/dashboard.js"
+            ], 
+            ["/dashboard.css"]
+        );
+        
+        // Send the response
+        res.html(html);
+    }
+    
+    function handleAnalytics(req, res) {
+        print "Handling request to /analytics";
+        
+        // Create the app
+        var app = new SwitchDashboardApp();
+        app.setCurrentPage("analytics");
+        
+        // Render the app
+        var html = switch.render(
+            "Switch Dashboard - Analytics", 
+            [
+                "https://cdn.jsdelivr.net/npm/chart.js",
+                "/dashboard.js"
+            ], 
+            ["/dashboard.css"]
+        );
+        
+        // Send the response
+        res.html(html);
+    }
+    
+    function handleSettings(req, res) {
+        print "Handling request to /settings";
+        
+        // Create the app
+        var app = new SwitchDashboardApp();
+        app.setCurrentPage("settings");
+        
+        // Render the app
+        var html = switch.render(
+            "Switch Dashboard - Settings", 
+            [
+                "https://cdn.jsdelivr.net/npm/chart.js",
+                "/dashboard.js"
+            ], 
+            ["/dashboard.css"]
+        );
+        
+        // Send the response
+        res.html(html);
+    }
+    
+    function handleEvent(req, res) {
+        print "Handling request to /api/switch/event";
+        
+        // Get the request body
+        var data = JSON.parse(req.body);
+        
+        // TODO: Handle the event
+        
+        // Send a response
+        res.json({
+            success: true,
+            state: {
+                count: 42
+            }
+        });
+    }
+    
+    function handleDashboardJs(req, res) {
+        print "Handling request to /dashboard.js";
+        
+        // Send the custom JavaScript
+        res.header("Content-Type", "application/javascript");
+        res.text(`
+            // Custom JavaScript for the Switch Dashboard
+            console.log('Dashboard JavaScript loaded');
+            
+            // Initialize the Switch router
+            Switch.router.addRoute('/', function() {
+                console.log('Dashboard route');
+                // The server will handle the initial render
+            });
+            
+            Switch.router.addRoute('/analytics', function() {
+                console.log('Analytics route');
+                // The server will handle the initial render
+            });
+            
+            Switch.router.addRoute('/settings', function() {
+                console.log('Settings route');
+                // The server will handle the initial render
+            });
+        `);
+    }
+    
+    function handleDashboardCss(req, res) {
+        print "Handling request to /dashboard.css";
+        
+        // Send the custom CSS
+        res.header("Content-Type", "text/css");
+        res.text(`
+            /* Custom CSS for the Switch Dashboard */
+            body {
+                background-color: #f8f9fa;
+                margin: 0;
+                padding: 0;
+                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            }
+            
+            .switch-app {
+                display: flex;
+                flex-direction: column;
+                min-height: 100vh;
+            }
+            
+            .switch-navbar {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 1rem;
+                background-color: #343a40;
+                color: white;
+            }
+            
+            .switch-navbar-brand {
+                font-size: 1.25rem;
+                font-weight: bold;
+            }
+            
+            .switch-navbar-logo {
+                color: white;
+                text-decoration: none;
+            }
+            
+            .switch-navbar-nav {
+                display: flex;
+                list-style: none;
+                margin: 0;
+                padding: 0;
+            }
+            
+            .switch-nav-item {
+                margin-left: 1rem;
+            }
+            
+            .switch-nav-link {
+                color: rgba(255, 255, 255, 0.75);
+                text-decoration: none;
+                padding: 0.5rem;
+                border-radius: 0.25rem;
+            }
+            
+            .switch-nav-link:hover {
+                color: white;
+                background-color: rgba(255, 255, 255, 0.1);
+            }
+            
+            .switch-active .switch-nav-link {
+                color: white;
+                background-color: rgba(255, 255, 255, 0.2);
+            }
+            
+            .switch-container {
+                flex: 1;
+                padding: 2rem;
+                max-width: 1200px;
+                margin: 0 auto;
+                width: 100%;
+            }
+            
+            .switch-dashboard-title,
+            .switch-analytics-title,
+            .switch-settings-title {
+                margin-bottom: 2rem;
+            }
+            
+            .switch-dashboard-cards {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+                gap: 1rem;
+            }
+            
+            .switch-dashboard-card {
+                border-radius: 0.25rem;
+                overflow: hidden;
+                box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+            }
+            
+            .switch-dashboard-card-content {
+                padding: 1rem;
+            }
+            
+            .switch-dashboard-card-title {
+                margin: 0;
+                font-size: 1rem;
+                color: #6c757d;
+            }
+            
+            .switch-dashboard-card-value {
+                margin: 0.5rem 0 0;
+                font-size: 2rem;
+                font-weight: bold;
+            }
+            
+            .switch-card-primary {
+                border-top: 3px solid #007bff;
+            }
+            
+            .switch-card-success {
+                border-top: 3px solid #28a745;
+            }
+            
+            .switch-card-info {
+                border-top: 3px solid #17a2b8;
+            }
+            
+            .switch-card-warning {
+                border-top: 3px solid #ffc107;
+            }
+            
+            .switch-data-table {
+                width: 100%;
+                border-collapse: collapse;
+            }
+            
+            .switch-data-table th,
+            .switch-data-table td {
+                padding: 0.75rem;
+                border-bottom: 1px solid #dee2e6;
+            }
+            
+            .switch-data-table th {
+                text-align: left;
+                background-color: #f8f9fa;
+                font-weight: bold;
+            }
+            
+            .switch-pagination {
+                display: flex;
+                justify-content: center;
+                margin-top: 1rem;
+            }
+            
+            .switch-pagination-button {
+                padding: 0.375rem 0.75rem;
+                margin: 0 0.25rem;
+                border: 1px solid #dee2e6;
+                background-color: white;
+                color: #007bff;
+                cursor: pointer;
+                border-radius: 0.25rem;
+            }
+            
+            .switch-pagination-button.switch-active {
+                background-color: #007bff;
+                color: white;
+                border-color: #007bff;
+            }
+            
+            .switch-analytics-chart {
+                height: 400px;
+                margin-top: 2rem;
+            }
+            
+            .switch-settings-form {
+                max-width: 600px;
+            }
+            
+            .switch-form-group {
+                margin-bottom: 1rem;
+            }
+            
+            .switch-form-group label {
+                display: block;
+                margin-bottom: 0.5rem;
+                font-weight: bold;
+            }
+        `);
+    }
+}

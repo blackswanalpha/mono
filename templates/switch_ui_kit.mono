@@ -1,0 +1,34 @@
+//  __  __                   
+// |  \/  | ___  _ __   ___  
+// | |\/| |/ _ \| '_ \ / _ \ 
+// | |  | | (_) | | | | (_) |
+// |_|  |_|\___/|_| |_|\___/ 
+//                           
+// Switch UI Kit Definition
+
+kit SwitchUIKit version 1.0.0 {
+    description "A collection of UI components for the Switch framework"
+    
+    collect {
+        Button from "switch/components/button.js" as "A customizable button component"
+        Card from "switch/components/card.js" as "A card component with header, body, and footer"
+        Modal from "switch/components/modal.js" as "A modal dialog component"
+        Tabs from "switch/components/tabs.js" as "A tabbed interface component"
+        Alert from "switch/components/alert.js" as "An alert component for notifications"
+        Dropdown from "switch/components/dropdown.js" as "A dropdown menu component"
+        Table from "switch/components/table.js" as "A table component with sorting, filtering, and pagination"
+        Form from "switch/components/form.js" as "A form component with validation"
+        Tooltip from "switch/components/tooltip.js" as "A tooltip component for displaying additional information"
+        Accordion from "switch/components/accordion.js" as "An accordion component for collapsible content"
+        Pagination from "switch/components/pagination.js" as "A pagination component for navigating through pages"
+        Progress from "switch/components/progress.js" as "A progress bar component"
+        Spinner from "switch/components/spinner.js" as "A loading spinner component"
+        Badge from "switch/components/badge.js" as "A badge component for displaying counts or status"
+        Avatar from "switch/components/avatar.js" as "An avatar component for displaying user images"
+    }
+    
+    tools {
+        generate "mono-switch-cli component $1 --template=ui" as "Generate a new UI component"
+        lint "mono-tools lint $1 --config=ui" as "Lint a UI component"
+    }
+}

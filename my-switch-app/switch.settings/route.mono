@@ -1,0 +1,235 @@
+//  __  __
+// |  \/  | ___  _ __   ___
+// | |\/| |/ _ \| '_ \ / _ \
+// | |  | | (_) | | | | (_) |
+// |_|  |_|\___/|_| |_|\___/
+//
+// Switch Routes
+
+// Define routes
+routes {
+    // Home page
+    get "/" {
+        render "home" {
+            title "my-switch-app - Home"
+            scripts ["/static/js/app.js"]
+            styles ["/static/css/app.css", "/static/css/ui/ui-kit.css"]
+            data {
+                currentPage "home"
+            }
+        }
+    }
+
+    // Tutorials page
+    get "/tutorials" {
+        render "tutorials" {
+            title "my-switch-app - Tutorials"
+            scripts ["/static/js/app.js"]
+            styles ["/static/css/app.css", "/static/css/ui/ui-kit.css"]
+            data {
+                currentPage "tutorials"
+            }
+        }
+    }
+
+    // About page
+    get "/about" {
+        render "about" {
+            title "my-switch-app - About"
+            scripts ["/static/js/app.js"]
+            styles ["/static/css/app.css", "/static/css/ui/ui-kit.css"]
+            data {
+                currentPage "about"
+            }
+        }
+    }
+
+    // Feedback page
+    get "/feedback" {
+        render "feedback" {
+            title "my-switch-app - Feedback"
+            scripts ["/static/js/app.js"]
+            styles ["/static/css/app.css", "/static/css/ui/ui-kit.css"]
+            data {
+                currentPage "feedback"
+            }
+        }
+    }
+
+    // API routes
+    group "/api" {
+        // Get data
+        get "/data" {
+            json {
+                status "success"
+                data [
+                    { id: 1, name: "Item 1" },
+                    { id: 2, name: "Item 2" },
+                    { id: 3, name: "Item 3" }
+                ]
+            }
+        }
+
+        // Post data
+        post "/data" {
+            // Get request body
+            var data = req.body
+
+            // Return response
+            json {
+                status "success"
+                message "Data received"
+                data data
+            }
+        }
+
+        // Package routes
+        group "/packages" {
+            // Get all packages
+            get "/" {
+                // Get packages from registry
+                var packages = pkg.list()
+
+                // Return packages
+                json {
+                    status "success"
+                    data packages
+                }
+            }
+
+            // Get package by name
+            get "/:name" {
+                // Get package name from params
+                var name = req.params.name
+
+                // Get package from registry
+                var package = pkg.get(name)
+
+                // Check if package exists
+                if (!package) {
+                    json {
+                        status "error"
+                        message `Package ${name} not found`
+                    }
+                    return
+                }
+
+                // Return package
+                json {
+                    status "success"
+                    data package
+                }
+            }
+
+            // Install package
+            post "/install" {
+                // Get package name and version from body
+                var name = req.body.name
+                var version = req.body.version
+
+                // Install package
+                var result = pkg.install(name, version)
+
+                // Return result
+                json {
+                    status "success"
+                    message `Package ${name}${version ? '@' + version : ''} installed`
+                    data result
+                }
+            }
+
+            // Uninstall package
+            post "/uninstall" {
+                // Get package name from body
+                var name = req.body.name
+
+                // Uninstall package
+                var result = pkg.uninstall(name)
+
+                // Return result
+                json {
+                    status "success"
+                    message `Package ${name} uninstalled`
+                    data result
+                }
+            }
+        }
+
+        // Kit routes
+        group "/kits" {
+            // Get all kits
+            get "/" {
+                // Get kits from registry
+                var kits = kit.list()
+
+                // Return kits
+                json {
+                    status "success"
+                    data kits
+                }
+            }
+
+            // Get kit by name
+            get "/:name" {
+                // Get kit name from params
+                var name = req.params.name
+
+                // Get kit from registry
+                var kit = kit.get(name)
+
+                // Check if kit exists
+                if (!kit) {
+                    json {
+                        status "error"
+                        message `Kit ${name} not found`
+                    }
+                    return
+                }
+
+                // Return kit
+                json {
+                    status "success"
+                    data kit
+                }
+            }
+
+            // Install kit
+            post "/install" {
+                // Get kit name and version from body
+                var name = req.body.name
+                var version = req.body.version
+
+                // Install kit
+                var result = kit.install(name, version)
+
+                // Return result
+                json {
+                    status "success"
+                    message `Kit ${name}${version ? '@' + version : ''} installed`
+                    data result
+                }
+            }
+
+            // Uninstall kit
+            post "/uninstall" {
+                // Get kit name from body
+                var name = req.body.name
+
+                // Uninstall kit
+                var result = kit.uninstall(name)
+
+                // Return result
+                json {
+                    status "success"
+                    message `Kit ${name} uninstalled`
+                    data result
+                }
+            }
+        }
+    }
+
+    // Static files
+    get "/static/(.*)" {
+        static "src/static"
+    }
+}

@@ -1,0 +1,53 @@
+//  __  __                   
+// |  \/  | ___  _ __   ___  
+// | |\/| |/ _ \| '_ \ / _ \ 
+// | |  | | (_) | | | | (_) |
+// |_|  |_|\___/|_| |_|\___/ 
+//                           
+// my-switch-app Package
+
+package my-switch-app {
+    version "1.0.0"
+    description "A Switch application package"
+    author ""
+    license "MIT"
+    
+    // Dependencies
+    depends {
+        switch-core version "^1.0.0"
+        switch-ui-kit version "^1.0.0"
+        http-client version "^1.0.0"
+        date-formatter version "^1.0.0"
+        storage-manager version "^1.0.0"
+        state-manager version "^1.0.0"
+        router version "^1.0.0"
+    }
+    
+    // Components
+    collect {
+        App from "app.mono"
+        HomePage from "src/pages/home.mono"
+        AboutPage from "src/pages/about.mono"
+        PackagesPage from "src/pages/packages.mono"
+        KitsPage from "src/pages/kits.mono"
+    }
+    
+    // Settings
+    settings {
+        port 8000
+        host "localhost"
+        workers 1
+        debug true
+    }
+    
+    // Build settings
+    build {
+        output "build"
+        minify true
+        bundle true
+        sourcemap true
+        tree_shake true
+        code_splitting true
+        differential_loading true
+    }
+}

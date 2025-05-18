@@ -1,0 +1,193 @@
+/* Theme definitions for Mono Editor */
+
+/* Dark Theme (default) */
+.theme-dark {
+  --primary-color: #0078d4;
+  --secondary-color: #3a3d41;
+
+  --editor-bg: #1e1e1e;
+  --sidebar-bg: #252526;
+  --tabs-bg: #252526;
+  --tab-bg: #2d2d2d;
+  --tab-active-bg: #1e1e1e;
+  --terminal-bg: #1e1e1e;
+  --status-bar-bg: #007acc;
+
+  --text-color: #cccccc;
+  --text-bright-color: #ffffff;
+  --text-dim-color: #8a8a8a;
+  --tab-text: #8a8a8a;
+  --tab-active-text: #ffffff;
+
+  --border-color: #3a3d41;
+  --hover-bg: #2a2d2e;
+
+  --button-bg: #3a3d41;
+  --button-text: #cccccc;
+  --button-hover-bg: #4a4d51;
+
+  --icon-color: #cccccc;
+
+  --scrollbar-track: #1e1e1e;
+  --scrollbar-thumb: #424242;
+  --scrollbar-thumb-hover: #4f4f4f;
+
+  /* Syntax highlighting */
+  --syntax-keyword: #569cd6;
+  --syntax-function: #dcdcaa;
+  --syntax-class: #4ec9b0;
+  --syntax-variable: #9cdcfe;
+  --syntax-string: #ce9178;
+  --syntax-number: #b5cea8;
+  --syntax-comment: #6a9955;
+  --syntax-operator: #d4d4d4;
+  --syntax-type: #4ec9b0;
+  --syntax-parameter: #9cdcfe;
+
+  /* Diagnostic colors */
+  --error-color: #f14c4c;
+  --warning-color: #cca700;
+  --info-color: #3794ff;
+  --hint-color: #8a8a8a;
+  --success-color: #4caf50;
+  --error-bg: rgba(241, 76, 76, 0.1);
+  --warning-bg: rgba(204, 167, 0, 0.1);
+  --info-bg: rgba(55, 148, 255, 0.1);
+
+  /* Editor highlighting */
+  --current-line-bg: rgba(40, 40, 40, 0.5);
+
+  /* Debug colors */
+  --debug-current-line-bg: rgba(14, 99, 156, 0.3);
+  --debug-current-line-border: #0e639c;
+  --debug-breakpoint-bg: #e51400;
+  --debug-breakpoint-disabled-bg: #858585;
+}
+
+/* Light Theme */
+.theme-light {
+  --primary-color: #0078d4;
+  --secondary-color: #f3f3f3;
+
+  --editor-bg: #ffffff;
+  --sidebar-bg: #f3f3f3;
+  --tabs-bg: #f3f3f3;
+  --tab-bg: #ececec;
+  --tab-active-bg: #ffffff;
+  --terminal-bg: #ffffff;
+  --status-bar-bg: #007acc;
+
+  --text-color: #333333;
+  --text-bright-color: #000000;
+  --text-dim-color: #6e6e6e;
+  --tab-text: #6e6e6e;
+  --tab-active-text: #333333;
+
+  --border-color: #d4d4d4;
+  --hover-bg: #e8e8e8;
+
+  --button-bg: #f3f3f3;
+  --button-text: #333333;
+  --button-hover-bg: #e5e5e5;
+
+  --icon-color: #424242;
+
+  --scrollbar-track: #f1f1f1;
+  --scrollbar-thumb: #c1c1c1;
+  --scrollbar-thumb-hover: #a9a9a9;
+
+  /* Syntax highlighting */
+  --syntax-keyword: #0000ff;
+  --syntax-function: #795e26;
+  --syntax-class: #267f99;
+  --syntax-variable: #001080;
+  --syntax-string: #a31515;
+  --syntax-number: #098658;
+  --syntax-comment: #008000;
+  --syntax-operator: #000000;
+  --syntax-type: #267f99;
+  --syntax-parameter: #001080;
+
+  /* Diagnostic colors */
+  --error-color: #e51400;
+  --warning-color: #bf8803;
+  --info-color: #1a85ff;
+  --hint-color: #6c6c6c;
+  --success-color: #388e3c;
+  --error-bg: rgba(229, 20, 0, 0.1);
+  --warning-bg: rgba(191, 136, 3, 0.1);
+  --info-bg: rgba(26, 133, 255, 0.1);
+
+  /* Editor highlighting */
+  --current-line-bg: rgba(240, 240, 240, 0.5);
+
+  /* Debug colors */
+  --debug-current-line-bg: rgba(173, 214, 255, 0.3);
+  --debug-current-line-border: #add6ff;
+  --debug-breakpoint-bg: #e51400;
+  --debug-breakpoint-disabled-bg: #858585;
+}
+
+/* Nord Theme */
+.theme-nord {
+  --primary-color: #88c0d0;
+  --secondary-color: #4c566a;
+
+  --editor-bg: #2e3440;
+  --sidebar-bg: #3b4252;
+  --tabs-bg: #3b4252;
+  --tab-bg: #434c5e;
+  --tab-active-bg: #2e3440;
+  --terminal-bg: #2e3440;
+  --status-bar-bg: #88c0d0;
+
+  --text-color: #d8dee9;
+  --text-bright-color: #eceff4;
+  --text-dim-color: #9a9ea8;
+  --tab-text: #9a9ea8;
+  --tab-active-text: #eceff4;
+
+  --border-color: #4c566a;
+  --hover-bg: #434c5e;
+
+  --button-bg: #4c566a;
+  --button-text: #d8dee9;
+  --button-hover-bg: #5e6779;
+
+  --icon-color: #d8dee9;
+
+  --scrollbar-track: #2e3440;
+  --scrollbar-thumb: #4c566a;
+  --scrollbar-thumb-hover: #5e6779;
+
+  /* Syntax highlighting */
+  --syntax-keyword: #81a1c1;
+  --syntax-function: #88c0d0;
+  --syntax-class: #8fbcbb;
+  --syntax-variable: #d8dee9;
+  --syntax-string: #a3be8c;
+  --syntax-number: #b48ead;
+  --syntax-comment: #616e88;
+  --syntax-operator: #d8dee9;
+  --syntax-type: #8fbcbb;
+  --syntax-parameter: #d8dee9;
+
+  /* Diagnostic colors */
+  --error-color: #bf616a;
+  --warning-color: #ebcb8b;
+  --info-color: #88c0d0;
+  --hint-color: #9a9ea8;
+  --success-color: #a3be8c;
+  --error-bg: rgba(191, 97, 106, 0.1);
+  --warning-bg: rgba(235, 203, 139, 0.1);
+  --info-bg: rgba(136, 192, 208, 0.1);
+
+  /* Editor highlighting */
+  --current-line-bg: rgba(59, 66, 82, 0.5);
+
+  /* Debug colors */
+  --debug-current-line-bg: rgba(136, 192, 208, 0.2);
+  --debug-current-line-border: #88c0d0;
+  --debug-breakpoint-bg: #bf616a;
+  --debug-breakpoint-disabled-bg: #4c566a;
+}

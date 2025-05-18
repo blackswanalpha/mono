@@ -1,0 +1,247 @@
+//  __  __                   
+// |  \/  | ___  _ __   ___  
+// | |\/| |/ _ \| '_ \ / _ \ 
+// | |  | | (_) | | | | (_) |
+// |_|  |_|\___/|_| |_|\___/ 
+//                           
+// Enhanced Component with Frame and Layout Support
+
+// Import the MainFrame
+{{ '@/frames/main-frame.mono' }}
+
+// Import the AppLayout
+{{ '@/layouts/app-layout.mono' }}
+
+component EnhancedComponent {
+    props {
+        title: string = "Enhanced Component",
+        description: string = "This component demonstrates frames and layouts",
+        children: string = ""
+    }
+
+    state {
+        counter: number = 0,
+        frame: object = null,
+        layout: object = null,
+        items: array = [
+            {
+                id: 1,
+                title: "Frames",
+                description: "Hierarchical component containers with lifecycle hooks"
+            },
+            {
+                id: 2,
+                title: "Layouts",
+                description: "Declarative layouts with responsive design"
+            },
+            {
+                id: 3,
+                title: "Hydration",
+                description: "Client-side hydration of server-rendered content"
+            }
+        ]
+    }
+
+    function constructor() {
+        console.log("EnhancedComponent constructor");
+        
+        // Create the frame
+        this.state.frame = MonoFrames.createFrame({
+            name: "MainFrame",
+            state: {
+                title: this.props.title,
+                theme: localStorage.getItem("darkMode") === "true" ? "dark" : "light"
+            }
+        });
+        
+        // Create the layout
+        this.state.layout = MonoLayoutParser.parse(`
+            layout AppLayout {
+                variables {
+                    headerHeight: 60px;
+                    contentPadding: 20px;
+                }
+                
+                root {
+                    width: 100%;
+                    height: 100%;
+                    
+                    element header {
+                        width: 100%;
+                        height: 60px;
+                        background-color: #6200ea;
+                        color: white;
+                        padding: 0 20px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: space-between;
+                        constraint top: 0;
+                        constraint left: 0;
+                    }
+                    
+                    element content {
+                        width: 100%;
+                        height: calc(100% - 60px);
+                        padding: 20px;
+                        constraint top: 60px;
+                        constraint left: 0;
+                    }
+                    
+                    element sidebar {
+                        width: 250px;
+                        height: 100%;
+                        background-color: #f5f5f5;
+                        padding: 20px;
+                        constraint top: 0;
+                        constraint left: 0;
+                    }
+                    
+                    element main {
+                        width: calc(100% - 250px);
+                        height: 100%;
+                        padding: 20px;
+                        constraint top: 0;
+                        constraint left: 250px;
+                    }
+                }
+                
+                media mobile (max-width: 768px) {
+                    root {
+                        element sidebar {
+                            width: 100%;
+                            height: auto;
+                            constraint top: 60px;
+                            constraint left: 0;
+                        }
+                        
+                        element main {
+                            width: 100%;
+                            height: auto;
+                            constraint top: 200px;
+                            constraint left: 0;
+                        }
+                    }
+                }
+            }
+        `);
+        
+        // Add this component to the frame
+        this.state.frame.addComponent(this);
+    }
+    
+    function increment() {
+        this.state.counter++;
+    }
+    
+    function decrement() {
+        if (this.state.counter > 0) {
+            this.state.counter--;
+        }
+    }
+    
+    function toggleTheme() {
+        // Toggle theme
+        const isDark = localStorage.getItem("darkMode") === "true";
+        localStorage.setItem("darkMode", (!isDark).toString());
+        
+        // Update frame state
+        if (this.state.frame) {
+            this.state.frame.setState({
+                theme: !isDark ? "dark" : "light"
+            });
+        }
+        
+        // Update body class
+        if (!isDark) {
+            document.body.classList.add("dark-mode");
+        } else {
+            document.body.classList.remove("dark-mode");
+        }
+    }
+    
+    function renderItems() {
+        var html = "";
+        
+        for (var i = 0; i < this.state.items.length; i++) {
+            var item = this.state.items[i];
+            
+            html += `
+                <div class="card mb-3 feature-card" style="animation: fadeIn 0.5s ease-in-out ${i * 100}ms both;">
+                    <div class="card-body">
+                        <h5 class="card-title">${item.title}</h5>
+                        <p class="card-text">${item.description}</p>
+                    </div>
+                </div>
+            `;
+        }
+        
+        return html;
+    }
+    
+    function render() {
+        // Create the component
+        var component = SwitchEnhanced.component.create({
+            name: "EnhancedComponent",
+            props: this.props
+        });
+        
+        // Return the HTML
+        return `
+            <div class="enhanced-component">
+                <div class="frame-container" data-frame="MainFrame">
+                    <div class="main-frame ${localStorage.getItem('darkMode') === 'true' ? 'dark-mode' : ''}">
+                        <div class="frame-header">
+                            <h1>${this.props.title}</h1>
+                            <button class="theme-toggle" data-event="click" data-action="toggleTheme">
+                                <i class="bi bi-${localStorage.getItem('darkMode') === 'true' ? 'sun' : 'moon'}"></i>
+                            </button>
+                        </div>
+                        <div class="frame-content">
+                            <div class="layout-container" data-layout="AppLayout">
+                                <div data-layout-element="header">
+                                    <h2>${this.props.title}</h2>
+                                    <div class="counter-controls">
+                                        <button class="btn btn-sm btn-primary me-2" data-event="click" data-action="decrement">-</button>
+                                        <span class="counter-value">${this.state.counter}</span>
+                                        <button class="btn btn-sm btn-primary ms-2" data-event="click" data-action="increment">+</button>
+                                    </div>
+                                </div>
+                                <div data-layout-element="content">
+                                    <p class="lead">${this.props.description}</p>
+                                    
+                                    <div class="row mt-4">
+                                        <div class="col-md-6">
+                                            <h3>Features</h3>
+                                            ${this.renderItems()}
+                                        </div>
+                                        <div class="col-md-6">
+                                            <h3>Children</h3>
+                                            <div class="children-container">
+                                                ${this.props.children}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <script>
+                    // Apply layout when the component is rendered
+                    document.addEventListener('DOMContentLoaded', function() {
+                        // Find the layout container
+                        const layoutContainer = document.querySelector('[data-layout="AppLayout"]');
+                        if (layoutContainer) {
+                            // Apply the layout
+                            MonoLayoutParser.applyLayout(${JSON.stringify(this.state.layout)}, layoutContainer);
+                        }
+                    });
+                </script>
+            </div>
+        `;
+    }
+}
+
+// Export the component
+export EnhancedComponent;

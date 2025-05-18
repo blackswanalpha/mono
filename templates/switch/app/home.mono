@@ -1,0 +1,81 @@
+//  __  __                   
+// |  \/  | ___  _ __   ___  
+// | |\/| |/ _ \| '_ \ / _ \ 
+// | |  | | (_) | | | | (_) |
+// |_|  |_|\___/|_| |_|\___/ 
+//                           
+// {{APP_NAME}} - Home Page Component
+
+component HomePage {
+    state {
+        title: string = "Welcome to {{APP_NAME}}",
+        count: number = 0
+    }
+    
+    function constructor() {
+        // Initialize the component
+    }
+    
+    function increment() {
+        this.state.count += 1;
+    }
+    
+    function decrement() {
+        this.state.count -= 1;
+    }
+    
+    function render() {
+        // Use the Switch framework to render the component
+        switch.clientEvent("click", "handleClick");
+        
+        // Create a Switch component
+        var home = switch.component("HomePage", {
+            title: this.state.title,
+            count: this.state.count
+        });
+        
+        // Return the HTML
+        return `
+            <div class="home-page">
+                <h1>${this.state.title}</h1>
+                <p>This is a sample application built with the Switch framework for Mono.</p>
+                
+                <div class="switch-card switch-mt-4">
+                    <div class="switch-card-header">
+                        <h2>Counter Example</h2>
+                    </div>
+                    <div class="switch-card-body">
+                        <p class="switch-text-center">Count: ${this.state.count}</p>
+                        <div class="switch-text-center">
+                            <button class="switch-button switch-button-primary" data-event="click" data-action="increment">Increment</button>
+                            <button class="switch-button switch-button-danger" data-event="click" data-action="decrement">Decrement</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="switch-card switch-mt-4">
+                    <div class="switch-card-header">
+                        <h2>Getting Started</h2>
+                    </div>
+                    <div class="switch-card-body">
+                        <p>To get started with your new Switch application:</p>
+                        <ol>
+                            <li>Edit the <code>pages/home.mono</code> file to customize this page</li>
+                            <li>Create new components in the <code>components</code> directory</li>
+                            <li>Add new pages in the <code>pages</code> directory</li>
+                            <li>Update the routes in <code>main.mono</code></li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+    
+    function handleClick(event) {
+        if (event.target.dataset.action === "increment") {
+            this.increment();
+        } else if (event.target.dataset.action === "decrement") {
+            this.decrement();
+        }
+    }
+}

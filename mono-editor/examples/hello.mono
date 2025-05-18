@@ -1,0 +1,11 @@
+// Hello World example in Mono
+
+component HelloWorld {
+  function render() {
+    print("Hello, World!");
+    return <div>Hello, World!</div>;
+  }
+}
+
+// Export the componentAdd Collaborative Editing: Implement real-time collaborative editing with features like cursor sharing and chat
+export default HelloWorld;

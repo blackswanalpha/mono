@@ -1,0 +1,27 @@
+//  __  __                   
+// |  \/  | ___  _ __   ___  
+// | |\/| |/ _ \| '_ \ / _ \ 
+// | |  | | (_) | | | | (_) |
+// |_|  |_|\___/|_| |_|\___/ 
+//                           
+// Print Demo
+
+component Main {
+    function start() {
+        print "=== Switch Framework Enhancements ===";
+        print "";
+        print "We've enhanced the Switch framework with:";
+        print "1. New UI components (DatePicker, Slider, Carousel)";
+        print "2. Improved state management";
+        print "3. Enhanced server-side rendering";
+        print "4. Comprehensive documentation";
+        print "";
+        print "Check out the documentation for more information:";
+        print "- General Documentation: docs/switch/README.md";
+        print "- API Reference: docs/switch/api-reference.md";
+        print "- UI Kit Documentation: docs/switch/ui-kit.md";
+        print "- State Management Documentation: docs/switch/state-management.md";
+        print "- SSR Documentation: docs/switch/server-side-rendering.md";
+        print "- Todo App Tutorial: docs/switch/tutorials/todo-app.md";
+    }
+}

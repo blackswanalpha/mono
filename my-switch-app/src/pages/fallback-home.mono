@@ -1,0 +1,87 @@
+//  __  __
+// |  \/  | ___  _ __   ___
+// | |\/| |/ _ \| '_ \ / _ \
+// | |  | | (_) | | | | (_) |
+// |_|  |_|\___/|_| |_|\___/
+//
+// Fallback Home Page Component
+
+component FallbackHomePage {
+    state {
+        title: string = "Welcome to my-switch-app",
+        features: array = [
+            {
+                id: 1,
+                title: "Component-Based",
+                description: "Build UIs with reusable components.",
+                icon: "puzzle-piece"
+            },
+            {
+                id: 2,
+                title: "State Management",
+                description: "Manage application state with ease.",
+                icon: "database"
+            },
+            {
+                id: 3,
+                title: "Routing",
+                description: "Navigate between pages without full page reloads.",
+                icon: "signpost-split"
+            }
+        ]
+    }
+    
+    function render() {
+        return `
+            <div class="home-page">
+                <div class="hero mb-4">
+                    <div class="card">
+                        <div class="card-body text-center">
+                            <h2 class="mb-3">${this.state.title}</h2>
+                            <p class="mb-4">A modern web framework for building interactive applications.</p>
+                            <div class="mb-3">
+                                <button class="btn btn-primary">Get Started</button>
+                                <button class="btn btn-secondary">Documentation</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <h3 class="mb-3">Features</h3>
+                
+                <div class="row">
+                    ${this.renderFeatures()}
+                </div>
+            </div>
+        `;
+    }
+    
+    function renderFeatures() {
+        var html = "";
+        
+        for (var i = 0; i < this.state.features.length; i++) {
+            var feature = this.state.features[i];
+            
+            html += `
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="feature-icon text-primary">
+                                    <i class="bi bi-${feature.icon}"></i>
+                                </div>
+                                <h4 class="mb-0 ms-3">${feature.title}</h4>
+                            </div>
+                            <p class="mb-0">${feature.description}</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        return html;
+    }
+}
+
+// Export the component
+export FallbackHomePage;

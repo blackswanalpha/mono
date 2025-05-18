@@ -1,0 +1,126 @@
+//  __  __                   
+// |  \/  | ___  _ __   ___  
+// | |\/| |/ _ \| '_ \ / _ \ 
+// | |  | | (_) | | | | (_) |
+// |_|  |_|\___/|_| |_|\___/ 
+//
+// Static File Server Example - A simple static file server in Mono
+
+component FileUtils {
+    function getMimeType(filename) {
+        // Extract file extension
+        var extension = "";
+        var lastDotIndex = filename.lastIndexOf(".");
+        if (lastDotIndex >= 0) {
+            extension = filename.substring(lastDotIndex + 1).toLowerCase();
+        }
+        
+        // Map extension to MIME type
+        var mimeTypes = {
+            "html": "text/html",
+            "css": "text/css",
+            "js": "application/javascript",
+            "json": "application/json",
+            "txt": "text/plain",
+            "png": "image/png",
+            "jpg": "image/jpeg",
+            "jpeg": "image/jpeg",
+            "gif": "image/gif",
+            "svg": "image/svg+xml",
+            "ico": "image/x-icon"
+        };
+        
+        return mimeTypes[extension] || "application/octet-stream";
+    }
+    
+    function readFile(path) {
+        // Note: In a real implementation, this would read from the file system
+        // For this example, we'll simulate a few files
+        
+        var files = {
+            "/index.html": "<html><body><h1>Welcome to Mono Static Server</h1><p>A simple static file server written in Mono</p><ul><li><a href='/about.html'>About</a></li><li><a href='/contact.html'>Contact</a></li></ul></body></html>",
+            "/about.html": "<html><body><h1>About</h1><p>This is a simple static file server written in Mono.</p><p><a href='/'>Back to Home</a></p></body></html>",
+            "/contact.html": "<html><body><h1>Contact</h1><p>Email: info@example.com</p><p><a href='/'>Back to Home</a></p></body></html>",
+            "/styles.css": "body { font-family: Arial, sans-serif; margin: 40px; line-height: 1.6; } h1 { color: #333; }",
+            "/script.js": "console.log('Hello from Mono Static Server!');"
+        };
+        
+        return files[path] || null;
+    }
+}
+
+component StaticServer {
+    state {
+        port: number = 8000;
+        host: string = "localhost";
+        rootDir: string = "./public";
+        fileUtils: FileUtils = null;
+    }
+    
+    function constructor(port: number, host: string, rootDir: string) {
+        if (port) {
+            this.port = port;
+        }
+        if (host) {
+            this.host = host;
+        }
+        if (rootDir) {
+            this.rootDir = rootDir;
+        }
+        
+        this.fileUtils = new FileUtils();
+    }
+    
+    function start() {
+        print "Starting static file server on " + this.host + ":" + this.port;
+        print "Serving files from " + this.rootDir;
+        
+        // Configure routes
+        http.get("/", "serveFile");
+        http.get("/:path", "serveFile");
+        
+        // Start the server
+        http.start();
+        
+        print "Server is running. Press Ctrl+C to stop.";
+    }
+    
+    function serveFile(req, res) {
+        // Get the requested path
+        var path = req.path;
+        
+        // If the path is "/", serve index.html
+        if (path == "/") {
+            path = "/index.html";
+        }
+        
+        print "Serving file: " + path;
+        
+        // Read the file
+        var content = this.fileUtils.readFile(path);
+        
+        if (content) {
+            // Set the content type based on the file extension
+            var contentType = this.fileUtils.getMimeType(path);
+            res.header("Content-Type", contentType);
+            
+            // Serve the file
+            res.text(content);
+        } else {
+            // File not found
+            res.status(404).html("<html><body><h1>404 Not Found</h1><p>The requested file was not found.</p></body></html>");
+        }
+    }
+}
+
+component Main {
+    function start() {
+        print "=== Mono Static File Server Example ===";
+        
+        // Create a static file server on port 8000
+        var server = new StaticServer(8000, "localhost", "./public");
+        
+        // Start the server
+        server.start();
+    }
+}

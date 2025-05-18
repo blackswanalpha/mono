@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }}</title>
+
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+    <!-- Switch Framework Styles -->
+    <link rel="stylesheet" href="/src/static/css/switch.css">
+    <link rel="stylesheet" href="/src/static/css/ui.css">
+    <link rel="stylesheet" href="/src/static/css/app.css">
+    <link rel="stylesheet" href="/src/static/css/ui/ui-kit.css">
+
+    <!-- Custom Styles -->
+    {{ styles }}
+</head>
+<body class="{{ bodyClass }}">
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <img src="/src/static/img/switch-logo.svg" alt="Switch Logo" width="30" height="30" class="d-inline-block align-top me-2">
+                Switch
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link {{ homeActive }}" href="/">
+                            <i class="bi bi-house me-1"></i>
+                            Home
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ tutorialsActive }}" href="/tutorials">
+                            <i class="bi bi-book me-1"></i>
+                            Tutorials
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ aboutActive }}" href="/about">
+                            <i class="bi bi-info-circle me-1"></i>
+                            About
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ feedbackActive }}" href="/feedback">
+                            <i class="bi bi-chat-dots me-1"></i>
+                            Feedback
+                        </a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" id="theme-toggle">
+                            <i class="bi bi-moon-fill me-1" id="theme-icon"></i>
+                            <span id="theme-text">Dark Mode</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container mt-4">
+        {{ content }}
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer mt-5">
+        <div class="container text-center">
+            <p class="mb-0">
+                &copy; <span id="current-year"></span> Switch. Built with
+                <a href="https://github.com/blackswanalpha/mono" target="_blank">Mono</a> and
+                <a href="https://github.com/blackswanalpha/mono/tree/main/switch" target="_blank">Switch</a>.
+            </p>
+        </div>
+    </footer>
+
+    <!-- Switch Framework Scripts -->
+    <script src="/src/static/js/dom.js"></script>
+    <script src="/src/static/js/switch.js"></script>
+    <script src="/src/static/js/store.js"></script>
+    <script src="/src/static/js/components.js"></script>
+    <script src="/src/static/js/ssr.js"></script>
+    <script src="/src/static/js/ui.js"></script>
+    <script src="/src/static/js/app.js"></script>
+    <script src="/src/static/js/index.js"></script>
+    <script src="/src/static/js/ui-kit.js"></script>
+
+    <!-- Custom Scripts -->
+    {{ scripts }}
+
+    <script>
+        // Set current year in footer
+        document.getElementById('current-year').textContent = new Date().getFullYear();
+
+        // Theme toggle functionality
+        document.getElementById('theme-toggle').addEventListener('click', function(e) {
+            e.preventDefault();
+            const body = document.body;
+            const isDarkMode = body.classList.toggle('dark-mode');
+            
+            // Update icon and text
+            const themeIcon = document.getElementById('theme-icon');
+            const themeText = document.getElementById('theme-text');
+            
+            if (isDarkMode) {
+                themeIcon.className = 'bi bi-sun-fill me-1';
+                themeText.textContent = 'Light Mode';
+            } else {
+                themeIcon.className = 'bi bi-moon-fill me-1';
+                themeText.textContent = 'Dark Mode';
+            }
+            
+            // Store preference
+            localStorage.setItem('darkMode', isDarkMode);
+        });
+
+        // Apply stored theme preference
+        document.addEventListener('DOMContentLoaded', function() {
+            if (localStorage.getItem('darkMode') === 'true') {
+                document.body.classList.add('dark-mode');
+                document.getElementById('theme-icon').className = 'bi bi-sun-fill me-1';
+                document.getElementById('theme-text').textContent = 'Light Mode';
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,127 @@
+//  __  __                   
+// |  \/  | ___  _ __   ___  
+// | |\/| |/ _ \| '_ \ / _ \ 
+// | |  | | (_) | | | | (_) |
+// |_|  |_|\___/|_| |_|\___/ 
+//                           
+// Home Page Component
+
+// Import UI components
+import "src/components/card.mono"
+import "src/components/button.mono"
+
+component HomePage {
+    state {
+        title: string = "Welcome to {{APP_NAME}}",
+        features: array = [
+            {
+                id: 1,
+                title: "Component-Based",
+                description: "Build UIs with reusable components.",
+                icon: "puzzle-piece"
+            },
+            {
+                id: 2,
+                title: "State Management",
+                description: "Manage application state with ease.",
+                icon: "database"
+            },
+            {
+                id: 3,
+                title: "Routing",
+                description: "Navigate between pages without full page reloads.",
+                icon: "route"
+            },
+            {
+                id: 4,
+                title: "Package System",
+                description: "Use and create reusable packages.",
+                icon: "box"
+            }
+        ]
+    }
+    
+    function constructor() {
+        // Initialize the component
+    }
+    
+    function render() {
+        // Create the component
+        var homePage = switch.component("HomePage", {
+            title: this.state.title,
+            features: this.state.features
+        });
+        
+        // Return the HTML
+        return `
+            <div class="home-page">
+                <div class="hero mb-4">
+                    <div class="card">
+                        <div class="card-body text-center">
+                            <h2 class="mb-3">${this.state.title}</h2>
+                            <p class="mb-4">A modern web framework for building interactive applications.</p>
+                            <div class="mb-3">
+                                <button class="btn btn-primary">Get Started</button>
+                                <button class="btn btn-secondary">Documentation</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <h3 class="mb-3">Features</h3>
+                
+                <div class="row">
+                    ${this.renderFeatures()}
+                </div>
+                
+                <div class="mt-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h4 class="card-title">Quick Start</h4>
+                        </div>
+                        <div class="card-body">
+                            <p>Create a new Switch application:</p>
+                            <pre><code>switch create my-app</code></pre>
+                            
+                            <p>Run the application:</p>
+                            <pre><code>cd my-app
+switch run app --reload</code></pre>
+                            
+                            <p>Build for production:</p>
+                            <pre><code>switch build app --minify --bundle</code></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+    
+    function renderFeatures() {
+        var html = "";
+        
+        for (var i = 0; i < this.state.features.length; i++) {
+            var feature = this.state.features[i];
+            
+            html += `
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="feature-icon text-primary">
+                                    <i class="bi bi-${feature.icon}"></i>
+                                </div>
+                                <h4 class="mb-0 ms-3">${feature.title}</h4>
+                            </div>
+                            <p class="mb-0">${feature.description}</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        return html;
+    }
+}
+
+// Export the component
+export HomePage;

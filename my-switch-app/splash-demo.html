@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Splash Screen Demo</title>
+
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+    <!-- Switch Framework Styles -->
+    <link rel="stylesheet" href="src/static/css/switch.css">
+    <link rel="stylesheet" href="src/static/css/ui.css">
+    <link rel="stylesheet" href="src/static/css/app.css">
+    <link rel="stylesheet" href="src/static/css/ui/ui-kit.css">
+
+    <style>
+        .demo-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .demo-section {
+            margin-bottom: 3rem;
+            padding: 2rem;
+            border-radius: 8px;
+            background-color: #fff;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .demo-section h2 {
+            margin-top: 0;
+            margin-bottom: 1.5rem;
+            color: var(--primary-color);
+        }
+        
+        .demo-controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .demo-result {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            border-radius: 8px;
+            background-color: #f8f9fa;
+            min-height: 200px;
+            position: relative;
+        }
+        
+        .dark-mode .demo-section {
+            background-color: #333;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        .dark-mode .demo-result {
+            background-color: #222;
+        }
+        
+        .theme-toggle {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body>
+    <button class="btn btn-icon theme-toggle" onclick="toggleDarkMode()">
+        <i class="bi bi-moon-fill"></i>
+    </button>
+
+    <div class="demo-container">
+        <h1>Switch UI Kit Demo</h1>
+        <p class="lead">Explore the new UI components and features</p>
+        
+        <div class="demo-section">
+            <h2>Splash Screen</h2>
+            <p>A customizable splash screen for your application.</p>
+            
+            <div class="demo-controls">
+                <button class="btn btn-primary" onclick="showSplashScreen('fade')">Fade Animation</button>
+                <button class="btn btn-primary" onclick="showSplashScreen('zoom')">Zoom Animation</button>
+                <button class="btn btn-primary" onclick="showSplashScreen('slide')">Slide Animation</button>
+                <button class="btn btn-secondary" onclick="showSplashScreen('fade', true)">With Progress Bar</button>
+            </div>
+        </div>
+        
+        <div class="demo-section">
+            <h2>Loading Spinners</h2>
+            <p>Various loading spinners for indicating progress.</p>
+            
+            <div class="demo-controls">
+                <button class="btn btn-primary" onclick="showSpinner('border', 'primary')">Border Spinner</button>
+                <button class="btn btn-primary" onclick="showSpinner('grow', 'primary')">Grow Spinner</button>
+                <button class="btn btn-secondary" onclick="showSpinner('border', 'secondary')">Secondary</button>
+                <button class="btn btn-success" onclick="showSpinner('border', 'success')">Success</button>
+                <button class="btn btn-danger" onclick="showSpinner('border', 'danger')">Danger</button>
+            </div>
+            
+            <div class="demo-result" id="spinner-result">
+                <!-- Spinner will be shown here -->
+            </div>
+        </div>
+        
+        <div class="demo-section">
+            <h2>Skeleton Loaders</h2>
+            <p>Content placeholders while data is loading.</p>
+            
+            <div class="demo-controls">
+                <button class="btn btn-primary" onclick="showSkeleton('text')">Text Skeleton</button>
+                <button class="btn btn-primary" onclick="showSkeleton('card')">Card Skeleton</button>
+                <button class="btn btn-primary" onclick="showSkeleton('avatar')">Avatar Skeleton</button>
+                <button class="btn btn-secondary" onclick="showSkeleton('text', 'wave')">Wave Animation</button>
+                <button class="btn btn-secondary" onclick="showSkeleton('text', 'pulse')">Pulse Animation</button>
+            </div>
+            
+            <div class="demo-result" id="skeleton-result">
+                <!-- Skeleton will be shown here -->
+            </div>
+        </div>
+        
+        <div class="demo-section">
+            <h2>Toast Notifications</h2>
+            <p>Informative notifications for user feedback.</p>
+            
+            <div class="demo-controls">
+                <button class="btn btn-info" onclick="showToast('info')">Info Toast</button>
+                <button class="btn btn-success" onclick="showToast('success')">Success Toast</button>
+                <button class="btn btn-warning" onclick="showToast('warning')">Warning Toast</button>
+                <button class="btn btn-danger" onclick="showToast('error')">Error Toast</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Switch Framework Scripts -->
+    <script src="src/static/js/dom.js"></script>
+    <script src="src/static/js/switch.js"></script>
+    <script src="src/static/js/store.js"></script>
+    <script src="src/static/js/components.js"></script>
+    <script src="src/static/js/ssr.js"></script>
+    <script src="src/static/js/ui.js"></script>
+    <script src="src/static/js/app.js"></script>
+    <script src="src/static/js/index.js"></script>
+    <script src="src/static/js/ui-kit.js"></script>
+
+    <script>
+        // Toggle dark mode
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+            
+            // Update the icon
+            const icon = document.querySelector('.theme-toggle i');
+            if (document.body.classList.contains('dark-mode')) {
+                icon.className = 'bi bi-sun-fill';
+            } else {
+                icon.className = 'bi bi-moon-fill';
+            }
+            
+            // Store the preference
+            localStorage.setItem('darkMode', document.body.classList.contains('dark-mode'));
+        }
+        
+        // Apply dark mode preference
+        if (localStorage.getItem('darkMode') === 'true') {
+            document.body.classList.add('dark-mode');
+            document.querySelector('.theme-toggle i').className = 'bi bi-sun-fill';
+        }
+        
+        // Show splash screen
+        function showSplashScreen(animation, showProgress = false) {
+            const isDarkMode = document.body.classList.contains('dark-mode');
+            
+            // Create splash screen
+            SwitchUIKit.splashScreen.create({
+                title: "my-switch-app",
+                subtitle: "A modern web framework",
+                duration: 3000,
+                theme: isDarkMode ? "dark" : "light",
+                animation: animation,
+                showProgress: showProgress,
+                progressDuration: 2500
+            });
+        }
+        
+        // Show spinner
+        function showSpinner(type, variant) {
+            const result = document.getElementById('spinner-result');
+            
+            // Clear previous content
+            result.innerHTML = '';
+            
+            // Create spinner HTML
+            const spinnerHTML = `
+                <div class="spinner-${type} text-${variant}" role="status" style="width: 3rem; height: 3rem;">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="mt-3">Loading...</p>
+            `;
+            
+            // Create a centered container
+            const container = document.createElement('div');
+            container.className = 'spinner-centered';
+            container.innerHTML = spinnerHTML;
+            
+            // Add to result
+            result.appendChild(container);
+        }
+        
+        // Show skeleton
+        function showSkeleton(type, animation = 'wave') {
+            const result = document.getElementById('skeleton-result');
+            
+            // Clear previous content
+            result.innerHTML = '';
+            
+            // Create skeleton HTML based on type
+            let skeletonHTML = '';
+            
+            if (type === 'text') {
+                skeletonHTML = `
+                    <div class="skeleton-group">
+                        <div class="skeleton skeleton-text skeleton-animation-${animation}" style="width: 70%;"></div>
+                        <div class="skeleton skeleton-text skeleton-animation-${animation}" style="width: 100%;"></div>
+                        <div class="skeleton skeleton-text skeleton-animation-${animation}" style="width: 80%;"></div>
+                        <div class="skeleton skeleton-text skeleton-animation-${animation}" style="width: 90%;"></div>
+                        <div class="skeleton skeleton-text skeleton-animation-${animation}" style="width: 60%;"></div>
+                    </div>
+                `;
+            } else if (type === 'card') {
+                skeletonHTML = `
+                    <div class="card" style="width: 18rem;">
+                        <div class="skeleton skeleton-rectangle skeleton-animation-${animation}" style="height: 180px;"></div>
+                        <div class="card-body">
+                            <div class="skeleton skeleton-text skeleton-animation-${animation}" style="width: 70%; height: 1.5rem; margin-bottom: 1rem;"></div>
+                            <div class="skeleton skeleton-text skeleton-animation-${animation}"></div>
+                            <div class="skeleton skeleton-text skeleton-animation-${animation}"></div>
+                            <div class="skeleton skeleton-text skeleton-animation-${animation}" style="width: 80%;"></div>
+                            <div class="skeleton skeleton-button skeleton-animation-${animation}" style="margin-top: 1rem;"></div>
+                        </div>
+                    </div>
+                `;
+            } else if (type === 'avatar') {
+                skeletonHTML = `
+                    <div style="display: flex; align-items: center;">
+                        <div class="skeleton skeleton-avatar skeleton-animation-${animation}" style="width: 64px; height: 64px;"></div>
+                        <div style="margin-left: 1rem; flex: 1;">
+                            <div class="skeleton skeleton-text skeleton-animation-${animation}" style="width: 40%; height: 1.25rem; margin-bottom: 0.5rem;"></div>
+                            <div class="skeleton skeleton-text skeleton-animation-${animation}" style="width: 70%;"></div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // Add to result
+            result.innerHTML = skeletonHTML;
+            
+            // Simulate loading completion
+            setTimeout(() => {
+                if (type === 'text') {
+                    result.innerHTML = `
+                        <h3>Lorem Ipsum</h3>
+                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam in dui mauris. Vivamus hendrerit arcu sed erat molestie vehicula. Sed auctor neque eu tellus rhoncus ut eleifend nibh porttitor.</p>
+                        <p>Ut in nulla enim. Phasellus molestie magna non est bibendum non venenatis nisl tempor. Suspendisse dictum feugiat nisl ut dapibus.</p>
+                    `;
+                } else if (type === 'card') {
+                    result.innerHTML = `
+                        <div class="card" style="width: 18rem;">
+                            <img src="https://via.placeholder.com/300x180" class="card-img-top" alt="Card image">
+                            <div class="card-body">
+                                <h5 class="card-title">Card Title</h5>
+                                <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+                                <button class="btn btn-primary">Go somewhere</button>
+                            </div>
+                        </div>
+                    `;
+                } else if (type === 'avatar') {
+                    result.innerHTML = `
+                        <div style="display: flex; align-items: center;">
+                            <img src="https://via.placeholder.com/64" class="rounded-circle" alt="Avatar">
+                            <div style="margin-left: 1rem;">
+                                <h5 class="mb-0">John Doe</h5>
+                                <p class="text-muted mb-0">Software Developer</p>
+                            </div>
+                        </div>
+                    `;
+                }
+            }, 3000);
+        }
+        
+        // Show toast
+        function showToast(type) {
+            let title, message;
+            
+            switch (type) {
+                case 'info':
+                    title = 'Information';
+                    message = 'This is an informational message.';
+                    break;
+                case 'success':
+                    title = 'Success';
+                    message = 'Operation completed successfully!';
+                    break;
+                case 'warning':
+                    title = 'Warning';
+                    message = 'This action might cause issues.';
+                    break;
+                case 'error':
+                    title = 'Error';
+                    message = 'An error occurred while processing your request.';
+                    break;
+            }
+            
+            // Create toast
+            SwitchUIKit.toast[type](message, title);
+        }
+    </script>
+</body>
+</html>

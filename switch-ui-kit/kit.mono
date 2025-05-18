@@ -1,0 +1,52 @@
+//  __  __
+// |  \/  | ___  _ __   ___
+// | |\/| |/ _ \| '_ \ / _ \
+// | |  | | (_) | | | | (_) |
+// |_|  |_|\___/|_| |_|\___/
+//
+// Switch UI Kit
+
+kit SwitchUIKit {
+    name "switch-ui-kit"
+    version "1.0.0"
+    description "A modern UI component kit for Switch applications"
+    author "Mono Developer"
+    license "MIT"
+
+    dependencies {
+        "switch-core" "^1.0.0"
+    }
+
+    styles {
+        "/styles/ui-kit.css" as "Main UI Kit styles"
+    }
+
+    scripts {
+        "/scripts/ui-kit.js" as "Main UI Kit scripts"
+    }
+
+    components {
+        Button from "/components/button.mono" as "A customizable button component"
+        Card from "/components/card.mono" as "A card component with header, body, and footer"
+        Modal from "/components/modal.mono" as "A modal dialog component"
+        Tabs from "/components/tabs.mono" as "A tabbed interface component"
+        Alert from "/components/alert.mono" as "An alert component for notifications"
+        Dropdown from "/components/dropdown.mono" as "A dropdown menu component"
+        Table from "/components/table.mono" as "A table component with sorting and pagination"
+        Form from "/components/form.mono" as "A form component with validation"
+        Tooltip from "/components/tooltip.mono" as "A tooltip component"
+        Accordion from "/components/accordion.mono" as "An accordion component"
+        Navbar from "/components/navbar.mono" as "A navigation bar component"
+        Sidebar from "/components/sidebar.mono" as "A sidebar navigation component"
+        Footer from "/components/footer.mono" as "A footer component"
+        SplashScreen from "/components/splash-screen.mono" as "A splash screen component"
+        Spinner from "/components/spinner.mono" as "A loading spinner component"
+        Skeleton from "/components/skeleton.mono" as "A skeleton loader component"
+        Toast from "/components/toast.mono" as "A toast notification component"
+    }
+
+    tools {
+        generate "mono-switch-cli component $1 --template=ui" as "Generate a new UI component"
+        lint "mono-tools lint $1 --config=ui" as "Lint a UI component"
+    }
+}

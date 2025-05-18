@@ -1,0 +1,116 @@
+//  __  __
+// |  \/  | ___  _ __   ___
+// | |\/| |/ _ \| '_ \ / _ \
+// | |  | | (_) | | | | (_) |
+// |_|  |_|\___/|_| |_|\___/
+//
+// Simple Demo
+
+component Main {
+    function start() {
+        print "=== Simple Demo ===";
+
+        // Configure routes
+        http.get("/", function(req, res) {
+            print "Handling request to /";
+
+            // Send a simple HTML response
+            res.html(`
+                <!DOCTYPE html>
+                <html lang="en">
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <title>Simple Demo</title>
+                    <style>
+                        body {
+                            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+                            line-height: 1.5;
+                            color: #333;
+                            max-width: 800px;
+                            margin: 0 auto;
+                            padding: 2rem;
+                            background-color: #f8f9fa;
+                        }
+
+                        .container {
+                            background-color: #fff;
+                            border-radius: 0.5rem;
+                            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+                            padding: 2rem;
+                            margin-bottom: 2rem;
+                        }
+
+                        h1 {
+                            margin-top: 0;
+                            margin-bottom: 2rem;
+                            text-align: center;
+                            color: #3b82f6;
+                        }
+
+                        h2 {
+                            margin-top: 0;
+                            margin-bottom: 1rem;
+                            color: #4b5563;
+                            border-bottom: 1px solid #e5e7eb;
+                            padding-bottom: 0.5rem;
+                        }
+
+                        p {
+                            margin-bottom: 1rem;
+                        }
+
+                        .btn {
+                            display: inline-block;
+                            padding: 0.5rem 1rem;
+                            background-color: #3b82f6;
+                            color: white;
+                            border: none;
+                            border-radius: 0.25rem;
+                            cursor: pointer;
+                            text-decoration: none;
+                        }
+
+                        .btn:hover {
+                            background-color: #2563eb;
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="container">
+                        <h1>Simple Demo</h1>
+
+                        <h2>Welcome to the Switch Framework</h2>
+                        <p>
+                            This is a simple demo of the Switch framework. We've enhanced the framework with:
+                        </p>
+                        <ul>
+                            <li>New UI components (DatePicker, Slider, Carousel)</li>
+                            <li>Improved state management</li>
+                            <li>Enhanced server-side rendering</li>
+                            <li>Comprehensive documentation</li>
+                        </ul>
+
+                        <p>
+                            Check out the documentation for more information:
+                        </p>
+                        <ul>
+                            <li><a href="/docs/switch/README.md">General Documentation</a></li>
+                            <li><a href="/docs/switch/api-reference.md">API Reference</a></li>
+                            <li><a href="/docs/switch/ui-kit.md">UI Kit Documentation</a></li>
+                            <li><a href="/docs/switch/state-management.md">State Management Documentation</a></li>
+                            <li><a href="/docs/switch/server-side-rendering.md">SSR Documentation</a></li>
+                            <li><a href="/docs/switch/tutorials/todo-app.md">Todo App Tutorial</a></li>
+                        </ul>
+                    </div>
+                </body>
+                </html>
+            `);
+        });
+
+        // Start the server
+        http.start();
+    }
+
+
+}

@@ -1,0 +1,176 @@
+//  __  __                   
+// |  \/  | ___  _ __   ___  
+// | |\/| |/ _ \| '_ \ / _ \ 
+// | |  | | (_) | | | | (_) |
+// |_|  |_|\___/|_| |_|\___/ 
+//                           
+// Button Component
+
+component Button {
+    props {
+        text: string = "Button",
+        type: string = "primary", // primary, secondary, success, danger, warning, info, light, dark
+        size: string = "md", // sm, md, lg
+        outline: boolean = false,
+        block: boolean = false,
+        disabled: boolean = false,
+        loading: boolean = false,
+        icon: string = "",
+        iconPosition: string = "left", // left, right
+        onClick: function = null
+    }
+    
+    state {
+        isHovered: boolean = false,
+        isActive: boolean = false,
+        isFocused: boolean = false
+    }
+    
+    function constructor() {
+        // Initialize the component
+    }
+    
+    function handleClick(event) {
+        // Prevent default if this is a link
+        if (this.props.href) {
+            event.preventDefault();
+        }
+        
+        // Call the onClick handler if provided
+        if (this.props.onClick && !this.props.disabled && !this.props.loading) {
+            this.props.onClick(event);
+        }
+    }
+    
+    function handleMouseEnter() {
+        this.state.isHovered = true;
+    }
+    
+    function handleMouseLeave() {
+        this.state.isHovered = false;
+        this.state.isActive = false;
+    }
+    
+    function handleMouseDown() {
+        this.state.isActive = true;
+    }
+    
+    function handleMouseUp() {
+        this.state.isActive = false;
+    }
+    
+    function handleFocus() {
+        this.state.isFocused = true;
+    }
+    
+    function handleBlur() {
+        this.state.isFocused = false;
+    }
+    
+    function getClasses() {
+        var classes = ["btn"];
+        
+        // Add type class
+        if (this.props.outline) {
+            classes.push("btn-outline-" + this.props.type);
+        } else {
+            classes.push("btn-" + this.props.type);
+        }
+        
+        // Add size class
+        if (this.props.size !== "md") {
+            classes.push("btn-" + this.props.size);
+        }
+        
+        // Add block class
+        if (this.props.block) {
+            classes.push("btn-block");
+        }
+        
+        // Add disabled class
+        if (this.props.disabled) {
+            classes.push("disabled");
+        }
+        
+        // Add loading class
+        if (this.props.loading) {
+            classes.push("loading");
+        }
+        
+        // Add state classes
+        if (this.state.isHovered) {
+            classes.push("hovered");
+        }
+        
+        if (this.state.isActive) {
+            classes.push("active");
+        }
+        
+        if (this.state.isFocused) {
+            classes.push("focused");
+        }
+        
+        return classes.join(" ");
+    }
+    
+    function renderIcon() {
+        if (!this.props.icon) {
+            return "";
+        }
+        
+        return `<i class="bi bi-${this.props.icon} ${this.props.iconPosition === 'right' ? 'ms-2' : 'me-2'}"></i>`;
+    }
+    
+    function renderLoading() {
+        if (!this.props.loading) {
+            return "";
+        }
+        
+        return `<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>`;
+    }
+    
+    function render() {
+        // Create the component
+        var button = switch.component("Button", this.props);
+        
+        // Determine the element type
+        var elementType = this.props.href ? "a" : "button";
+        
+        // Determine the attributes
+        var attributes = {
+            class: this.getClasses(),
+            type: elementType === "button" ? "button" : null,
+            href: this.props.href || null,
+            disabled: this.props.disabled || null,
+            "data-event": "click",
+            "data-action": "button-click"
+        };
+        
+        // Build the attributes string
+        var attributesString = "";
+        for (var key in attributes) {
+            if (attributes[key] !== null) {
+                attributesString += ` ${key}="${attributes[key]}"`;
+            }
+        }
+        
+        // Return the HTML
+        return `
+            <${elementType}${attributesString}
+                onmouseenter="handleMouseEnter()"
+                onmouseleave="handleMouseLeave()"
+                onmousedown="handleMouseDown()"
+                onmouseup="handleMouseUp()"
+                onfocus="handleFocus()"
+                onblur="handleBlur()">
+                ${this.props.iconPosition === 'left' ? this.renderIcon() : ''}
+                ${this.renderLoading()}
+                ${this.props.text}
+                ${this.props.iconPosition === 'right' ? this.renderIcon() : ''}
+            </${elementType}>
+        `;
+    }
+}
+
+// Export the component
+export Button;

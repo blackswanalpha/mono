@@ -1,0 +1,178 @@
+//  __  __                   
+// |  \/  | ___  _ __   ___  
+// | |\/| |/ _ \| '_ \ / _ \ 
+// | |  | | (_) | | | | (_) |
+// |_|  |_|\___/|_| |_|\___/ 
+//                           
+// {{APP_NAME}} - Store
+
+// This file defines the store for the application.
+// The store is a centralized state management system.
+
+// Store configuration
+var storeConfig = {
+    // Root state
+    state: {
+        count: 0,
+        user: null,
+        loading: false,
+        error: null
+    },
+    
+    // Mutations (synchronous state changes)
+    mutations: {
+        // Counter mutations
+        increment(state) {
+            state.count++;
+        },
+        decrement(state) {
+            state.count--;
+        },
+        setCount(state, count) {
+            state.count = count;
+        },
+        
+        // User mutations
+        setUser(state, user) {
+            state.user = user;
+        },
+        clearUser(state) {
+            state.user = null;
+        },
+        
+        // UI mutations
+        setLoading(state, loading) {
+            state.loading = loading;
+        },
+        setError(state, error) {
+            state.error = error;
+        },
+        clearError(state) {
+            state.error = null;
+        }
+    },
+    
+    // Actions (asynchronous operations)
+    actions: {
+        // Counter actions
+        incrementAsync(context) {
+            context.commit('setLoading', true);
+            
+            // Simulate API call
+            setTimeout(() => {
+                context.commit('increment');
+                context.commit('setLoading', false);
+            }, 1000);
+        },
+        
+        // User actions
+        login(context, credentials) {
+            context.commit('setLoading', true);
+            context.commit('clearError');
+            
+            // Simulate API call
+            setTimeout(() => {
+                // Simulate successful login
+                if (credentials.username === 'admin' && credentials.password === 'password') {
+                    const user = {
+                        id: 1,
+                        username: credentials.username,
+                        name: 'Admin User'
+                    };
+                    
+                    context.commit('setUser', user);
+                    context.commit('setLoading', false);
+                } else {
+                    // Simulate failed login
+                    context.commit('setError', 'Invalid username or password');
+                    context.commit('setLoading', false);
+                }
+            }, 1000);
+        },
+        
+        logout(context) {
+            context.commit('setLoading', true);
+            
+            // Simulate API call
+            setTimeout(() => {
+                context.commit('clearUser');
+                context.commit('setLoading', false);
+            }, 500);
+        }
+    },
+    
+    // Modules (namespaced store modules)
+    modules: {
+        // Todo module
+        todos: {
+            state: {
+                items: []
+            },
+            mutations: {
+                addTodo(state, todo) {
+                    state.items.push(todo);
+                },
+                removeTodo(state, id) {
+                    state.items = state.items.filter(item => item.id !== id);
+                },
+                toggleTodo(state, id) {
+                    const todo = state.items.find(item => item.id === id);
+                    if (todo) {
+                        todo.completed = !todo.completed;
+                    }
+                }
+            },
+            actions: {
+                addTodoAsync(context, text) {
+                    context.commit('setLoading', true, { root: true });
+                    
+                    // Simulate API call
+                    setTimeout(() => {
+                        const todo = {
+                            id: Date.now(),
+                            text,
+                            completed: false
+                        };
+                        
+                        context.commit('addTodo', todo);
+                        context.commit('setLoading', false, { root: true });
+                    }, 500);
+                }
+            }
+        }
+    },
+    
+    // Plugins
+    plugins: [
+        // Logger plugin
+        function(store) {
+            store.subscribe((mutation, state) => {
+                console.log('Mutation:', mutation.type);
+                console.log('State:', state);
+            });
+        },
+        
+        // Persistence plugin
+        function(store) {
+            // Load state from localStorage
+            const savedState = localStorage.getItem('app-state');
+            if (savedState) {
+                try {
+                    const state = JSON.parse(savedState);
+                    store.replaceState(state);
+                } catch (e) {
+                    console.error('Error loading state from localStorage:', e);
+                }
+            }
+            
+            // Save state to localStorage on mutation
+            store.subscribe((mutation, state) => {
+                try {
+                    localStorage.setItem('app-state', JSON.stringify(state));
+                } catch (e) {
+                    console.error('Error saving state to localStorage:', e);
+                }
+            });
+        }
+    ]
+};

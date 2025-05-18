@@ -1,0 +1,321 @@
+/* Debugger Styles */
+
+.debug-container {
+  display: flex;
+  flex-direction: column;
+  height: 300px;
+  background-color: var(--background-color);
+  border-top: 1px solid var(--border-color);
+  overflow: hidden;
+}
+
+.debug-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 5px 10px;
+  font-size: 11px;
+  font-weight: bold;
+  text-transform: uppercase;
+  color: var(--text-dim-color);
+  background-color: var(--sidebar-bg);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.debug-title {
+  display: flex;
+  align-items: center;
+}
+
+.debug-title-icon {
+  margin-right: 5px;
+  font-size: 14px;
+}
+
+.debug-actions {
+  display: flex;
+  gap: 5px;
+}
+
+.debug-actions button {
+  background: none;
+  border: none;
+  color: var(--text-dim-color);
+  cursor: pointer;
+  padding: 2px 5px;
+  font-size: 14px;
+}
+
+.debug-actions button:hover {
+  color: var(--text-color);
+}
+
+.debug-actions button:disabled {
+  color: var(--disabled-color);
+  cursor: not-allowed;
+}
+
+.debug-toolbar {
+  display: flex;
+  align-items: center;
+  padding: 5px 10px;
+  background-color: var(--panel-color);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.debug-toolbar button {
+  background: none;
+  border: none;
+  color: var(--text-color);
+  cursor: pointer;
+  padding: 3px 8px;
+  font-size: 14px;
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.debug-toolbar button:hover {
+  background-color: var(--hover-bg);
+}
+
+.debug-toolbar button:disabled {
+  color: var(--disabled-color);
+  cursor: not-allowed;
+}
+
+.debug-toolbar button:disabled:hover {
+  background-color: transparent;
+}
+
+.debug-toolbar-separator {
+  width: 1px;
+  height: 16px;
+  background-color: var(--border-color);
+  margin: 0 5px;
+}
+
+.debug-content {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+.debug-sidebar {
+  width: 300px;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid var(--border-color);
+}
+
+.debug-tabs {
+  display: flex;
+  background-color: var(--panel-color);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.debug-tab {
+  padding: 5px 10px;
+  font-size: 12px;
+  cursor: pointer;
+  color: var(--text-dim-color);
+  border-bottom: 2px solid transparent;
+}
+
+.debug-tab.active {
+  color: var(--text-color);
+  border-bottom-color: var(--accent-color);
+}
+
+.debug-tab:hover {
+  color: var(--text-color);
+}
+
+.debug-panel {
+  flex: 1;
+  overflow: auto;
+  padding: 10px;
+}
+
+.debug-panel:not(.active) {
+  display: none;
+}
+
+.debug-console-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.debug-console {
+  flex: 1;
+  overflow-y: auto;
+  padding: 10px;
+  font-family: monospace;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.debug-console-entry {
+  margin-bottom: 5px;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.debug-console-entry.info {
+  color: var(--text-color);
+}
+
+.debug-console-entry.error {
+  color: var(--error-color);
+}
+
+.debug-console-entry.warning {
+  color: var(--warning-color);
+}
+
+.debug-console-entry.command {
+  color: var(--accent-color);
+  font-weight: bold;
+}
+
+.debug-console-entry.result {
+  color: var(--success-color);
+}
+
+.debug-console-input-container {
+  display: flex;
+  padding: 5px 10px;
+  border-top: 1px solid var(--border-color);
+}
+
+.debug-console-input {
+  flex: 1;
+  padding: 5px 8px;
+  border: 1px solid var(--border-color);
+  border-radius: 3px;
+  background-color: var(--input-background-color);
+  color: var(--text-color);
+  font-family: monospace;
+  font-size: 12px;
+  resize: none;
+  min-height: 24px;
+  max-height: 100px;
+}
+
+.debug-console-input:focus {
+  outline: none;
+  border-color: var(--accent-color);
+}
+
+.debug-empty-message {
+  color: var(--text-dim-color);
+  font-style: italic;
+  text-align: center;
+  padding: 20px;
+}
+
+/* Variables view */
+.debug-variables-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.debug-variables-table th {
+  text-align: left;
+  padding: 5px 8px;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-dim-color);
+  font-weight: normal;
+}
+
+.debug-variables-table td {
+  padding: 5px 8px;
+  border-bottom: 1px solid var(--border-color-light);
+}
+
+/* Call stack view */
+.debug-call-stack-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.debug-call-stack-item {
+  display: flex;
+  flex-direction: column;
+  padding: 5px 8px;
+  border-bottom: 1px solid var(--border-color-light);
+  cursor: pointer;
+}
+
+.debug-call-stack-item:hover {
+  background-color: var(--hover-bg);
+}
+
+.debug-call-stack-item.active {
+  background-color: var(--active-bg);
+}
+
+.frame-name {
+  font-weight: bold;
+}
+
+.frame-location {
+  font-size: 11px;
+  color: var(--text-dim-color);
+}
+
+/* Breakpoints view */
+.debug-breakpoints-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.debug-breakpoint-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 5px 8px;
+  border-bottom: 1px solid var(--border-color-light);
+  cursor: pointer;
+}
+
+.debug-breakpoint-item:hover {
+  background-color: var(--hover-bg);
+}
+
+.breakpoint-location {
+  font-family: monospace;
+}
+
+.breakpoint-remove {
+  background: none;
+  border: none;
+  color: var(--text-dim-color);
+  cursor: pointer;
+  font-size: 14px;
+  padding: 0 5px;
+}
+
+.breakpoint-remove:hover {
+  color: var(--error-color);
+}
+
+/* Editor decorations */
+.debug-current-line {
+  background-color: var(--debug-current-line-bg);
+  border: 1px solid var(--debug-current-line-border);
+}
+
+.debug-breakpoint {
+  background-color: var(--debug-breakpoint-bg);
+  border-radius: 50%;
+  width: 8px;
+  height: 8px;
+  margin-left: 5px;
+}

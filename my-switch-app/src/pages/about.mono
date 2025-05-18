@@ -1,0 +1,240 @@
+//  __  __
+// |  \/  | ___  _ __   ___
+// | |\/| |/ _ \| '_ \ / _ \
+// | |  | | (_) | | | | (_) |
+// |_|  |_|\___/|_| |_|\___/
+//
+// About Page Component
+
+// Import the Layout component
+{{ '@/components/layout.mono' }}
+
+component AboutPage {
+    state {
+        title: string = "About my-switch-app",
+        description: string = "my-switch-app is a modern web framework built with the Switch framework for Mono."
+    }
+
+    function constructor() {
+        // Initialize the component
+    }
+
+    function render() {
+        // Create the component
+        var aboutPage = switch.component("AboutPage", {
+            title: this.state.title,
+            description: this.state.description
+        });
+
+        // Create the about page content
+        var aboutContent = `
+            <div class="about-page">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h2 class="mb-3">${this.state.title}</h2>
+                        <p>${this.state.description}</p>
+                        <p>Switch is a robust frontend framework that enables developers to build interactive web applications.</p>
+                    </div>
+                </div>
+
+                <h3 class="mb-3">Technology Stack</h3>
+
+                <div class="row mb-4">
+                    <div class="col-md-6 mb-4">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h4>Frontend</h4>
+                                <ul>
+                                    <li>Switch Framework</li>
+                                    <li>Component-Based Architecture</li>
+                                    <li>Reactive State Management</li>
+                                    <li>Client-Side Routing</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 mb-4">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h4>Backend</h4>
+                                <ul>
+                                    <li>Mono Language</li>
+                                    <li>HTTP Server</li>
+                                    <li>RESTful API</li>
+                                    <li>Server-Side Rendering</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <h3 class="mb-3">New Features</h3>
+
+                <div class="row mb-4">
+                    <div class="col-md-6 mb-4">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h4>Package Management</h4>
+                                <ul>
+                                    <li>Package versioning and dependency resolution</li>
+                                    <li>Package publishing and distribution</li>
+                                    <li>Package registry integration</li>
+                                    <li>Package caching</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 mb-4">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h4>Kit Management</h4>
+                                <ul>
+                                    <li>Kit versioning and dependency resolution</li>
+                                    <li>Kit publishing and distribution</li>
+                                    <li>Kit registry integration</li>
+                                    <li>Kit caching</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 mb-4">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h4>Build Process</h4>
+                                <ul>
+                                    <li>Code splitting</li>
+                                    <li>Tree shaking</li>
+                                    <li>Differential loading</li>
+                                    <li>Bundle analysis</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 mb-4">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h4>Development Experience</h4>
+                                <ul>
+                                    <li>Hot Module Replacement</li>
+                                    <li>Environment variables</li>
+                                    <li>Custom plugins</li>
+                                    <li>Development server</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        // Use the Layout component directly
+        return `
+            <div class="app ${localStorage.getItem('darkMode') === 'true' ? 'dark-mode' : ''}">
+                <!-- Navigation Bar -->
+                <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+                    <div class="container">
+                        <a class="navbar-brand" href="/" data-nav="true">
+                            <img src="src/static/img/switch-logo.svg" alt="Switch Logo" width="30" height="30" class="d-inline-block align-top me-2">
+                            Switch
+                        </a>
+                        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                            <span class="navbar-toggler-icon"></span>
+                        </button>
+                        <div class="collapse navbar-collapse" id="navbarNav">
+                            <ul class="navbar-nav me-auto">
+                                <li class="nav-item">
+                                    <a class="nav-link" href="#/" data-nav="true">
+                                        <i class="bi bi-house me-1"></i>
+                                        Home
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="#/tutorials" data-nav="true">
+                                        <i class="bi bi-book me-1"></i>
+                                        Tutorials
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link active" href="#/about" data-nav="true">
+                                        <i class="bi bi-info-circle me-1"></i>
+                                        About
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="#/feedback" data-nav="true">
+                                        <i class="bi bi-chat-dots me-1"></i>
+                                        Feedback
+                                    </a>
+                                </li>
+                            </ul>
+                            <ul class="navbar-nav">
+                                <li class="nav-item">
+                                    <a class="nav-link" href="#" id="dark-mode-toggle">
+                                        <i class="bi bi-${localStorage.getItem('darkMode') === 'true' ? 'sun' : 'moon'} me-1"></i>
+                                        ${localStorage.getItem('darkMode') === 'true' ? 'Light Mode' : 'Dark Mode'}
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </nav>
+
+                <!-- Main Content -->
+                <div class="main-content">
+                    <div class="content">
+                        <div class="container">
+                            ${aboutContent}
+                        </div>
+                    </div>
+
+                    <!-- Footer -->
+                    <footer class="footer">
+                        <div class="container text-center">
+                            <p class="mb-0">
+                                &copy; ${new Date().getFullYear()} Switch. Built with
+                                <a href="https://github.com/blackswanalpha/mono" target="_blank">Mono</a> and
+                                <a href="https://github.com/blackswanalpha/mono/tree/main/switch" target="_blank">Switch</a>.
+                            </p>
+                        </div>
+                    </footer>
+                </div>
+
+                <script>
+                    // Add event listener for dark mode toggle
+                    document.addEventListener('DOMContentLoaded', function() {
+                        const darkModeToggle = document.getElementById('dark-mode-toggle');
+                        if (darkModeToggle) {
+                            darkModeToggle.addEventListener('click', function(e) {
+                                e.preventDefault();
+
+                                // Toggle dark mode class on body
+                                document.body.classList.toggle('dark-mode');
+
+                                // Update localStorage
+                                const isDarkMode = document.body.classList.contains('dark-mode');
+                                localStorage.setItem('darkMode', isDarkMode);
+
+                                // Update the icon and text
+                                const icon = darkModeToggle.querySelector('i');
+                                if (isDarkMode) {
+                                    icon.className = 'bi bi-sun me-1';
+                                    darkModeToggle.innerHTML = icon.outerHTML + ' Light Mode';
+                                } else {
+                                    icon.className = 'bi bi-moon me-1';
+                                    darkModeToggle.innerHTML = icon.outerHTML + ' Dark Mode';
+                                }
+                            });
+                        }
+                    });
+                </script>
+            </div>
+        `;
+    }
+}
+
+// Export the component
+export AboutPage;

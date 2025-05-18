@@ -1,0 +1,380 @@
+/* Theme Editor Styles for Mono Editor */
+
+.theme-editor {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: var(--background-color);
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.theme-editor-header {
+  padding: 15px;
+  border-bottom: 1px solid var(--border-color);
+  background-color: var(--panel-background);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.theme-editor-header h2 {
+  margin: 0;
+  color: var(--foreground-color);
+  font-size: 1.5rem;
+}
+
+.theme-editor-controls {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+#theme-selector {
+  padding: 8px 12px;
+  border: 1px solid var(--border-color);
+  background-color: var(--input-background);
+  color: var(--input-foreground);
+  border-radius: 4px;
+  font-size: 0.9rem;
+  min-width: 150px;
+}
+
+.new-theme-btn, .save-theme-btn, .export-theme-btn, .import-theme-btn {
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.new-theme-btn {
+  background-color: var(--button-primary-background);
+  color: var(--button-primary-foreground);
+  border: none;
+}
+
+.new-theme-btn:hover {
+  background-color: var(--button-primary-hover-background);
+}
+
+.save-theme-btn {
+  background-color: var(--button-secondary-background);
+  color: var(--button-secondary-foreground);
+  border: 1px solid var(--border-color);
+}
+
+.save-theme-btn:hover {
+  background-color: var(--button-secondary-hover-background);
+}
+
+.export-theme-btn, .import-theme-btn {
+  background-color: var(--button-background);
+  color: var(--button-foreground);
+  border: 1px solid var(--border-color);
+}
+
+.export-theme-btn:hover, .import-theme-btn:hover {
+  background-color: var(--button-hover-background);
+}
+
+.close-theme-editor-btn {
+  background: none;
+  border: none;
+  color: var(--foreground-secondary);
+  font-size: 1.5rem;
+  cursor: pointer;
+  margin-left: 15px;
+}
+
+.close-theme-editor-btn:hover {
+  color: var(--foreground-color);
+}
+
+.theme-editor-content {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+}
+
+.theme-preview {
+  flex: 1;
+  padding: 15px;
+  overflow-y: auto;
+  border-right: 1px solid var(--border-color);
+}
+
+.theme-preview h3 {
+  margin: 0 0 15px 0;
+  color: var(--foreground-color);
+  font-size: 1.2rem;
+}
+
+.preview-container {
+  background-color: var(--background-color);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.preview-editor {
+  display: flex;
+  height: 400px;
+  overflow: hidden;
+}
+
+.preview-line-numbers {
+  background-color: var(--editor-background);
+  color: var(--editor-line-number);
+  padding: 10px 8px;
+  text-align: right;
+  user-select: none;
+  border-right: 1px solid var(--border-color);
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.preview-line-numbers span {
+  display: block;
+}
+
+.preview-code {
+  flex: 1;
+  background-color: var(--editor-background);
+  color: var(--editor-foreground);
+  padding: 10px;
+  overflow: auto;
+}
+
+.preview-code pre {
+  margin: 0;
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.preview-code code {
+  display: block;
+  white-space: pre;
+}
+
+.color-editor {
+  width: 350px;
+  padding: 15px;
+  overflow-y: auto;
+  background-color: var(--panel-background);
+}
+
+.color-editor h3 {
+  margin: 0 0 15px 0;
+  color: var(--foreground-color);
+  font-size: 1.2rem;
+}
+
+.color-categories {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.color-category {
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.color-category h4 {
+  margin: 0;
+  padding: 10px 15px;
+  background-color: var(--panel-header-background);
+  color: var(--panel-header-foreground);
+  font-size: 1rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.color-list {
+  padding: 10px 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.color-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.color-item label {
+  color: var(--foreground-color);
+  font-size: 0.9rem;
+}
+
+.color-item input[type="color"] {
+  width: 30px;
+  height: 30px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  background-color: transparent;
+  cursor: pointer;
+}
+
+.color-item input[type="color"]::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+
+.color-item input[type="color"]::-webkit-color-swatch {
+  border: none;
+  border-radius: 2px;
+}
+
+/* Syntax highlighting in preview */
+.syntax-keyword {
+  color: var(--syntax-keyword, #569cd6);
+}
+
+.syntax-string {
+  color: var(--syntax-string, #ce9178);
+}
+
+.syntax-number {
+  color: var(--syntax-number, #b5cea8);
+}
+
+.syntax-comment {
+  color: var(--syntax-comment, #6a9955);
+}
+
+.syntax-function {
+  color: var(--syntax-function, #dcdcaa);
+}
+
+.syntax-variable {
+  color: var(--syntax-variable, #9cdcfe);
+}
+
+.syntax-type {
+  color: var(--syntax-type, #4ec9b0);
+}
+
+/* Theme import/export dialog */
+.theme-dialog {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1100;
+}
+
+.theme-dialog-content {
+  background-color: var(--panel-background);
+  border-radius: 8px;
+  width: 500px;
+  max-width: 90%;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+}
+
+.theme-dialog-header {
+  padding: 15px;
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.theme-dialog-header h3 {
+  margin: 0;
+  font-size: 1.2rem;
+  color: var(--foreground-color);
+}
+
+.theme-dialog-close {
+  background: none;
+  border: none;
+  color: var(--foreground-secondary);
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+.theme-dialog-close:hover {
+  color: var(--foreground-color);
+}
+
+.theme-dialog-body {
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.theme-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.theme-form-group label {
+  font-size: 0.9rem;
+  color: var(--foreground-color);
+}
+
+.theme-form-group input, .theme-form-group textarea {
+  padding: 8px 12px;
+  border: 1px solid var(--border-color);
+  background-color: var(--input-background);
+  color: var(--input-foreground);
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+
+.theme-form-group textarea {
+  min-height: 100px;
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+}
+
+.theme-dialog-footer {
+  padding: 15px;
+  border-top: 1px solid var(--border-color);
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.theme-dialog-cancel, .theme-dialog-confirm {
+  padding: 8px 15px;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.theme-dialog-cancel {
+  background-color: var(--button-background);
+  color: var(--button-foreground);
+  border: 1px solid var(--border-color);
+}
+
+.theme-dialog-cancel:hover {
+  background-color: var(--button-hover-background);
+}
+
+.theme-dialog-confirm {
+  background-color: var(--button-primary-background);
+  color: var(--button-primary-foreground);
+  border: none;
+}
+
+.theme-dialog-confirm:hover {
+  background-color: var(--button-primary-hover-background);
+}

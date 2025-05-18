@@ -1,0 +1,338 @@
+/* File Explorer styles */
+
+.explorer-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.explorer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 5px 10px;
+  font-size: 11px;
+  font-weight: bold;
+  text-transform: uppercase;
+  color: var(--text-dim-color);
+}
+
+.explorer-header button {
+  background: none;
+  border: none;
+  color: var(--icon-color);
+  cursor: pointer;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 3px;
+}
+
+.explorer-header button:hover {
+  background-color: var(--hover-bg);
+}
+
+.file-explorer {
+  flex: 1;
+  overflow-y: auto;
+  padding: 5px 0;
+}
+
+.empty-explorer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: var(--text-dim-color);
+  gap: 10px;
+}
+
+.empty-explorer button {
+  background-color: var(--button-bg);
+  color: var(--button-text);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  padding: 6px 12px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.empty-explorer button:hover {
+  background-color: var(--button-hover-bg);
+}
+
+/* File tree */
+.file-tree {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.file-tree-item {
+  padding: 3px 0;
+}
+
+.file-tree-item-content {
+  display: flex;
+  align-items: center;
+  padding: 2px 8px;
+  cursor: pointer;
+  border-radius: 3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.file-tree-item-content:hover {
+  background-color: var(--hover-bg);
+}
+
+.file-tree-item-content.active {
+  background-color: var(--primary-color);
+  color: var(--text-bright-color);
+}
+
+.file-tree-item-icon {
+  margin-right: 5px;
+  width: 16px;
+  height: 16px;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.file-tree-item-icon.folder {
+  background-image: url('../../assets/icons/folder.svg');
+}
+
+.file-tree-item-icon.folder-open {
+  background-image: url('../../assets/icons/folder-open.svg');
+}
+
+.file-tree-item-icon.file {
+  background-image: url('../../assets/icons/file.svg');
+}
+
+.file-tree-item-icon.file-mono {
+  background-image: url('../../assets/icons/file-mono.svg');
+}
+
+.file-tree-item-children {
+  list-style: none;
+  padding-left: 16px;
+  margin: 0;
+  overflow: hidden;
+  max-height: 0;
+  transition: max-height 0.2s ease-out;
+}
+
+.file-tree-item.expanded > .file-tree-item-children {
+  max-height: 1000px; /* Arbitrary large value */
+}
+
+.file-tree-item-expander {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  margin-right: 2px;
+  background-image: url('../../assets/icons/chevron-right.svg');
+  background-size: 10px;
+  background-repeat: no-repeat;
+  background-position: center;
+  transition: transform 0.2s;
+}
+
+.file-tree-item.expanded > .file-tree-item-content > .file-tree-item-expander {
+  transform: rotate(90deg);
+}
+
+.file-tree-item-name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Context Menu */
+.context-menu {
+  position: fixed;
+  z-index: 1000;
+  background-color: var(--panel-color);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  min-width: 150px;
+  overflow: hidden;
+}
+
+.context-menu-item {
+  padding: 8px 12px;
+  cursor: pointer;
+  white-space: nowrap;
+  color: var(--text-color);
+}
+
+.context-menu-item:hover {
+  background-color: var(--hover-bg);
+}
+
+.context-menu-separator {
+  height: 1px;
+  background-color: var(--border-color);
+  margin: 4px 0;
+}
+
+/* Loading indicator */
+.explorer-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  color: var(--text-dim-color);
+}
+
+.spinner {
+  width: 24px;
+  height: 24px;
+  border: 2px solid var(--border-color);
+  border-top-color: var(--accent-color);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 10px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.loading-text {
+  font-size: 12px;
+}
+
+/* Error message */
+.explorer-error {
+  display: flex;
+  align-items: center;
+  background-color: var(--error-bg);
+  color: var(--error-color);
+  padding: 8px 12px;
+  margin: 8px;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+.error-icon {
+  margin-right: 8px;
+}
+
+.error-message {
+  flex: 1;
+}
+
+.error-dismiss {
+  background: none;
+  border: none;
+  color: var(--text-dim-color);
+  cursor: pointer;
+  padding: 2px 6px;
+  font-size: 11px;
+}
+
+.error-dismiss:hover {
+  color: var(--text-color);
+}
+
+/* Folder path display */
+.folder-path-container {
+  display: flex;
+  align-items: center;
+  padding: 6px 10px;
+  background-color: var(--panel-color);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.folder-path-display {
+  flex: 1;
+  font-size: 11px;
+  color: var(--text-dim-color);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.refresh-button {
+  background: none;
+  border: none;
+  color: var(--text-dim-color);
+  cursor: pointer;
+  padding: 2px 6px;
+  font-size: 14px;
+}
+
+.refresh-button:hover {
+  color: var(--text-color);
+}
+
+/* Empty folder message */
+.empty-folder-message {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  color: var(--text-dim-color);
+  font-size: 12px;
+  font-style: italic;
+}
+
+/* Directory loading indicator */
+.directory-loading-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5px;
+  margin-left: 20px;
+}
+
+.spinner.small {
+  width: 12px;
+  height: 12px;
+  border-width: 1px;
+  margin-bottom: 0;
+}
+
+/* Empty directory message */
+.empty-directory-message {
+  padding: 4px 8px;
+  color: var(--text-dim-color);
+  font-size: 11px;
+  font-style: italic;
+}
+
+/* Directory error message */
+.directory-error-message {
+  padding: 4px 8px;
+  color: var(--error-color);
+  font-size: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.directory-retry-button {
+  background-color: var(--button-bg);
+  color: var(--button-text);
+  border: 1px solid var(--border-color);
+  border-radius: 3px;
+  padding: 2px 6px;
+  margin-left: 8px;
+  font-size: 10px;
+  cursor: pointer;
+}
+
+.directory-retry-button:hover {
+  background-color: var(--button-hover-bg);
+}

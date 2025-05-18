@@ -1,0 +1,343 @@
+//  __  __                   
+// |  \/  | ___  _ __   ___  
+// | |\/| |/ _ \| '_ \ / _ \ 
+// | |  | | (_) | | | | (_) |
+// |_|  |_|\___/|_| |_|\___/ 
+//                           
+// Switch Framework Example - A simple web application using the Switch framework
+
+component Counter {
+    state {
+        count: number = 0
+    }
+    
+    function increment() {
+        this.state.count += 1;
+    }
+    
+    function decrement() {
+        this.state.count -= 1;
+    }
+    
+    function reset() {
+        this.state.count = 0;
+    }
+    
+    function render() {
+        // Use the Switch framework to render the component
+        switch.clientEvent("click", "handleIncrement");
+        switch.clientEvent("click", "handleDecrement");
+        switch.clientEvent("click", "handleReset");
+        
+        // Create a Switch component
+        var counter = switch.component("Counter", {
+            count: this.state.count
+        });
+        
+        // Return the HTML
+        return `
+            <div class="switch-card">
+                <div class="switch-card-header">
+                    <h2>Counter</h2>
+                </div>
+                <div class="switch-card-body">
+                    <p class="switch-text-center">Count: ${this.state.count}</p>
+                    <div class="switch-text-center">
+                        <button class="switch-button switch-button-primary" data-event="click" data-action="increment">Increment</button>
+                        <button class="switch-button switch-button-danger" data-event="click" data-action="decrement">Decrement</button>
+                        <button class="switch-button" data-event="click" data-action="reset">Reset</button>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+    
+    function handleIncrement(event) {
+        if (event.target.dataset.action === "increment") {
+            this.increment();
+        }
+    }
+    
+    function handleDecrement(event) {
+        if (event.target.dataset.action === "decrement") {
+            this.decrement();
+        }
+    }
+    
+    function handleReset(event) {
+        if (event.target.dataset.action === "reset") {
+            this.reset();
+        }
+    }
+}
+
+component TodoItem {
+    state {
+        id: string = "",
+        text: string = "",
+        completed: boolean = false
+    }
+    
+    function constructor(id: string, text: string, completed: boolean = false) {
+        this.state.id = id;
+        this.state.text = text;
+        this.state.completed = completed;
+    }
+    
+    function toggle() {
+        this.state.completed = !this.state.completed;
+    }
+    
+    function render() {
+        // Use the Switch framework to render the component
+        switch.clientEvent("click", "handleToggle");
+        
+        // Create a Switch component
+        var todoItem = switch.component("TodoItem", {
+            id: this.state.id,
+            text: this.state.text,
+            completed: this.state.completed
+        });
+        
+        // Return the HTML
+        return `
+            <li class="switch-list-item" data-id="${this.state.id}">
+                <div class="switch-form-check">
+                    <input class="switch-form-check-input" type="checkbox" id="todo-${this.state.id}" 
+                           ${this.state.completed ? "checked" : ""} data-event="click" data-action="toggle">
+                    <label class="switch-form-check-label ${this.state.completed ? "switch-text-muted" : ""}" for="todo-${this.state.id}">
+                        ${this.state.text}
+                    </label>
+                </div>
+            </li>
+        `;
+    }
+    
+    function handleToggle(event) {
+        if (event.target.dataset.action === "toggle") {
+            this.toggle();
+        }
+    }
+}
+
+component TodoList {
+    state {
+        items: any[] = []
+    }
+    
+    function constructor() {
+        // Initialize with some sample items
+        this.state.items = [
+            new TodoItem("1", "Learn Mono", true),
+            new TodoItem("2", "Build a Switch app", false),
+            new TodoItem("3", "Share with the community", false)
+        ];
+    }
+    
+    function addItem(text: string) {
+        var id = Date.now().toString();
+        var item = new TodoItem(id, text);
+        this.state.items.push(item);
+    }
+    
+    function removeItem(id: string) {
+        this.state.items = this.state.items.filter(function(item) {
+            return item.state.id !== id;
+        });
+    }
+    
+    function render() {
+        // Use the Switch framework to render the component
+        switch.clientEvent("submit", "handleAddItem");
+        switch.clientEvent("click", "handleRemoveItem");
+        
+        // Create a Switch component
+        var todoList = switch.component("TodoList", {
+            items: this.state.items.map(function(item) {
+                return {
+                    id: item.state.id,
+                    text: item.state.text,
+                    completed: item.state.completed
+                };
+            })
+        });
+        
+        // Generate the items HTML
+        var itemsHtml = "";
+        for (var i = 0; i < this.state.items.length; i++) {
+            itemsHtml += this.state.items[i].render();
+        }
+        
+        // Return the HTML
+        return `
+            <div class="switch-card">
+                <div class="switch-card-header">
+                    <h2>Todo List</h2>
+                </div>
+                <div class="switch-card-body">
+                    <form class="switch-form switch-mb-3" data-event="submit" data-action="add">
+                        <div class="switch-form-group">
+                            <input type="text" class="switch-form-control" id="new-todo" placeholder="Add a new todo">
+                        </div>
+                        <button type="submit" class="switch-button switch-button-primary">Add</button>
+                    </form>
+                    <ul class="switch-list">
+                        ${itemsHtml}
+                    </ul>
+                </div>
+            </div>
+        `;
+    }
+    
+    function handleAddItem(event) {
+        if (event.target.dataset.action === "add") {
+            event.preventDefault();
+            var input = document.getElementById("new-todo");
+            var text = input.value.trim();
+            if (text) {
+                this.addItem(text);
+                input.value = "";
+            }
+        }
+    }
+    
+    function handleRemoveItem(event) {
+        if (event.target.dataset.action === "remove") {
+            var id = event.target.dataset.id;
+            this.removeItem(id);
+        }
+    }
+}
+
+component SwitchApp {
+    state {
+        counter: any = null,
+        todoList: any = null
+    }
+    
+    function constructor() {
+        this.state.counter = new Counter();
+        this.state.todoList = new TodoList();
+    }
+    
+    function render() {
+        // Use the Switch framework to render the component
+        var app = switch.component("SwitchApp", {
+            title: "Switch Framework Example"
+        });
+        
+        // Return the HTML
+        return `
+            <div class="switch-container">
+                <header class="switch-header switch-mb-4">
+                    <h1 class="switch-text-center">Switch Framework Example</h1>
+                </header>
+                <main class="switch-grid">
+                    <div class="switch-col-md-6">
+                        ${this.state.counter.render()}
+                    </div>
+                    <div class="switch-col-md-6">
+                        ${this.state.todoList.render()}
+                    </div>
+                </main>
+                <footer class="switch-footer switch-mt-4 switch-text-center">
+                    <p>Built with the Switch framework for Mono</p>
+                </footer>
+            </div>
+        `;
+    }
+}
+
+component Main {
+    function start() {
+        print "=== Switch Framework Example ===";
+        
+        // Create the app
+        var app = new SwitchApp();
+        
+        // Render the app
+        var html = switch.render("Switch Framework Example", ["/custom.js"], ["/custom.css"]);
+        
+        // Configure routes
+        http.get("/", "handleRoot");
+        http.get("/api/switch/event", "handleEvent");
+        http.get("/custom.js", "handleCustomJs");
+        http.get("/custom.css", "handleCustomCss");
+        
+        // Start the server
+        http.start();
+    }
+    
+    function handleRoot(req, res) {
+        print "Handling request to /";
+        
+        // Create the app
+        var app = new SwitchApp();
+        
+        // Render the app
+        var html = switch.render("Switch Framework Example", ["/custom.js"], ["/custom.css"]);
+        
+        // Send the response
+        res.html(html);
+    }
+    
+    function handleEvent(req, res) {
+        print "Handling request to /api/switch/event";
+        
+        // Get the request body
+        var data = JSON.parse(req.body);
+        
+        // TODO: Handle the event
+        
+        // Send a response
+        res.json({
+            success: true,
+            state: {
+                count: 42
+            }
+        });
+    }
+    
+    function handleCustomJs(req, res) {
+        print "Handling request to /custom.js";
+        
+        // Send the custom JavaScript
+        res.header("Content-Type", "application/javascript");
+        res.text(`
+            // Custom JavaScript for the Switch app
+            console.log('Custom JavaScript loaded');
+            
+            // Add any custom JavaScript here
+        `);
+    }
+    
+    function handleCustomCss(req, res) {
+        print "Handling request to /custom.css";
+        
+        // Send the custom CSS
+        res.header("Content-Type", "text/css");
+        res.text(`
+            /* Custom CSS for the Switch app */
+            body {
+                background-color: #f8f9fa;
+            }
+            
+            .switch-container {
+                max-width: 1200px;
+                margin: 0 auto;
+                padding: 1rem;
+            }
+            
+            .switch-header {
+                padding: 2rem 0;
+            }
+            
+            .switch-footer {
+                padding: 2rem 0;
+                color: #6c757d;
+            }
+            
+            /* Add any custom CSS here */
+        `);
+    }
+}

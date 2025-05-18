@@ -1,0 +1,144 @@
+//  __  __                   
+// |  \/  | ___  _ __   ___  
+// | |\/| |/ _ \| '_ \ / _ \ 
+// | |  | | (_) | | | | (_) |
+// |_|  |_|\___/|_| |_|\___/ 
+//                           
+// Card Component
+
+component Card {
+    props {
+        title: string = "",
+        subtitle: string = "",
+        content: string = "",
+        footer: string = "",
+        image: string = "",
+        imageAlt: string = "",
+        imagePosition: string = "top", // top, bottom
+        headerBg: string = "", // primary, secondary, success, danger, warning, info, light, dark
+        footerBg: string = "", // primary, secondary, success, danger, warning, info, light, dark
+        border: string = "", // primary, secondary, success, danger, warning, info, light, dark
+        shadow: boolean = false,
+        hover: boolean = false,
+        onClick: function = null
+    }
+    
+    function constructor() {
+        // Initialize the component
+    }
+    
+    function handleClick(event) {
+        // Call the onClick handler if provided
+        if (this.props.onClick) {
+            this.props.onClick(event);
+        }
+    }
+    
+    function getClasses() {
+        var classes = ["card"];
+        
+        // Add border class
+        if (this.props.border) {
+            classes.push("border-" + this.props.border);
+        }
+        
+        // Add shadow class
+        if (this.props.shadow) {
+            classes.push("shadow");
+        }
+        
+        // Add hover class
+        if (this.props.hover) {
+            classes.push("card-hover");
+        }
+        
+        return classes.join(" ");
+    }
+    
+    function renderHeader() {
+        if (!this.props.title && !this.props.subtitle) {
+            return "";
+        }
+        
+        var headerClass = "card-header";
+        if (this.props.headerBg) {
+            headerClass += " bg-" + this.props.headerBg;
+            
+            // Add text-white for dark backgrounds
+            if (["primary", "secondary", "success", "danger", "warning", "info", "dark"].includes(this.props.headerBg)) {
+                headerClass += " text-white";
+            }
+        }
+        
+        var titleHtml = this.props.title ? `<h5 class="card-title">${this.props.title}</h5>` : "";
+        var subtitleHtml = this.props.subtitle ? `<h6 class="card-subtitle mb-2 text-muted">${this.props.subtitle}</h6>` : "";
+        
+        return `
+            <div class="${headerClass}">
+                ${titleHtml}
+                ${subtitleHtml}
+            </div>
+        `;
+    }
+    
+    function renderImage() {
+        if (!this.props.image) {
+            return "";
+        }
+        
+        return `<img src="${this.props.image}" class="card-img-${this.props.imagePosition}" alt="${this.props.imageAlt}">`;
+    }
+    
+    function renderBody() {
+        if (!this.props.content) {
+            return "";
+        }
+        
+        return `
+            <div class="card-body">
+                ${this.props.content}
+            </div>
+        `;
+    }
+    
+    function renderFooter() {
+        if (!this.props.footer) {
+            return "";
+        }
+        
+        var footerClass = "card-footer";
+        if (this.props.footerBg) {
+            footerClass += " bg-" + this.props.footerBg;
+            
+            // Add text-white for dark backgrounds
+            if (["primary", "secondary", "success", "danger", "warning", "info", "dark"].includes(this.props.footerBg)) {
+                footerClass += " text-white";
+            }
+        }
+        
+        return `
+            <div class="${footerClass}">
+                ${this.props.footer}
+            </div>
+        `;
+    }
+    
+    function render() {
+        // Create the component
+        var card = switch.component("Card", this.props);
+        
+        // Return the HTML
+        return `
+            <div class="${this.getClasses()}" ${this.props.onClick ? 'onclick="handleClick(event)"' : ''}>
+                ${this.props.imagePosition === 'top' ? this.renderImage() : ''}
+                ${this.renderHeader()}
+                ${this.renderBody()}
+                ${this.props.imagePosition === 'bottom' ? this.renderImage() : ''}
+                ${this.renderFooter()}
+            </div>
+        `;
+    }
+}
+
+// Export the component
+export Card;

@@ -1,0 +1,89 @@
+//  __  __                   
+// |  \/  | ___  _ __   ___  
+// | |\/| |/ _ \| '_ \ / _ \ 
+// | |  | | (_) | | | | (_) |
+// |_|  |_|\___/|_| |_|\___/ 
+//                           
+// App Layout Component
+
+layout AppLayout {
+    // Define variables
+    variables {
+        headerHeight: 60px;
+        sidebarWidth: 250px;
+        footerHeight: 40px;
+    }
+
+    // Define the root element
+    root {
+        width: 100%;
+        height: 100vh;
+
+        // Header
+        element header {
+            width: 100%;
+            height: 60px;
+            z-index: 10;
+            constraint top: 0;
+            constraint left: 0;
+        }
+
+        // Sidebar
+        element sidebar {
+            width: 250px;
+            height: calc(100vh - 60px - 40px);
+            z-index: 5;
+            constraint top: 60px;
+            constraint left: 0;
+        }
+
+        // Content
+        element content {
+            width: calc(100% - 250px);
+            height: calc(100vh - 60px - 40px);
+            constraint top: 60px;
+            constraint left: 250px;
+        }
+
+        // Footer
+        element footer {
+            width: 100%;
+            height: 40px;
+            z-index: 10;
+            constraint bottom: 0;
+            constraint left: 0;
+        }
+    }
+
+    // Define responsive layouts
+    media mobile (max-width: 768px) {
+        root {
+            element sidebar {
+                width: 0;
+                display: none;
+            }
+
+            element content {
+                width: 100%;
+                constraint left: 0;
+            }
+        }
+    }
+
+    // Define tablet layout
+    media tablet (min-width: 769px) and (max-width: 1024px) {
+        root {
+            element sidebar {
+                width: 200px;
+            }
+
+            element content {
+                width: calc(100% - 200px);
+                constraint left: 200px;
+            }
+        }
+    }
+}
+
+// Export the layout
+export AppLayout;

@@ -1,0 +1,173 @@
+//  __  __
+// |  \/  | ___  _ __   ___
+// | |\/| |/ _ \| '_ \ / _ \
+// | |  | | (_) | | | | (_) |
+// |_|  |_|\___/|_| |_|\___/
+//
+// Switch Renderer - Server-side rendering for Switch components
+
+// Switch namespace
+namespace switch {
+    // Render a page with the given title, scripts, and styles
+    function render(title, scripts, styles) {
+        // Get the current component from the global context
+        var component = _getCurrentComponent();
+
+        // Debug the component
+        print "Rendering component in switch-renderer.mono:";
+        _debugComponent(component);
+
+        // Render the component
+        var componentHtml = "";
+        if (component && typeof component.render === "function") {
+            print "Calling component.render()";
+            componentHtml = component.render();
+            print "Component HTML length:", componentHtml.length;
+        } else {
+            print "Component cannot be rendered";
+        }
+
+        // Create the HTML
+        var html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${title}</title>
+
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+    <!-- Switch Framework Styles -->
+    <link rel="stylesheet" href="/static/css/switch.css">
+    <link rel="stylesheet" href="/static/css/ui.css">
+    <link rel="stylesheet" href="/static/css/app.css">
+
+    <!-- Custom Styles -->
+    ${_renderStylesheets(styles)}
+
+    <!-- Initial Component Data -->
+    <script>
+        window.SWITCH_INITIAL_DATA = {
+            name: "${component ? component.constructor.name : 'App'}",
+            props: ${_stringifyProps(component)}
+        };
+
+        window.SWITCH_ENV = {
+            debug: true,
+            hmr: true,
+            ssr: true
+        };
+    </script>
+</head>
+<body>
+    <!-- Root Element -->
+    <div id="switch-root">
+        <!-- Server-rendered content -->
+        <div id="server-rendered-content">
+            ${componentHtml}
+        </div>
+    </div>
+
+    <!-- Switch Framework Scripts -->
+    <script src="/static/js/dom.js"></script>
+    <script src="/static/js/switch.js"></script>
+    <script src="/static/js/store.js"></script>
+    <script src="/static/js/components.js"></script>
+    <script src="/static/js/ssr.js"></script>
+    <script src="/static/js/ui.js"></script>
+    <script src="/static/js/app.js"></script>
+
+    <!-- Custom Scripts -->
+    ${_renderScripts(scripts)}
+</body>
+</html>`;
+
+        return html;
+    }
+
+    // Create a component
+    function component(name, props) {
+        return { name, props };
+    }
+
+    // Register a client-side event handler
+    function clientEvent(eventType, handlerName) {
+        // This is just a stub for the server-side function
+    }
+
+    // Check if running in the browser
+    function isClient() {
+        return false;
+    }
+
+    // Helper function to get the current component from the global context
+    function _getCurrentComponent() {
+        // In a real implementation, this would get the component from the global context
+        return global._currentComponent;
+    }
+
+    // Debug function to print component information
+    function _debugComponent(component) {
+        if (!component) {
+            print "Component is null or undefined";
+            return;
+        }
+
+        print "Component:", component.constructor.name;
+        print "State:", component.state;
+
+        if (typeof component.render === "function") {
+            print "Component has render method";
+        } else {
+            print "Component does not have render method";
+        }
+    }
+
+    // Helper function to render script tags
+    function _renderScripts(scripts) {
+        if (!scripts || scripts.length === 0) {
+            return "";
+        }
+
+        var html = "";
+        for (var i = 0; i < scripts.length; i++) {
+            html += `<script src="${scripts[i]}"></script>\n`;
+        }
+
+        return html;
+    }
+
+    // Helper function to render stylesheet links
+    function _renderStylesheets(styles) {
+        if (!styles || styles.length === 0) {
+            return "";
+        }
+
+        var html = "";
+        for (var i = 0; i < styles.length; i++) {
+            html += `<link rel="stylesheet" href="${styles[i]}">\n`;
+        }
+
+        return html;
+    }
+
+    // Helper function to stringify component props
+    function _stringifyProps(component) {
+        if (!component || !component.state) {
+            return "{}";
+        }
+
+        // Create a JSON representation of the component state
+        var props = {
+            title: component.state.title || "my-switch-app",
+            currentPage: component.state.currentPage || "home"
+        };
+
+        // Convert to JSON string
+        return JSON.stringify(props);
+    }
+}
+
+// Export the namespace
+export switch;

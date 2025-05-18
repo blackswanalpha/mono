@@ -1,0 +1,111 @@
+//  __  __                   
+// |  \/  | ___  _ __   ___  
+// | |\/| |/ _ \| '_ \ / _ \ 
+// | |  | | (_) | | | | (_) |
+// |_|  |_|\___/|_| |_|\___/ 
+//                           
+// Chart Component
+
+component Chart {
+    state {
+        id: string = "chart-" + Math.floor(Math.random() * 1000000),
+        title: string = "",
+        type: string = "line",
+        data: object = {
+            labels: [],
+            datasets: []
+        },
+        options: object = {},
+        loading: boolean = false,
+        height: string = "300px"
+    }
+    
+    function constructor(props) {
+        // Initialize the component with props
+        if (props) {
+            if (props.id) {
+                this.state.id = props.id;
+            }
+            
+            if (props.title) {
+                this.state.title = props.title;
+            }
+            
+            if (props.type) {
+                this.state.type = props.type;
+            }
+            
+            if (props.data) {
+                this.state.data = props.data;
+            }
+            
+            if (props.options) {
+                this.state.options = props.options;
+            }
+            
+            if (props.loading !== undefined) {
+                this.state.loading = props.loading;
+            }
+            
+            if (props.height) {
+                this.state.height = props.height;
+            }
+        }
+    }
+    
+    function render() {
+        // Register client-side event handlers
+        switch.clientEvent("load", "initChart");
+        
+        // Create the component
+        var chart = switch.component("Chart", {
+            id: this.state.id,
+            title: this.state.title,
+            type: this.state.type,
+            data: this.state.data,
+            options: this.state.options,
+            loading: this.state.loading,
+            height: this.state.height
+        });
+        
+        // Return the HTML
+        return `
+            <div class="card chart-card">
+                <div class="card-header">
+                    <h5 class="card-title">${this.state.title}</h5>
+                </div>
+                <div class="card-body">
+                    ${this.state.loading ? 
+                        '<div class="chart-loading"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div></div>' : 
+                        `<div class="chart-container" style="height: ${this.state.height};">
+                            <canvas id="${this.state.id}" data-chart-type="${this.state.type}" data-chart-data='${JSON.stringify(this.state.data)}' data-chart-options='${JSON.stringify(this.state.options)}' data-event="load"></canvas>
+                        </div>`
+                    }
+                </div>
+            </div>
+        `;
+    }
+    
+    function initChart(event) {
+        // Initialize the chart on the client side
+        if (switch.isClient() && window.Chart) {
+            var canvas = event.target;
+            var type = canvas.dataset.chartType;
+            var data = JSON.parse(canvas.dataset.chartData);
+            var options = JSON.parse(canvas.dataset.chartOptions);
+            
+            // Create the chart
+            var chart = new Chart(canvas, {
+                type: type,
+                data: data,
+                options: options
+            });
+            
+            // Store the chart instance
+            canvas._chart = chart;
+        }
+    }
+}
+
+// Export the component
+export Chart;

@@ -1,0 +1,37 @@
+//  __  __                   
+// |  \/  | ___  _ __   ___  
+// | |\/| |/ _ \| '_ \ / _ \ 
+// | |  | | (_) | | | | (_) |
+// |_|  |_|\___/|_| |_|\___/ 
+//                           
+// {{APP_NAME}} Package
+
+package {{APP_NAME_LOWER}} {
+    version "1.0.0"
+    description "A Switch application package"
+    author ""
+    license "MIT"
+    
+    // Dependencies
+    depends {
+        switch-core version "^1.0.0"
+        switch-ui-kit version "^1.0.0"
+    }
+    
+    // Components
+    collect {
+        App from "app.mono"
+        HomePage from "src/pages/home.mono"
+        AboutPage from "src/pages/about.mono"
+        Card from "src/components/card.mono"
+        Button from "src/components/button.mono"
+    }
+    
+    // Settings
+    settings {
+        port 8000
+        host "localhost"
+        workers 1
+        debug true
+    }
+}

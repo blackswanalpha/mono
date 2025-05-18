@@ -1,0 +1,235 @@
+/* Editor styles */
+
+.monaco-editor-container {
+  width: 100%;
+  height: 100%;
+}
+
+/* Ensure the editor takes up the full space */
+.monaco-editor {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* Custom styling for the editor */
+.monaco-editor .margin {
+  background-color: var(--editor-bg);
+}
+
+/* Styling for code completion widget */
+.monaco-list-row {
+  display: flex;
+  align-items: center;
+}
+
+.monaco-icon-label {
+  display: flex;
+  align-items: center;
+}
+
+.monaco-icon-label-container {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Custom styling for different completion item types */
+.completion-item-keyword .monaco-icon-label:before {
+  content: "K";
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  margin-right: 4px;
+  text-align: center;
+  line-height: 16px;
+  color: var(--syntax-keyword);
+  font-weight: bold;
+}
+
+.completion-item-function .monaco-icon-label:before {
+  content: "F";
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  margin-right: 4px;
+  text-align: center;
+  line-height: 16px;
+  color: var(--syntax-function);
+  font-weight: bold;
+}
+
+.completion-item-variable .monaco-icon-label:before {
+  content: "V";
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  margin-right: 4px;
+  text-align: center;
+  line-height: 16px;
+  color: var(--syntax-variable);
+  font-weight: bold;
+}
+
+.completion-item-component .monaco-icon-label:before {
+  content: "C";
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  margin-right: 4px;
+  text-align: center;
+  line-height: 16px;
+  color: var(--syntax-class);
+  font-weight: bold;
+}
+
+.completion-item-type .monaco-icon-label:before {
+  content: "T";
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  margin-right: 4px;
+  text-align: center;
+  line-height: 16px;
+  color: var(--syntax-type);
+  font-weight: bold;
+}
+
+/* Styling for diagnostic markers */
+.monaco-editor .error-marker {
+  background-color: var(--error-bg);
+  border-bottom: 2px solid var(--error-color);
+}
+
+.monaco-editor .warning-marker {
+  background-color: var(--warning-bg);
+  border-bottom: 2px solid var(--warning-color);
+}
+
+.monaco-editor .info-marker {
+  background-color: var(--info-bg);
+  border-bottom: 2px solid var(--info-color);
+}
+
+.monaco-editor .hint-marker {
+  border-bottom: 1px dotted var(--hint-color);
+}
+
+/* Inline diagnostic styling */
+.monaco-editor .inline-error-marker {
+  background-color: var(--error-bg);
+}
+
+.monaco-editor .inline-warning-marker {
+  background-color: var(--warning-bg);
+}
+
+.monaco-editor .inline-info-marker {
+  background-color: var(--info-bg);
+}
+
+/* Diagnostic glyph margin icons */
+.monaco-editor .diagnostic-glyph-error {
+  background-color: var(--error-color);
+  border-radius: 50%;
+  width: 8px;
+  height: 8px;
+  margin-left: 5px;
+}
+
+.monaco-editor .diagnostic-glyph-warning {
+  background-color: var(--warning-color);
+  border-radius: 50%;
+  width: 8px;
+  height: 8px;
+  margin-left: 5px;
+}
+
+.monaco-editor .diagnostic-glyph-info {
+  background-color: var(--info-color);
+  border-radius: 50%;
+  width: 8px;
+  height: 8px;
+  margin-left: 5px;
+}
+
+/* Styling for the current line highlight */
+.monaco-editor .current-line {
+  background-color: var(--current-line-bg, rgba(255, 255, 255, 0.04));
+  border: none;
+}
+
+/* Styling for matching brackets */
+.monaco-editor .bracket-match {
+  background-color: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+/* Styling for selection */
+.monaco-editor .selected-text {
+  background-color: var(--primary-color);
+}
+
+/* Styling for hover widget */
+.monaco-editor-hover {
+  border: 1px solid var(--border-color);
+  background-color: var(--editor-bg);
+  color: var(--text-color);
+  padding: 8px;
+  border-radius: 3px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Styling for parameter hints */
+.monaco-editor .parameter-hints-widget {
+  border: 1px solid var(--border-color);
+  background-color: var(--editor-bg);
+  color: var(--text-color);
+}
+
+/* Styling for find widget */
+.monaco-editor .find-widget {
+  background-color: var(--editor-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 3px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.monaco-editor .find-widget input {
+  background-color: var(--sidebar-bg);
+  color: var(--text-color);
+  border: 1px solid var(--border-color);
+}
+
+/* Styling for suggest widget */
+.monaco-editor .suggest-widget {
+  background-color: var(--editor-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 3px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.monaco-editor .suggest-widget .monaco-list {
+  background-color: var(--editor-bg);
+}
+
+.monaco-editor .suggest-widget .monaco-list .monaco-list-row {
+  padding: 4px 8px;
+}
+
+.monaco-editor .suggest-widget .monaco-list .monaco-list-row.focused {
+  background-color: var(--primary-color);
+  color: var(--text-bright-color);
+}
+
+/* Styling for editor scrollbars */
+.monaco-editor .monaco-scrollable-element .scrollbar {
+  background-color: var(--scrollbar-track);
+}
+
+.monaco-editor .monaco-scrollable-element .slider {
+  background-color: var(--scrollbar-thumb);
+}
+
+.monaco-editor .monaco-scrollable-element .slider:hover {
+  background-color: var(--scrollbar-thumb-hover);
+}

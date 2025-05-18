@@ -1,0 +1,325 @@
+/* Scrolling Styles for Mono Editor */
+
+/* Custom scrollbar styles */
+.custom-scrollbar {
+  position: relative;
+  overflow: auto;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+}
+
+/* Hide default scrollbars */
+.custom-scrollbar::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+
+/* Vertical scrollbar */
+.scrollbar-vertical {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 8px;
+  height: 100%;
+  background-color: transparent;
+  transition: background-color 0.2s;
+  z-index: 10;
+}
+
+.scrollbar-vertical:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+/* Horizontal scrollbar */
+.scrollbar-horizontal {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 8px;
+  background-color: transparent;
+  transition: background-color 0.2s;
+  z-index: 10;
+}
+
+.scrollbar-horizontal:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+/* Scrollbar thumbs */
+.scrollbar-thumb {
+  position: absolute;
+  background-color: rgba(100, 100, 100, 0.5);
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.scrollbar-vertical .scrollbar-thumb {
+  width: 8px;
+  min-height: 30px;
+}
+
+.scrollbar-horizontal .scrollbar-thumb {
+  height: 8px;
+  min-width: 30px;
+}
+
+.scrollbar-thumb:hover,
+.scrollbar-thumb:active {
+  background-color: rgba(100, 100, 100, 0.8);
+}
+
+/* Hidden scrollbars */
+.scrollbar-vertical.hidden,
+.scrollbar-horizontal.hidden {
+  display: none;
+}
+
+/* Prevent text selection while dragging */
+body.no-select {
+  user-select: none;
+}
+
+/* Scrollable containers */
+.editor-container,
+.file-explorer,
+.terminal-container,
+.ai-chat-history,
+.settings-content {
+  overflow: auto;
+}
+
+/* Monaco editor scrolling */
+.monaco-editor .monaco-scrollable-element {
+  overflow: visible !important;
+}
+
+/* Smooth scrolling for all elements */
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+/* Scroll shadows */
+.scroll-shadow-top,
+.scroll-shadow-bottom,
+.scroll-shadow-left,
+.scroll-shadow-right {
+  position: absolute;
+  pointer-events: none;
+  z-index: 5;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.scroll-shadow-top {
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 10px;
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.1), transparent);
+}
+
+.scroll-shadow-bottom {
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 10px;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.1), transparent);
+}
+
+.scroll-shadow-left {
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 10px;
+  background: linear-gradient(to right, rgba(0, 0, 0, 0.1), transparent);
+}
+
+.scroll-shadow-right {
+  top: 0;
+  bottom: 0;
+  right: 0;
+  width: 10px;
+  background: linear-gradient(to left, rgba(0, 0, 0, 0.1), transparent);
+}
+
+.custom-scrollbar[data-scroll-top="true"] .scroll-shadow-top {
+  opacity: 1;
+}
+
+.custom-scrollbar[data-scroll-bottom="true"] .scroll-shadow-bottom {
+  opacity: 1;
+}
+
+.custom-scrollbar[data-scroll-left="true"] .scroll-shadow-left {
+  opacity: 1;
+}
+
+.custom-scrollbar[data-scroll-right="true"] .scroll-shadow-right {
+  opacity: 1;
+}
+
+/* Scroll to top button */
+.scroll-to-top {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: var(--accent-color);
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.3s, transform 0.3s;
+  z-index: 1000;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.scroll-to-top.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.scroll-to-top:hover {
+  background-color: var(--accent-hover-color, #0066cc);
+}
+
+/* Scroll indicators */
+.scroll-indicator {
+  position: absolute;
+  background-color: rgba(100, 100, 100, 0.3);
+  border-radius: 4px;
+  z-index: 9;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.scroll-indicator.visible {
+  opacity: 1;
+}
+
+.scroll-indicator-vertical {
+  top: 50%;
+  right: 10px;
+  width: 4px;
+  height: 50px;
+  transform: translateY(-50%);
+}
+
+.scroll-indicator-horizontal {
+  bottom: 10px;
+  left: 50%;
+  width: 50px;
+  height: 4px;
+  transform: translateX(-50%);
+}
+
+/* Scroll anchors */
+.scroll-anchor {
+  position: relative;
+  top: -60px; /* Adjust based on header height */
+  visibility: hidden;
+  pointer-events: none;
+}
+
+/* Scroll snap */
+.scroll-snap-container {
+  scroll-snap-type: y mandatory;
+  overflow-y: scroll;
+}
+
+.scroll-snap-item {
+  scroll-snap-align: start;
+}
+
+/* Scroll progress indicator */
+.scroll-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 3px;
+  background-color: var(--accent-color);
+  z-index: 1000;
+  transition: width 0.1s;
+}
+
+/* Scroll behavior for specific elements */
+.editor-container {
+  scroll-padding-top: 20px;
+  scroll-padding-bottom: 20px;
+}
+
+.terminal-container {
+  scroll-padding-bottom: 10px;
+}
+
+.file-explorer {
+  scroll-padding-top: 10px;
+}
+
+/* Smooth scrolling for Monaco editor */
+.monaco-scrollable-element {
+  transition: all 0.1s ease-out;
+}
+
+/* Prevent scroll chaining */
+.prevent-scroll-chaining {
+  overscroll-behavior: contain;
+}
+
+/* Scroll margin for headings */
+h1, h2, h3, h4, h5, h6 {
+  scroll-margin-top: 60px;
+}
+
+/* Scroll padding for code blocks */
+pre {
+  scroll-padding: 10px;
+}
+
+/* Scroll behavior for dialogs */
+.dialog-content {
+  max-height: 80vh;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+/* Scroll behavior for popups */
+.popup-content {
+  max-height: 300px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+/* Scroll behavior for dropdown menus */
+.dropdown-menu {
+  max-height: 300px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+/* Scroll behavior for code completion */
+.code-completion {
+  max-height: 200px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+/* Scroll behavior for search results */
+.search-results {
+  max-height: 400px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}

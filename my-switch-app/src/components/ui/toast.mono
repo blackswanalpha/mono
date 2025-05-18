@@ -1,0 +1,172 @@
+//  __  __                   
+// |  \/  | ___  _ __   ___  
+// | |\/| |/ _ \| '_ \ / _ \ 
+// | |  | | (_) | | | | (_) |
+// |_|  |_|\___/|_| |_|\___/ 
+//                           
+// Toast Component
+
+component Toast {
+    props {
+        title: string = "",
+        message: string = "",
+        type: string = "info", // info, success, warning, error
+        position: string = "top-right", // top-right, top-left, bottom-right, bottom-left, top-center, bottom-center
+        autoClose: boolean = true,
+        duration: number = 5000,
+        showProgress: boolean = true,
+        showIcon: boolean = true,
+        showCloseButton: boolean = true,
+        onClose: function = null
+    }
+    
+    state {
+        visible: boolean = true,
+        progress: number = 100,
+        progressInterval: any = null,
+        timeoutId: any = null
+    }
+    
+    function constructor() {
+        // Initialize the component
+        if (this.props.autoClose) {
+            this.startAutoClose();
+        }
+        
+        if (this.props.showProgress && this.props.autoClose) {
+            this.startProgressAnimation();
+        }
+    }
+    
+    function startAutoClose() {
+        this.state.timeoutId = setTimeout(function() {
+            this.close();
+        }.bind(this), this.props.duration);
+    }
+    
+    function startProgressAnimation() {
+        var startTime = Date.now();
+        var duration = this.props.duration;
+        
+        this.state.progressInterval = setInterval(function() {
+            var elapsed = Date.now() - startTime;
+            var progress = Math.max(0, 100 - (elapsed / duration) * 100);
+            
+            this.state.progress = progress;
+            
+            if (progress <= 0) {
+                clearInterval(this.state.progressInterval);
+            }
+        }.bind(this), 30);
+    }
+    
+    function close() {
+        this.state.visible = false;
+        
+        if (this.state.progressInterval) {
+            clearInterval(this.state.progressInterval);
+        }
+        
+        if (this.state.timeoutId) {
+            clearTimeout(this.state.timeoutId);
+        }
+        
+        if (this.props.onClose) {
+            this.props.onClose();
+        }
+    }
+    
+    function handleMouseEnter() {
+        if (this.props.autoClose) {
+            clearTimeout(this.state.timeoutId);
+            
+            if (this.state.progressInterval) {
+                clearInterval(this.state.progressInterval);
+            }
+        }
+    }
+    
+    function handleMouseLeave() {
+        if (this.props.autoClose) {
+            this.startAutoClose();
+            
+            if (this.props.showProgress) {
+                this.startProgressAnimation();
+            }
+        }
+    }
+    
+    function getContainerClasses() {
+        var classes = ["toast", "toast-" + this.props.type];
+        
+        // Add position class
+        classes.push("toast-" + this.props.position);
+        
+        // Add visibility class
+        if (!this.state.visible) {
+            classes.push("toast-hidden");
+        }
+        
+        return classes.join(" ");
+    }
+    
+    function getIconHtml() {
+        if (!this.props.showIcon) {
+            return "";
+        }
+        
+        var iconClass = "";
+        
+        switch (this.props.type) {
+            case "info":
+                iconClass = "info-circle";
+                break;
+            case "success":
+                iconClass = "check-circle";
+                break;
+            case "warning":
+                iconClass = "exclamation-triangle";
+                break;
+            case "error":
+                iconClass = "exclamation-circle";
+                break;
+        }
+        
+        return `<div class="toast-icon"><i class="bi bi-${iconClass}"></i></div>`;
+    }
+    
+    function getProgressHtml() {
+        if (!this.props.showProgress || !this.props.autoClose) {
+            return "";
+        }
+        
+        return `
+            <div class="toast-progress-container">
+                <div class="toast-progress-bar" style="width: ${this.state.progress}%"></div>
+            </div>
+        `;
+    }
+    
+    function render() {
+        // Create the component
+        var toast = switch.component("Toast", this.props);
+        
+        // Return the HTML
+        return `
+            <div class="${this.getContainerClasses()}" 
+                 onmouseenter="handleMouseEnter()" 
+                 onmouseleave="handleMouseLeave()">
+                ${this.getIconHtml()}
+                <div class="toast-content">
+                    ${this.props.title ? `<div class="toast-title">${this.props.title}</div>` : ''}
+                    <div class="toast-message">${this.props.message}</div>
+                </div>
+                ${this.props.showCloseButton ? `<button class="toast-close" onclick="close()"><i class="bi bi-x"></i></button>` : ''}
+                ${this.getProgressHtml()}
+            </div>
+        `;
+    }
+}
+
+// Export the component
+export Toast;

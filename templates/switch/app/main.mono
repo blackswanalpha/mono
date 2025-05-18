@@ -1,0 +1,222 @@
+//  __  __
+// |  \/  | ___  _ __   ___
+// | |\/| |/ _ \| '_ \ / _ \
+// | |  | | (_) | | | | (_) |
+// |_|  |_|\___/|_| |_|\___/
+//
+// {{APP_NAME}} - A Switch application
+
+component App {
+    state {
+        title: string = "{{APP_NAME}}",
+        currentPage: string = "home"
+    }
+
+    function constructor() {
+        // Initialize the application
+    }
+
+    function setCurrentPage(page: string) {
+        this.state.currentPage = page;
+    }
+
+    function render() {
+        // Register client-side event handlers
+        switch.clientEvent("click", "handleNavigation");
+
+        // Create the component
+        var app = switch.component("App", {
+            title: this.state.title,
+            currentPage: this.state.currentPage
+        });
+
+        // Determine which page to render
+        var pageContent = "";
+
+        if (this.state.currentPage === "home") {
+            pageContent = this.renderHomePage();
+        } else if (this.state.currentPage === "about") {
+            pageContent = this.renderAboutPage();
+        } else {
+            pageContent = "<p>Page not found</p>";
+        }
+
+        // Return the HTML
+        return `
+            <div class="app">
+                <header class="app-header">
+                    <div class="app-header-content">
+                        <h1 class="app-title">${this.state.title}</h1>
+                        <nav>
+                            <ul class="app-nav">
+                                <li class="app-nav-item ${this.state.currentPage === 'home' ? 'app-nav-active' : ''}">
+                                    <a href="/" class="app-nav-link" data-page="home" data-event="click">Home</a>
+                                </li>
+                                <li class="app-nav-item ${this.state.currentPage === 'about' ? 'app-nav-active' : ''}">
+                                    <a href="/about" class="app-nav-link" data-page="about" data-event="click">About</a>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+                </header>
+
+                <main class="app-main">
+                    <div class="app-container">
+                        ${pageContent}
+                    </div>
+                </main>
+
+                <footer class="app-footer">
+                    <div class="app-container">
+                        <p>&copy; ${new Date().getFullYear()} {{APP_NAME}}. All rights reserved.</p>
+                    </div>
+                </footer>
+            </div>
+        `;
+    }
+
+    function renderHomePage() {
+        return `
+            <h2>Welcome to {{APP_NAME}}</h2>
+            <p>This is a Switch application built with Mono.</p>
+            <div class="features">
+                <div class="feature">
+                    <h3>Component-Based</h3>
+                    <p>Build UIs with reusable components.</p>
+                </div>
+                <div class="feature">
+                    <h3>State Management</h3>
+                    <p>Manage application state with ease.</p>
+                </div>
+                <div class="feature">
+                    <h3>Routing</h3>
+                    <p>Navigate between pages without full page reloads.</p>
+                </div>
+            </div>
+        `;
+    }
+
+    function renderAboutPage() {
+        return `
+            <h2>About {{APP_NAME}}</h2>
+            <p>{{APP_NAME}} is a modern web application built with the Switch framework for Mono.</p>
+            <p>Switch is a robust frontend framework that enables developers to build interactive web applications.</p>
+        `;
+    }
+
+    function handleNavigation(event) {
+        // Check if this is a navigation link
+        if (event.target.dataset.page) {
+            // Prevent the default link behavior
+            event.preventDefault();
+
+            // Get the page
+            var page = event.target.dataset.page;
+
+            // Update the current page
+            this.setCurrentPage(page);
+
+            // Update the URL
+            if (page === "home") {
+                history.pushState({}, "", "/");
+            } else {
+                history.pushState({}, "", "/" + page);
+            }
+        }
+    }
+}
+
+component Main {
+    state {
+        app: any = null
+    }
+
+    function start() {
+        print "=== {{APP_NAME}} ===";
+
+        // Create the app
+        this.state.app = new App();
+
+        // Configure routes
+        http.get("/", "handleRoot");
+        http.get("/about", "handleAbout");
+        http.get("/static/(.*)", "handleStatic");
+
+        // Start the server
+        http.start();
+    }
+
+    function handleRoot(req, res) {
+        print "Handling request to /";
+
+        // Create the app
+        this.state.app = new App();
+        this.state.app.setCurrentPage("home");
+
+        // Render the app
+        var html = switch.render("{{APP_NAME}}", ["/static/js/app.js"], ["/static/css/app.css"]);
+
+        // Send the response
+        res.html(html);
+    }
+
+    function handleAbout(req, res) {
+        print "Handling request to /about";
+
+        // Create the app
+        this.state.app = new App();
+        this.state.app.setCurrentPage("about");
+
+        // Render the app
+        var html = switch.render("{{APP_NAME}} - About", ["/static/js/app.js"], ["/static/css/app.css"]);
+
+        // Send the response
+        res.html(html);
+    }
+
+    function handleStatic(req, res) {
+        // Extract the file path from the URL
+        var match = req.path.match(/\/static\/(.*)/);
+        if (!match) {
+            res.status(404).text("Not Found");
+            return;
+        }
+
+        var filePath = match[1];
+        var fullPath = "static/" + filePath;
+
+        // Check if the file exists
+        if (!fs.exists(fullPath)) {
+            res.status(404).text("File not found: " + filePath);
+            return;
+        }
+
+        // Determine the content type
+        var contentType = "application/octet-stream";
+
+        if (filePath.endsWith(".css")) {
+            contentType = "text/css";
+        } else if (filePath.endsWith(".js")) {
+            contentType = "application/javascript";
+        } else if (filePath.endsWith(".html")) {
+            contentType = "text/html";
+        } else if (filePath.endsWith(".json")) {
+            contentType = "application/json";
+        } else if (filePath.endsWith(".png")) {
+            contentType = "image/png";
+        } else if (filePath.endsWith(".jpg") || filePath.endsWith(".jpeg")) {
+            contentType = "image/jpeg";
+        } else if (filePath.endsWith(".gif")) {
+            contentType = "image/gif";
+        } else if (filePath.endsWith(".svg")) {
+            contentType = "image/svg+xml";
+        }
+
+        // Read the file
+        var content = fs.readFile(fullPath);
+
+        // Send the response
+        res.header("Content-Type", contentType);
+        res.binary(content);
+    }
+}

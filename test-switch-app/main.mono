@@ -1,0 +1,106 @@
+//  __  __
+// |  \/  | ___  _ __   ___
+// | |\/| |/ _ \| '_ \ / _ \
+// | |  | | (_) | | | | (_) |
+// |_|  |_|\___/|_| |_|\___/
+//
+// Test Switch App - A simple Switch application
+
+component App {
+    state {
+        title: string = "Test Switch App",
+        message: string = "Welcome to the Switch framework!"
+    }
+
+    function render() {
+        return `
+            <div class="app">
+                <h1>${this.state.title}</h1>
+                <p>${this.state.message}</p>
+            </div>
+        `;
+    }
+}
+
+component Main {
+    state {
+        app: any = null
+    }
+
+    function start() {
+        print "=== Test Switch App ===";
+
+        // Create the app
+        this.state.app = new App();
+
+        // Configure routes
+        http.get("/", "handleRoot");
+        http.get("/static/(.*)", "handleStatic");
+
+        // Start the server
+        http.start(8080);
+    }
+
+    function handleRoot(req, res) {
+        print "Handling request to /";
+
+        // Create the app
+        this.state.app = new App();
+
+        // Render the app
+        var html = switch.render("Test Switch App", ["/static/js/app.js"], ["/static/css/app.css"]);
+
+        // Send the response
+        res.html(html);
+    }
+
+    function handleStatic(req, res) {
+        // Extract the file path from the URL
+        var match = req.path.match(/\/static\/(.*)/);
+        if (!match) {
+            res.status(404).text("Not Found");
+            return;
+        }
+
+        var filePath = match[1];
+        var fullPath = "static/" + filePath;
+
+        // Check if the file exists
+        if (!fs.exists(fullPath)) {
+            res.status(404).text("File not found: " + filePath);
+            return;
+        }
+
+        // Determine the content type
+        var contentType = "application/octet-stream";
+
+        if (filePath.endsWith(".css")) {
+            contentType = "text/css";
+        } else if (filePath.endsWith(".js")) {
+            contentType = "application/javascript";
+        } else if (filePath.endsWith(".html")) {
+            contentType = "text/html";
+        } else if (filePath.endsWith(".json")) {
+            contentType = "application/json";
+        } else if (filePath.endsWith(".png")) {
+            contentType = "image/png";
+        } else if (filePath.endsWith(".jpg") || filePath.endsWith(".jpeg")) {
+            contentType = "image/jpeg";
+        } else if (filePath.endsWith(".gif")) {
+            contentType = "image/gif";
+        } else if (filePath.endsWith(".svg")) {
+            contentType = "image/svg+xml";
+        }
+
+        // Read the file
+        var content = fs.readFile(fullPath);
+
+        // Send the response
+        res.header("Content-Type", contentType);
+        res.binary(content);
+    }
+}
+
+// Start the application
+var main = new Main();
+main.start();

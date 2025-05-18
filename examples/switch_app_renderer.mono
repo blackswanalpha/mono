@@ -1,0 +1,349 @@
+//  __  __                   
+// |  \/  | ___  _ __   ___  
+// | |\/| |/ _ \| '_ \ / _ \ 
+// | |  | | (_) | | | | (_) |
+// |_|  |_|\___/|_| |_|\___/ 
+//                           
+// Switch App Renderer Example
+
+component AppDemo {
+    state {
+        title: string = "Switch App Renderer Demo",
+        count: number = 0,
+        todos: array = [
+            { id: 1, text: "Learn Mono", completed: true },
+            { id: 2, text: "Learn Switch", completed: false },
+            { id: 3, text: "Build an app", completed: false }
+        ],
+        newTodo: string = ""
+    }
+    
+    function constructor() {
+        // Initialize the component
+    }
+    
+    function increment() {
+        this.state.count += 1;
+    }
+    
+    function decrement() {
+        this.state.count -= 1;
+    }
+    
+    function addTodo() {
+        if (this.state.newTodo.trim() === "") {
+            return;
+        }
+        
+        var newId = this.state.todos.length > 0 ? this.state.todos[this.state.todos.length - 1].id + 1 : 1;
+        
+        this.state.todos.push({
+            id: newId,
+            text: this.state.newTodo,
+            completed: false
+        });
+        
+        this.state.newTodo = "";
+    }
+    
+    function toggleTodo(id) {
+        for (var i = 0; i < this.state.todos.length; i++) {
+            if (this.state.todos[i].id === id) {
+                this.state.todos[i].completed = !this.state.todos[i].completed;
+                break;
+            }
+        }
+    }
+    
+    function deleteTodo(id) {
+        this.state.todos = this.state.todos.filter(function(todo) {
+            return todo.id !== id;
+        });
+    }
+    
+    function render() {
+        // Register client-side event handlers
+        switch.clientEvent("click", "handleClick");
+        switch.clientEvent("submit", "handleSubmit");
+        switch.clientEvent("input", "handleInput");
+        
+        // Create the component
+        var app = switch.component("AppDemo", {
+            title: this.state.title,
+            count: this.state.count,
+            todos: this.state.todos,
+            newTodo: this.state.newTodo
+        });
+        
+        // Return the HTML
+        return `
+            <div class="app-demo">
+                <header class="app-header">
+                    <div class="container">
+                        <h1>${this.state.title}</h1>
+                    </div>
+                </header>
+                
+                <main class="container">
+                    <div class="row">
+                        <div class="col">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h2>Counter</h2>
+                                </div>
+                                <div class="card-body">
+                                    <p class="text-center">Count: ${this.state.count}</p>
+                                    <div class="text-center">
+                                        <button class="btn btn-primary" data-event="click" data-action="increment">Increment</button>
+                                        <button class="btn btn-danger" data-event="click" data-action="decrement">Decrement</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h2>Todo List</h2>
+                                </div>
+                                <div class="card-body">
+                                    <form data-event="submit" data-action="addTodo">
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" placeholder="Add a new todo" value="${this.state.newTodo}" data-event="input" data-action="updateNewTodo">
+                                            <button type="submit" class="btn btn-primary">Add</button>
+                                        </div>
+                                    </form>
+                                    
+                                    <ul class="todo-list">
+                                        ${this.renderTodos()}
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </main>
+                
+                <footer class="app-footer">
+                    <div class="container">
+                        <p class="text-center">Built with the Switch framework for Mono</p>
+                    </div>
+                </footer>
+            </div>
+        `;
+    }
+    
+    function renderTodos() {
+        var html = "";
+        
+        for (var i = 0; i < this.state.todos.length; i++) {
+            var todo = this.state.todos[i];
+            
+            html += `
+                <li class="todo-item ${todo.completed ? 'completed' : ''}">
+                    <input type="checkbox" ${todo.completed ? 'checked' : ''} data-event="click" data-action="toggleTodo" data-id="${todo.id}">
+                    <span>${todo.text}</span>
+                    <button class="btn btn-sm btn-danger" data-event="click" data-action="deleteTodo" data-id="${todo.id}">Delete</button>
+                </li>
+            `;
+        }
+        
+        return html;
+    }
+    
+    function handleClick(event) {
+        var action = event.target.dataset.action;
+        
+        if (action === "increment") {
+            this.increment();
+        } else if (action === "decrement") {
+            this.decrement();
+        } else if (action === "toggleTodo") {
+            var id = parseInt(event.target.dataset.id);
+            this.toggleTodo(id);
+        } else if (action === "deleteTodo") {
+            var id = parseInt(event.target.dataset.id);
+            this.deleteTodo(id);
+        }
+    }
+    
+    function handleSubmit(event) {
+        event.preventDefault();
+        
+        var action = event.target.dataset.action;
+        
+        if (action === "addTodo") {
+            this.addTodo();
+        }
+    }
+    
+    function handleInput(event) {
+        var action = event.target.dataset.action;
+        
+        if (action === "updateNewTodo") {
+            this.state.newTodo = event.target.value;
+        }
+    }
+}
+
+component Main {
+    state {
+        app: any = null
+    }
+    
+    function start() {
+        print "=== Switch App Renderer Example ===";
+        
+        // Create the app
+        this.state.app = new AppDemo();
+        
+        // Configure routes
+        http.get("/", "handleRoot");
+        http.get("/static/(.*)", "handleStatic");
+        
+        // Start the server
+        http.start();
+    }
+    
+    function handleRoot(req, res) {
+        print "Handling request to /";
+        
+        // Create the app
+        this.state.app = new AppDemo();
+        
+        // Render the app
+        var html = switch.render(
+            "Switch App Renderer Demo", 
+            [
+                "https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js",
+                "/static/js/app.js"
+            ], 
+            [
+                "https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css",
+                "/static/css/app.css"
+            ]
+        );
+        
+        // Send the response
+        res.html(html);
+    }
+    
+    function handleStatic(req, res) {
+        // Extract the file path from the URL
+        var match = req.path.match(/\/static\/(.*)/);
+        if (!match) {
+            res.status(404).text("Not Found");
+            return;
+        }
+        
+        var filePath = match[1];
+        var fullPath = "static/" + filePath;
+        
+        // Check if the file exists
+        if (!fs.exists(fullPath)) {
+            // For this example, generate the files on the fly
+            if (filePath === "js/app.js") {
+                res.header("Content-Type", "application/javascript");
+                res.text(`
+                    // App JavaScript
+                    console.log('Switch App Renderer Demo loaded');
+                    
+                    // Initialize the application when the DOM is ready
+                    document.addEventListener('DOMContentLoaded', function() {
+                        console.log('DOM ready');
+                    });
+                `);
+                return;
+            } else if (filePath === "css/app.css") {
+                res.header("Content-Type", "text/css");
+                res.text(`
+                    /* App styles */
+                    .app-demo {
+                        display: flex;
+                        flex-direction: column;
+                        min-height: 100vh;
+                    }
+                    
+                    .app-header {
+                        background-color: #343a40;
+                        color: white;
+                        padding: 1rem 0;
+                        margin-bottom: 2rem;
+                    }
+                    
+                    .app-footer {
+                        background-color: #343a40;
+                        color: white;
+                        padding: 1rem 0;
+                        margin-top: 2rem;
+                    }
+                    
+                    .todo-list {
+                        list-style: none;
+                        padding: 0;
+                        margin-top: 1rem;
+                    }
+                    
+                    .todo-item {
+                        display: flex;
+                        align-items: center;
+                        padding: 0.5rem;
+                        border-bottom: 1px solid #eee;
+                    }
+                    
+                    .todo-item.completed span {
+                        text-decoration: line-through;
+                        color: #6c757d;
+                    }
+                    
+                    .todo-item input {
+                        margin-right: 0.5rem;
+                    }
+                    
+                    .todo-item span {
+                        flex: 1;
+                    }
+                    
+                    .todo-item button {
+                        margin-left: 0.5rem;
+                    }
+                    
+                    .card {
+                        margin-bottom: 1rem;
+                    }
+                `);
+                return;
+            }
+            
+            res.status(404).text("File not found: " + filePath);
+            return;
+        }
+        
+        // Determine the content type
+        var contentType = "application/octet-stream";
+        
+        if (filePath.endsWith(".css")) {
+            contentType = "text/css";
+        } else if (filePath.endsWith(".js")) {
+            contentType = "application/javascript";
+        } else if (filePath.endsWith(".html")) {
+            contentType = "text/html";
+        } else if (filePath.endsWith(".json")) {
+            contentType = "application/json";
+        } else if (filePath.endsWith(".png")) {
+            contentType = "image/png";
+        } else if (filePath.endsWith(".jpg") || filePath.endsWith(".jpeg")) {
+            contentType = "image/jpeg";
+        } else if (filePath.endsWith(".gif")) {
+            contentType = "image/gif";
+        } else if (filePath.endsWith(".svg")) {
+            contentType = "image/svg+xml";
+        }
+        
+        // Read the file
+        var content = fs.readFile(fullPath);
+        
+        // Send the response
+        res.header("Content-Type", contentType);
+        res.binary(content);
+    }
+}

@@ -1,0 +1,124 @@
+//  __  __                   
+// |  \/  | ___  _ __   ___  
+// | |\/| |/ _ \| '_ \ / _ \ 
+// | |  | | (_) | | | | (_) |
+// |_|  |_|\___/|_| |_|\___/ 
+//                           
+// Button Component
+
+component Button {
+    state {
+        text: string = "Button",
+        type: string = "button",
+        variant: string = "primary",
+        size: string = "",
+        disabled: boolean = false,
+        block: boolean = false,
+        icon: string = "",
+        iconPosition: string = "left",
+        onClick: string = ""
+    }
+    
+    function constructor(props) {
+        // Initialize with props if provided
+        if (props) {
+            if (props.text) {
+                this.state.text = props.text;
+            }
+            
+            if (props.type) {
+                this.state.type = props.type;
+            }
+            
+            if (props.variant) {
+                this.state.variant = props.variant;
+            }
+            
+            if (props.size) {
+                this.state.size = props.size;
+            }
+            
+            if (props.disabled !== undefined) {
+                this.state.disabled = props.disabled;
+            }
+            
+            if (props.block !== undefined) {
+                this.state.block = props.block;
+            }
+            
+            if (props.icon) {
+                this.state.icon = props.icon;
+            }
+            
+            if (props.iconPosition) {
+                this.state.iconPosition = props.iconPosition;
+            }
+            
+            if (props.onClick) {
+                this.state.onClick = props.onClick;
+            }
+        }
+    }
+    
+    function getButtonClasses() {
+        var classes = ["btn"];
+        
+        // Add variant
+        if (this.state.variant) {
+            classes.push("btn-" + this.state.variant);
+        }
+        
+        // Add size
+        if (this.state.size) {
+            classes.push("btn-" + this.state.size);
+        }
+        
+        // Add block
+        if (this.state.block) {
+            classes.push("btn-block");
+        }
+        
+        return classes.join(" ");
+    }
+    
+    function render() {
+        // Register client-side event handlers
+        if (this.state.onClick) {
+            switch.clientEvent("click", this.state.onClick);
+        }
+        
+        // Create the component
+        var button = switch.component("Button", {
+            text: this.state.text,
+            type: this.state.type,
+            variant: this.state.variant,
+            size: this.state.size,
+            disabled: this.state.disabled,
+            block: this.state.block,
+            icon: this.state.icon,
+            iconPosition: this.state.iconPosition,
+            onClick: this.state.onClick
+        });
+        
+        // Return the HTML
+        return `
+            <button 
+                type="${this.state.type}" 
+                class="${this.getButtonClasses()}" 
+                ${this.state.disabled ? 'disabled' : ''} 
+                ${this.state.onClick ? 'data-event="click"' : ''}
+            >
+                ${this.state.icon && this.state.iconPosition === "left" ? 
+                    `<i class="bi bi-${this.state.icon} me-2"></i>` : 
+                    ''}
+                ${this.state.text}
+                ${this.state.icon && this.state.iconPosition === "right" ? 
+                    `<i class="bi bi-${this.state.icon} ms-2"></i>` : 
+                    ''}
+            </button>
+        `;
+    }
+}
+
+// Export the component
+export Button;

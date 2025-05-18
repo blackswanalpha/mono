@@ -1,0 +1,291 @@
+/**
+ * Switch UI Components Styles
+ */
+
+/* Modal */
+.switch-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1050;
+    display: none;
+    overflow: hidden;
+    outline: 0;
+}
+
+.switch-modal.show {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.switch-modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: -1;
+}
+
+.switch-modal-dialog {
+    position: relative;
+    width: auto;
+    margin: 0.5rem;
+    pointer-events: none;
+    max-width: 500px;
+    width: 100%;
+}
+
+.switch-modal.small .switch-modal-dialog {
+    max-width: 300px;
+}
+
+.switch-modal.large .switch-modal-dialog {
+    max-width: 800px;
+}
+
+.switch-modal-content {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    pointer-events: auto;
+    background-color: #fff;
+    background-clip: padding-box;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    border-radius: 0.3rem;
+    outline: 0;
+    box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1);
+}
+
+.switch-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem;
+    border-bottom: 1px solid #e9ecef;
+    border-top-left-radius: 0.3rem;
+    border-top-right-radius: 0.3rem;
+}
+
+.switch-modal-title {
+    margin: 0;
+    line-height: 1.5;
+    font-size: 1.25rem;
+    font-weight: 500;
+}
+
+.switch-modal-close {
+    padding: 0;
+    background-color: transparent;
+    border: 0;
+    font-size: 1.5rem;
+    font-weight: 700;
+    line-height: 1;
+    color: #000;
+    text-shadow: 0 1px 0 #fff;
+    opacity: 0.5;
+    cursor: pointer;
+}
+
+.switch-modal-close:hover {
+    opacity: 0.75;
+}
+
+.switch-modal-body {
+    position: relative;
+    flex: 1 1 auto;
+    padding: 1rem;
+}
+
+.switch-modal-footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 1rem;
+    border-top: 1px solid #e9ecef;
+}
+
+.switch-modal-footer > * {
+    margin-left: 0.5rem;
+}
+
+/* Toast */
+.switch-toast-container {
+    position: fixed;
+    z-index: 1060;
+    padding: 0.75rem;
+}
+
+.switch-toast-container.top-right {
+    top: 0;
+    right: 0;
+}
+
+.switch-toast-container.top-left {
+    top: 0;
+    left: 0;
+}
+
+.switch-toast-container.bottom-right {
+    bottom: 0;
+    right: 0;
+}
+
+.switch-toast-container.bottom-left {
+    bottom: 0;
+    left: 0;
+}
+
+.switch-toast {
+    max-width: 350px;
+    overflow: hidden;
+    background-color: #fff;
+    background-clip: padding-box;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 0.25rem;
+    box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.1);
+    opacity: 0;
+    transform: translateY(-20px);
+    transition: all 0.3s ease-in-out;
+    margin-bottom: 0.75rem;
+}
+
+.switch-toast.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.switch-toast.hiding {
+    opacity: 0;
+    transform: translateY(-20px);
+}
+
+.switch-toast.info {
+    border-left: 4px solid #17a2b8;
+}
+
+.switch-toast.success {
+    border-left: 4px solid #28a745;
+}
+
+.switch-toast.warning {
+    border-left: 4px solid #ffc107;
+}
+
+.switch-toast.error {
+    border-left: 4px solid #dc3545;
+}
+
+.switch-toast-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.5rem 0.75rem;
+    background-color: rgba(0, 0, 0, 0.03);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.switch-toast-title {
+    font-weight: 600;
+}
+
+.switch-toast-close {
+    padding: 0;
+    background-color: transparent;
+    border: 0;
+    font-size: 1.25rem;
+    font-weight: 700;
+    line-height: 1;
+    color: #000;
+    text-shadow: 0 1px 0 #fff;
+    opacity: 0.5;
+    cursor: pointer;
+}
+
+.switch-toast-close:hover {
+    opacity: 0.75;
+}
+
+.switch-toast-body {
+    padding: 0.75rem;
+}
+
+/* Buttons */
+.switch-btn {
+    display: inline-block;
+    font-weight: 400;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: middle;
+    user-select: none;
+    border: 1px solid transparent;
+    padding: 0.375rem 0.75rem;
+    font-size: 1rem;
+    line-height: 1.5;
+    border-radius: 0.25rem;
+    transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    cursor: pointer;
+}
+
+.switch-btn:focus {
+    outline: 0;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.switch-btn-primary {
+    color: #fff;
+    background-color: #007bff;
+    border-color: #007bff;
+}
+
+.switch-btn-primary:hover {
+    color: #fff;
+    background-color: #0069d9;
+    border-color: #0062cc;
+}
+
+.switch-btn-secondary {
+    color: #fff;
+    background-color: #6c757d;
+    border-color: #6c757d;
+}
+
+.switch-btn-secondary:hover {
+    color: #fff;
+    background-color: #5a6268;
+    border-color: #545b62;
+}
+
+.switch-btn-success {
+    color: #fff;
+    background-color: #28a745;
+    border-color: #28a745;
+}
+
+.switch-btn-success:hover {
+    color: #fff;
+    background-color: #218838;
+    border-color: #1e7e34;
+}
+
+.switch-btn-danger {
+    color: #fff;
+    background-color: #dc3545;
+    border-color: #dc3545;
+}
+
+.switch-btn-danger:hover {
+    color: #fff;
+    background-color: #c82333;
+    border-color: #bd2130;
+}
+
+/* Modal open body style */
+body.switch-modal-open {
+    overflow: hidden;
+}

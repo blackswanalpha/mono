@@ -1,0 +1,346 @@
+#!/usr/bin/env python3
+"""
+Mono Switch Deploy - Deploy Mono Switch applications to Vercel
+
+Usage:
+    mono-switch-deploy [options] <directory>
+
+Options:
+    --name NAME     Set the project name (default: directory name)
+    --prod          Deploy to production
+    --no-build      Skip the build step
+    --no-deploy     Prepare for deployment but don't deploy
+"""
+
+import os
+import sys
+import argparse
+import shutil
+import subprocess
+import json
+from pathlib import Path
+
+# Add the parent directory to the path
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+
+def prepare_deployment(directory, project_name=None, skip_build=False):
+    """Prepare a Mono Switch application for deployment to Vercel."""
+    # Get the absolute path of the directory
+    directory = os.path.abspath(directory)
+    
+    # Check if the directory exists
+    if not os.path.exists(directory):
+        print(f"Error: Directory not found: {directory}")
+        return False
+    
+    # Use the directory name as the project name if not provided
+    if not project_name:
+        project_name = os.path.basename(directory)
+    
+    print(f"Preparing {project_name} for deployment...")
+    
+    # Create the deployment directory structure
+    deploy_dir = os.path.join(directory, ".vercel")
+    api_dir = os.path.join(deploy_dir, "api")
+    public_dir = os.path.join(deploy_dir, "public")
+    static_dir = os.path.join(public_dir, "static")
+    
+    # Create directories
+    os.makedirs(deploy_dir, exist_ok=True)
+    os.makedirs(api_dir, exist_ok=True)
+    os.makedirs(public_dir, exist_ok=True)
+    os.makedirs(static_dir, exist_ok=True)
+    
+    # Copy the vercel.json template
+    template_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "templates")
+    vercel_template = os.path.join(template_dir, "vercel.json")
+    
+    if os.path.exists(vercel_template):
+        shutil.copy(vercel_template, os.path.join(directory, "vercel.json"))
+    else:
+        # Create vercel.json if template doesn't exist
+        vercel_config = {
+            "version": 2,
+            "builds": [
+                {
+                    "src": "api/**/*.py",
+                    "use": "@vercel/python"
+                },
+                {
+                    "src": "public/**/*",
+                    "use": "@vercel/static"
+                }
+            ],
+            "routes": [
+                {
+                    "src": "/api/(.*)",
+                    "dest": "/api/$1"
+                },
+                {
+                    "src": "/static/(.*)",
+                    "dest": "/public/static/$1"
+                },
+                {
+                    "src": "/(.*)",
+                    "dest": "/api/index.py"
+                }
+            ],
+            "env": {
+                "MONO_ENV": "production"
+            }
+        }
+        
+        with open(os.path.join(directory, "vercel.json"), "w") as f:
+            json.dump(vercel_config, f, indent=2)
+    
+    # Create requirements.txt
+    with open(os.path.join(directory, "requirements.txt"), "w") as f:
+        f.write("watchdog==2.1.9\n")
+    
+    # Create the API entry point
+    with open(os.path.join(api_dir, "index.py"), "w") as f:
+        f.write("""
+import os
+import sys
+import json
+from http.server import BaseHTTPRequestHandler
+from pathlib import Path
+
+# Add the parent directory to the path
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
+
+# Import the Switch framework
+try:
+    from lib.mono_switch import SwitchComponent, SwitchRenderer
+    from lib.mono_http import Request, Response, HttpStatus
+except ImportError:
+    # If the lib directory is not found, create a minimal implementation
+    class SwitchComponent:
+        def __init__(self, name, props=None, children=None):
+            self.name = name
+            self.props = props or {}
+            self.children = children or []
+        
+        def to_json(self):
+            return json.dumps({
+                "name": self.name,
+                "props": self.props
+            })
+    
+    class SwitchRenderer:
+        def __init__(self, title="Switch App", scripts=None, styles=None):
+            self.title = title
+            self.scripts = scripts or []
+            self.styles = styles or []
+        
+        def render(self, component):
+            return f'''<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{self.title}</title>
+</head>
+<body>
+    <div id="switch-root">
+        <h1>{component.name}</h1>
+        <p>This is a placeholder for the {component.name} component.</p>
+    </div>
+</body>
+</html>'''
+    
+    class HttpStatus:
+        OK = 200
+        NOT_FOUND = 404
+        INTERNAL_SERVER_ERROR = 500
+    
+    class Request:
+        def __init__(self, method, path, headers, body=None):
+            self.method = method
+            self.path = path
+            self.headers = headers
+            self.body = body
+    
+    class Response:
+        def __init__(self):
+            self.status_code = HttpStatus.OK
+            self.headers = {}
+            self.body = ""
+        
+        def status(self, status_code):
+            self.status_code = status_code
+            return self
+        
+        def header(self, name, value):
+            self.headers[name] = value
+            return self
+        
+        def text(self, body):
+            self.body = body
+            return self
+        
+        def html(self, body):
+            self.header("Content-Type", "text/html")
+            self.body = body
+            return self
+        
+        def json(self, data):
+            self.header("Content-Type", "application/json")
+            self.body = json.dumps(data)
+            return self
+
+# Find the main Mono file
+main_file = None
+for file in os.listdir(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))):
+    if file.endswith(".mono") and "main" in file.lower():
+        main_file = file
+        break
+
+class handler(BaseHTTPRequestHandler):
+    def do_GET(self):
+        # Create a request object
+        request = Request(
+            method="GET",
+            path=self.path,
+            headers=dict(self.headers)
+        )
+        
+        # Create a response object
+        response = Response()
+        
+        # Handle the request
+        if main_file:
+            # If we found a main file, render a placeholder
+            component = SwitchComponent("App", {"title": "Mono Switch App"})
+            renderer = SwitchRenderer("Mono Switch App")
+            html = renderer.render(component)
+            response.html(html)
+        else:
+            # Otherwise, show an error
+            response.status(HttpStatus.NOT_FOUND)
+            response.html("<h1>404 Not Found</h1><p>No Mono application found.</p>")
+        
+        # Send the response
+        self.send_response(response.status_code)
+        
+        # Send headers
+        for name, value in response.headers.items():
+            self.send_header(name, value)
+        self.end_headers()
+        
+        # Send body
+        self.wfile.write(response.body.encode())
+        return
+""")
+    
+    # Copy static files
+    static_src_dir = os.path.join(directory, "static")
+    if os.path.exists(static_src_dir):
+        for item in os.listdir(static_src_dir):
+            src_item = os.path.join(static_src_dir, item)
+            dst_item = os.path.join(static_dir, item)
+            
+            if os.path.isfile(src_item):
+                shutil.copy2(src_item, dst_item)
+            elif os.path.isdir(src_item):
+                shutil.copytree(src_item, dst_item, dirs_exist_ok=True)
+    
+    # Copy the Switch framework
+    lib_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "lib")
+    deploy_lib_dir = os.path.join(directory, "lib")
+    
+    if os.path.exists(lib_dir):
+        os.makedirs(deploy_lib_dir, exist_ok=True)
+        
+        # Copy the Switch framework files
+        for item in os.listdir(lib_dir):
+            if item.startswith("mono_") or item.startswith("switch_"):
+                src_item = os.path.join(lib_dir, item)
+                dst_item = os.path.join(deploy_lib_dir, item)
+                
+                if os.path.isfile(src_item):
+                    shutil.copy2(src_item, dst_item)
+    
+    # Build the application if needed
+    if not skip_build:
+        print("Building the application...")
+        
+        # Find the main Mono file
+        main_file = None
+        for file in os.listdir(directory):
+            if file.endswith(".mono") and "main" in file.lower():
+                main_file = file
+                break
+        
+        if main_file:
+            # Run the build command
+            build_cmd = ["mono-switch", "--prod", os.path.join(directory, main_file)]
+            try:
+                subprocess.run(build_cmd, check=True, cwd=directory)
+                print("Build completed successfully.")
+            except subprocess.CalledProcessError:
+                print("Error: Build failed.")
+                return False
+        else:
+            print("Warning: No main Mono file found. Skipping build step.")
+    
+    print(f"Deployment preparation completed: {directory}")
+    return True
+
+def deploy_to_vercel(directory, project_name=None, production=False):
+    """Deploy a Mono Switch application to Vercel."""
+    # Get the absolute path of the directory
+    directory = os.path.abspath(directory)
+    
+    # Check if Vercel CLI is installed
+    try:
+        subprocess.run(["vercel", "--version"], check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        print("Error: Vercel CLI not found. Please install it with 'npm install -g vercel'.")
+        return False
+    
+    # Build the deployment command
+    deploy_cmd = ["vercel"]
+    
+    if project_name:
+        deploy_cmd.extend(["--name", project_name])
+    
+    if production:
+        deploy_cmd.append("--prod")
+    
+    # Run the deployment command
+    try:
+        print("Deploying to Vercel...")
+        subprocess.run(deploy_cmd, check=True, cwd=directory)
+        print("Deployment completed successfully.")
+        return True
+    except subprocess.CalledProcessError:
+        print("Error: Deployment failed.")
+        return False
+
+def main():
+    """Deploy a Mono Switch application to Vercel."""
+    # Parse command-line arguments
+    parser = argparse.ArgumentParser(description='Deploy Mono Switch applications to Vercel')
+    parser.add_argument('directory', help='Directory containing the Mono Switch application')
+    parser.add_argument('--name', help='Project name (default: directory name)')
+    parser.add_argument('--prod', action='store_true', help='Deploy to production')
+    parser.add_argument('--no-build', action='store_true', help='Skip the build step')
+    parser.add_argument('--no-deploy', action='store_true', help='Prepare for deployment but don\'t deploy')
+    args = parser.parse_args()
+    
+    # Prepare the deployment
+    success = prepare_deployment(args.directory, args.name, args.no_build)
+    
+    if not success:
+        sys.exit(1)
+    
+    # Deploy to Vercel if requested
+    if not args.no_deploy:
+        success = deploy_to_vercel(args.directory, args.name, args.prod)
+        
+        if not success:
+            sys.exit(1)
+
+if __name__ == '__main__':
+    main()

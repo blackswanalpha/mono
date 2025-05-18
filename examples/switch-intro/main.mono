@@ -1,0 +1,414 @@
+//  __  __
+// |  \/  | ___  _ __   ___
+// | |\/| |/ _ \| '_ \ / _ \
+// | |  | | (_) | | | | (_) |
+// |_|  |_|\___/|_| |_|\___/
+//
+// Switch Introduction - A demonstration of the Switch framework
+
+component App {
+    state {
+        title: string = "Introduction to Switch",
+        currentPage: string = "home",
+        features: array = [
+            {
+                title: "Component-Based Architecture",
+                description: "Build UIs with reusable components.",
+                icon: "puzzle-piece"
+            },
+            {
+                title: "State Management",
+                description: "Manage application state with ease.",
+                icon: "database"
+            },
+            {
+                title: "Routing",
+                description: "Navigate between pages without full page reloads.",
+                icon: "map"
+            },
+            {
+                title: "Server-Side Rendering",
+                description: "Render components on the server for better performance.",
+                icon: "server"
+            },
+            {
+                title: "Hot Module Replacement",
+                description: "Update components without reloading the page.",
+                icon: "refresh"
+            },
+            {
+                title: "UI Components",
+                description: "Reusable UI components with better accessibility.",
+                icon: "palette"
+            }
+        ],
+        counter: number = 0
+    }
+
+    function constructor() {
+        // Initialize the application
+    }
+
+    function setCurrentPage(page: string) {
+        this.state.currentPage = page;
+    }
+
+    function incrementCounter() {
+        this.state.counter += 1;
+    }
+
+    function decrementCounter() {
+        this.state.counter -= 1;
+    }
+
+    function render() {
+        // Register client-side event handlers
+        switch.clientEvent("click", "handleNavigation");
+        switch.clientEvent("click", "handleCounter");
+
+        // Create the component
+        var app = switch.component("App", {
+            title: this.state.title,
+            currentPage: this.state.currentPage,
+            features: this.state.features,
+            counter: this.state.counter
+        });
+
+        // Determine which page to render
+        var pageContent = "";
+
+        if (this.state.currentPage === "home") {
+            pageContent = this.renderHomePage();
+        } else if (this.state.currentPage === "features") {
+            pageContent = this.renderFeaturesPage();
+        } else if (this.state.currentPage === "demo") {
+            pageContent = this.renderDemoPage();
+        } else if (this.state.currentPage === "docs") {
+            pageContent = this.renderDocsPage();
+        } else {
+            pageContent = "<p>Page not found</p>";
+        }
+
+        // Return the HTML
+        return `
+            <div class="app">
+                <header class="app-header">
+                    <div class="app-header-content">
+                        <h1 class="app-title">${this.state.title}</h1>
+                        <nav>
+                            <ul class="app-nav">
+                                <li class="app-nav-item ${this.state.currentPage === 'home' ? 'app-nav-active' : ''}">
+                                    <a href="/" class="app-nav-link" data-page="home" data-event="click">Home</a>
+                                </li>
+                                <li class="app-nav-item ${this.state.currentPage === 'features' ? 'app-nav-active' : ''}">
+                                    <a href="/features" class="app-nav-link" data-page="features" data-event="click">Features</a>
+                                </li>
+                                <li class="app-nav-item ${this.state.currentPage === 'demo' ? 'app-nav-active' : ''}">
+                                    <a href="/demo" class="app-nav-link" data-page="demo" data-event="click">Demo</a>
+                                </li>
+                                <li class="app-nav-item ${this.state.currentPage === 'docs' ? 'app-nav-active' : ''}">
+                                    <a href="/docs" class="app-nav-link" data-page="docs" data-event="click">Docs</a>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+                </header>
+
+                <main class="app-main">
+                    <div class="app-container">
+                        ${pageContent}
+                    </div>
+                </main>
+
+                <footer class="app-footer">
+                    <div class="app-container">
+                        <p>&copy; ${new Date().getFullYear()} Switch Framework. All rights reserved.</p>
+                    </div>
+                </footer>
+            </div>
+        `;
+    }
+
+    function renderHomePage() {
+        return `
+            <div class="hero">
+                <h2>Welcome to Switch</h2>
+                <p class="lead">A modern frontend framework for Mono</p>
+                <div class="hero-buttons">
+                    <a href="/features" class="btn btn-primary" data-page="features" data-event="click">Explore Features</a>
+                    <a href="/demo" class="btn btn-secondary" data-page="demo" data-event="click">Try Demo</a>
+                </div>
+            </div>
+
+            <div class="features">
+                <h3>Key Features</h3>
+                <div class="feature-grid">
+                    ${this.state.features.map(feature => `
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <i class="bi bi-${feature.icon}"></i>
+                            </div>
+                            <h4>${feature.title}</h4>
+                            <p>${feature.description}</p>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+    }
+
+    function renderFeaturesPage() {
+        return `
+            <h2>Features</h2>
+            <p>Switch provides a comprehensive set of features for building modern web applications.</p>
+
+            <div class="feature-list">
+                ${this.state.features.map(feature => `
+                    <div class="feature-item">
+                        <div class="feature-header">
+                            <div class="feature-icon">
+                                <i class="bi bi-${feature.icon}"></i>
+                            </div>
+                            <h3>${feature.title}</h3>
+                        </div>
+                        <div class="feature-body">
+                            <p>${feature.description}</p>
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+    }
+
+    function renderDemoPage() {
+        return `
+            <h2>Demo</h2>
+            <p>Try out some of the features of the Switch framework.</p>
+
+            <div class="demo-section">
+                <h3>Counter Demo</h3>
+                <p>A simple counter component that demonstrates state management and event handling.</p>
+
+                <div class="counter-demo">
+                    <div class="counter-value">${this.state.counter}</div>
+                    <div class="counter-controls">
+                        <button class="btn btn-primary" data-action="increment" data-event="click">Increment</button>
+                        <button class="btn btn-danger" data-action="decrement" data-event="click">Decrement</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="demo-section">
+                <h3>Todo List Demo</h3>
+                <p>Coming soon...</p>
+            </div>
+        `;
+    }
+
+    function renderDocsPage() {
+        return `
+            <h2>Documentation</h2>
+            <p>Learn how to use the Switch framework to build modern web applications.</p>
+
+            <div class="docs-section">
+                <h3>Getting Started</h3>
+                <p>To create a new Switch application, use the <code>mono switch create</code> command:</p>
+                <pre><code>mono switch create my-app</code></pre>
+
+                <p>To run the application, use the <code>mono switch run</code> command:</p>
+                <pre><code>cd my-app
+mono switch run app</code></pre>
+            </div>
+
+            <div class="docs-section">
+                <h3>Components</h3>
+                <p>Components are the building blocks of Switch applications. They encapsulate state and behavior, and can be composed to create complex UIs.</p>
+                <pre><code>component Button {
+    state {
+        text: string = "Click Me",
+        variant: string = "primary"
+    }
+
+    function constructor(props) {
+        if (props) {
+            if (props.text) {
+                this.state.text = props.text;
+            }
+
+            if (props.variant) {
+                this.state.variant = props.variant;
+            }
+        }
+    }
+
+    function render() {
+        return \`
+            <button class="btn btn-\${this.state.variant}">
+                \${this.state.text}
+            </button>
+        \`;
+    }
+}</code></pre>
+            </div>
+        `;
+    }
+
+    function handleNavigation(event) {
+        // Check if this is a navigation link
+        if (event.target.dataset.page) {
+            // Prevent the default link behavior
+            event.preventDefault();
+
+            // Get the page
+            var page = event.target.dataset.page;
+
+            // Update the current page
+            this.setCurrentPage(page);
+
+            // Update the URL
+            if (page === "home") {
+                history.pushState({}, "", "/");
+            } else {
+                history.pushState({}, "", "/" + page);
+            }
+        }
+    }
+
+    function handleCounter(event) {
+        // Check if this is a counter button
+        if (event.target.dataset.action === "increment") {
+            this.incrementCounter();
+        } else if (event.target.dataset.action === "decrement") {
+            this.decrementCounter();
+        }
+    }
+}
+
+component Button {
+    state {
+        app: any = null
+    }
+
+    function start() {
+        print "=== Switch Introduction ===";
+
+        // Create the app
+        this.state.app = new App();
+
+        // Configure routes
+        http.get("/", "handleRoot");
+        http.get("/features", "handleFeatures");
+        http.get("/demo", "handleDemo");
+        http.get("/docs", "handleDocs");
+        http.get("/static/(.*)", "handleStatic");
+
+        // Start the server
+        http.start();
+    }
+
+    function handleRoot(req, res) {
+        print "Handling request to /";
+
+        // Create the app
+        this.state.app = new App();
+        this.state.app.setCurrentPage("home");
+
+        // Render the app
+        var html = switch.render("Introduction to Switch", ["/static/js/app.js"], ["/static/css/app.css"]);
+
+        // Send the response
+        res.html(html);
+    }
+
+    function handleFeatures(req, res) {
+        print "Handling request to /features";
+
+        // Create the app
+        this.state.app = new App();
+        this.state.app.setCurrentPage("features");
+
+        // Render the app
+        var html = switch.render("Switch - Features", ["/static/js/app.js"], ["/static/css/app.css"]);
+
+        // Send the response
+        res.html(html);
+    }
+
+    function handleDemo(req, res) {
+        print "Handling request to /demo";
+
+        // Create the app
+        this.state.app = new App();
+        this.state.app.setCurrentPage("demo");
+
+        // Render the app
+        var html = switch.render("Switch - Demo", ["/static/js/app.js"], ["/static/css/app.css"]);
+
+        // Send the response
+        res.html(html);
+    }
+
+    function handleDocs(req, res) {
+        print "Handling request to /docs";
+
+        // Create the app
+        this.state.app = new App();
+        this.state.app.setCurrentPage("docs");
+
+        // Render the app
+        var html = switch.render("Switch - Documentation", ["/static/js/app.js"], ["/static/css/app.css"]);
+
+        // Send the response
+        res.html(html);
+    }
+
+    function handleStatic(req, res) {
+        // Extract the file path from the URL
+        var match = req.path.match(/\/static\/(.*)/);
+        if (!match) {
+            res.status(404).text("Not Found");
+            return;
+        }
+
+        var filePath = match[1];
+        var fullPath = "static/" + filePath;
+
+        // Check if the file exists
+        if (!fs.exists(fullPath)) {
+            res.status(404).text("File not found: " + filePath);
+            return;
+        }
+
+        // Determine the content type
+        var contentType = "application/octet-stream";
+
+        if (filePath.endsWith(".css")) {
+            contentType = "text/css";
+        } else if (filePath.endsWith(".js")) {
+            contentType = "application/javascript";
+        } else if (filePath.endsWith(".html")) {
+            contentType = "text/html";
+        } else if (filePath.endsWith(".json")) {
+            contentType = "application/json";
+        } else if (filePath.endsWith(".png")) {
+            contentType = "image/png";
+        } else if (filePath.endsWith(".jpg") || filePath.endsWith(".jpeg")) {
+            contentType = "image/jpeg";
+        } else if (filePath.endsWith(".gif")) {
+            contentType = "image/gif";
+        } else if (filePath.endsWith(".svg")) {
+            contentType = "image/svg+xml";
+        }
+
+        // Read the file
+        var content = fs.readFile(fullPath);
+
+        // Send the response
+        res.header("Content-Type", contentType);
+        res.binary(content);
+    }
+}
+
+// Start the application
+var main = new Button();
+main.start();

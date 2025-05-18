@@ -1,0 +1,161 @@
+//  __  __                   
+// |  \/  | ___  _ __   ___  
+// | |\/| |/ _ \| '_ \ / _ \ 
+// | |  | | (_) | | | | (_) |
+// |_|  |_|\___/|_| |_|\___/ 
+//                           
+// About Page Component
+
+component AboutPage {
+    state {
+        title: string = "About {{APP_NAME}}",
+        description: string = "{{APP_NAME}} is a modern web framework built with the Switch framework for Mono.",
+        team: array = [
+            {
+                id: 1,
+                name: "John Doe",
+                role: "Lead Developer",
+                bio: "John is the lead developer of the Switch framework.",
+                avatar: "https://randomuser.me/api/portraits/men/1.jpg"
+            },
+            {
+                id: 2,
+                name: "Jane Smith",
+                role: "UI/UX Designer",
+                bio: "Jane is the UI/UX designer of the Switch framework.",
+                avatar: "https://randomuser.me/api/portraits/women/1.jpg"
+            },
+            {
+                id: 3,
+                name: "Bob Johnson",
+                role: "Backend Developer",
+                bio: "Bob is the backend developer of the Switch framework.",
+                avatar: "https://randomuser.me/api/portraits/men/2.jpg"
+            }
+        ]
+    }
+    
+    function constructor() {
+        // Initialize the component
+    }
+    
+    function render() {
+        // Create the component
+        var aboutPage = switch.component("AboutPage", {
+            title: this.state.title,
+            description: this.state.description,
+            team: this.state.team
+        });
+        
+        // Return the HTML
+        return `
+            <div class="about-page">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h2 class="mb-3">${this.state.title}</h2>
+                        <p>${this.state.description}</p>
+                        <p>Switch is a robust frontend framework that enables developers to build interactive web applications.</p>
+                    </div>
+                </div>
+                
+                <h3 class="mb-3">Technology Stack</h3>
+                
+                <div class="row mb-4">
+                    <div class="col-md-6 mb-4">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h4>Frontend</h4>
+                                <ul>
+                                    <li>Switch Framework</li>
+                                    <li>Component-Based Architecture</li>
+                                    <li>Reactive State Management</li>
+                                    <li>Client-Side Routing</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6 mb-4">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h4>Backend</h4>
+                                <ul>
+                                    <li>Mono Language</li>
+                                    <li>HTTP Server</li>
+                                    <li>RESTful API</li>
+                                    <li>Server-Side Rendering</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <h3 class="mb-3">Our Team</h3>
+                
+                <div class="row">
+                    ${this.renderTeam()}
+                </div>
+                
+                <div class="mt-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h4 class="card-title">Contact Us</h4>
+                        </div>
+                        <div class="card-body">
+                            <form>
+                                <div class="form-group">
+                                    <label for="name">Name</label>
+                                    <input type="text" class="form-control" id="name" placeholder="Your name">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="email">Email</label>
+                                    <input type="email" class="form-control" id="email" placeholder="Your email">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="message">Message</label>
+                                    <textarea class="form-control" id="message" rows="3" placeholder="Your message"></textarea>
+                                </div>
+                                
+                                <button type="submit" class="btn btn-primary">Send Message</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+    
+    function renderTeam() {
+        var html = "";
+        
+        for (var i = 0; i < this.state.team.length; i++) {
+            var member = this.state.team[i];
+            
+            html += `
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <div class="d-flex">
+                                <div class="team-avatar">
+                                    <img src="${member.avatar}" alt="${member.name}" class="rounded-circle" width="64" height="64">
+                                </div>
+                                <div class="ms-3">
+                                    <h4 class="mb-1">${member.name}</h4>
+                                    <p class="text-primary mb-2">${member.role}</p>
+                                    <p class="mb-0">${member.bio}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        return html;
+    }
+}
+
+// Export the component
+export AboutPage;

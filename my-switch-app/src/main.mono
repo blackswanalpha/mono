@@ -1,0 +1,118 @@
+//  __  __                   
+// |  \/  | ___  _ __   ___  
+// | |\/| |/ _ \| '_ \ / _ \ 
+// | |  | | (_) | | | | (_) |
+// |_|  |_|\___/|_| |_|\___/ 
+//                           
+// Main Application
+
+import Layout from "components/layout";
+import HomePage from "pages/home";
+import AboutPage from "pages/about";
+import TutorialsPage from "pages/tutorials";
+import FeedbackPage from "pages/feedback";
+import SplashScreen from "components/ui/splash-screen";
+
+component MainApp {
+    state {
+        title: string = "my-switch-app",
+        currentPage: string = "home",
+        loading: boolean = true,
+        darkMode: boolean = false,
+        showSplashScreen: boolean = true
+    }
+    
+    function constructor() {
+        // Initialize the component
+        this.state.darkMode = localStorage.getItem("darkMode") === "true";
+        
+        // Apply dark mode if enabled
+        if (this.state.darkMode) {
+            document.body.classList.add("dark-mode");
+        }
+        
+        // Get the current page from the URL
+        var path = window.location.pathname;
+        if (path === "/") {
+            this.state.currentPage = "home";
+        } else {
+            this.state.currentPage = path.substring(1);
+        }
+        
+        // Hide splash screen after 3 seconds
+        setTimeout(function() {
+            this.state.showSplashScreen = false;
+        }.bind(this), 3000);
+    }
+    
+    function handleSplashScreenFinish() {
+        this.state.showSplashScreen = false;
+    }
+    
+    function renderSplashScreen() {
+        if (!this.state.showSplashScreen) {
+            return "";
+        }
+        
+        // Create the splash screen component
+        var splashScreen = new SplashScreen({
+            title: this.state.title,
+            subtitle: "A modern web framework",
+            duration: 3000,
+            theme: this.state.darkMode ? "dark" : "light",
+            animation: "zoom",
+            showProgress: true,
+            onFinish: this.handleSplashScreenFinish
+        });
+        
+        return splashScreen.render();
+    }
+    
+    function renderPage() {
+        var page;
+        
+        switch (this.state.currentPage) {
+            case "home":
+                page = new HomePage();
+                break;
+            case "about":
+                page = new AboutPage();
+                break;
+            case "tutorials":
+                page = new TutorialsPage();
+                break;
+            case "feedback":
+                page = new FeedbackPage();
+                break;
+            default:
+                page = new HomePage();
+                break;
+        }
+        
+        return page.render();
+    }
+    
+    function render() {
+        // Create the component
+        var mainApp = switch.component("MainApp", {
+            title: this.state.title,
+            currentPage: this.state.currentPage
+        });
+        
+        // Create the layout component
+        var layout = new Layout({
+            title: this.state.title,
+            currentPage: this.state.currentPage,
+            children: this.renderPage()
+        });
+        
+        // Return the HTML
+        return `
+            ${this.renderSplashScreen()}
+            ${layout.render()}
+        `;
+    }
+}
+
+// Export the component
+export MainApp;
